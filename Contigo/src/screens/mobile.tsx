@@ -984,6 +984,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
 
   const suggestedActivities = ['Tomar un café juntos', 'Dar una caminata corta']
   const meetingOptions = [...suggestedActivities, ...myActivities]
+  const linkedContactWhatsApp = '573000000001'
 
   const prepareMeetingMessage = () => {
     if (!selectedMeeting) return
@@ -993,6 +994,8 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
   }
 
   const sendMeetingMessage = () => {
+    const whatsappUrl = `https://wa.me/${linkedContactWhatsApp}?text=${encodeURIComponent(meetingMessage)}`
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
     setShowMeetingConfirm(false)
     setShowMeetingComposer(false)
     setMeetingSent(true)
@@ -1163,7 +1166,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
           {meetingSent && (
             <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, backgroundColor: '#E8F4EE', color: C.success, borderRadius: 10, padding: '10px 12px' }}>
               <span style={{ display: 'flex' }}>{Ic.checkCircle}</span>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Invitación enviada a Mamá.</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Mensaje preparado para Mamá en WhatsApp.</span>
             </div>
           )}
         </Card>
@@ -1266,13 +1269,13 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
       {/* Explicit confirmation before sending */}
       <Modal open={showMeetingConfirm} onClose={() => setShowMeetingConfirm(false)} title="¿Enviar esta invitación?">
         <p style={{ fontSize: 14, color: C.body, lineHeight: '20px', marginBottom: 12 }}>
-          El mensaje se enviará directamente a Mamá.
+          Abriremos el chat de Mamá en WhatsApp con el mensaje listo. Tú decidirás cuándo enviarlo.
         </p>
         <div style={{ backgroundColor: C.soft, borderRadius: 12, padding: 14, marginBottom: 18, maxHeight: 150, overflowY: 'auto' }}>
           <p style={{ fontSize: 13, color: C.body, lineHeight: '19px', margin: 0 }}>{meetingMessage}</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="primary" fullWidth icon={Ic.message} onClick={sendMeetingMessage}>Sí, enviar invitación</Btn>
+          <Btn variant="primary" fullWidth icon={Ic.message} onClick={sendMeetingMessage}>Continuar en WhatsApp</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => setShowMeetingConfirm(false)}>Seguir editando</Btn>
         </div>
       </Modal>
