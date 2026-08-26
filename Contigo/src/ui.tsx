@@ -301,21 +301,28 @@ const PCS_TAB_SCREENS: Record<string, number> = {
   perfil: 2,
 }
 
-// ── Floating Support Button (PCS M2–M5, M7–M8; never M1, M6, caregiver, admin) ─
+// ── Floating Support Button (PCS M2–M5 and M8; never M1, M6–M7, caregiver, admin) ─
 
 export function FloatingSupportBtn({ onPress, bottom = 64 }: { onPress: () => void; bottom?: number }) {
   return (
     <button
+      type="button"
+      className="floating-support-button"
       onClick={onPress}
+      aria-label="Necesito apoyo ahora"
       style={{
-        position: 'absolute', left: 20, right: 20, bottom, zIndex: 40,
-        backgroundColor: C.brand, color: '#fff',
-        border: 'none', borderRadius: 14, height: 52,
+        position: 'absolute', right: 18, bottom, zIndex: 40,
+        backgroundColor: C.brandSoft, color: C.brand,
+        border: '1px solid rgba(36,107,100,0.16)', borderRadius: 18, height: 58,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+        padding: '0 20px 0 12px', maxWidth: 'calc(100% - 36px)',
         fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-        boxShadow: '0 6px 24px rgba(36,107,100,0.35)',
+        boxShadow: '0 10px 28px rgba(23,52,58,0.24), 0 3px 8px rgba(36,107,100,0.18)',
       }}>
-      <span style={{ display: 'flex' }}>{Ic.shield}</span>
+      <span style={{
+        width: 36, height: 36, borderRadius: 12, backgroundColor: C.brand, color: '#fff',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      }}>{Ic.heart}</span>
       Necesito apoyo ahora
     </button>
   )

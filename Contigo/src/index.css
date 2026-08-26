@@ -11,6 +11,27 @@ body {
 * { scrollbar-width: none; box-sizing: border-box; }
 *::-webkit-scrollbar { display: none; }
 
+.floating-support-button {
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.floating-support-button:hover {
+  background-color: #CBE4DF !important;
+  box-shadow: 0 13px 32px rgba(23,52,58,0.28), 0 4px 10px rgba(36,107,100,0.2) !important;
+  transform: translateY(-2px);
+}
+
+.floating-support-button:active {
+  box-shadow: 0 6px 16px rgba(23,52,58,0.22) !important;
+  transform: translateY(0) scale(0.98);
+}
+
+.floating-support-button:focus-visible {
+  outline: 3px solid rgba(47,125,115,0.34);
+  outline-offset: 3px;
+}
+
 @keyframes breathe {
   0%, 100% { transform: scale(1); opacity: 0.55; }
   50% { transform: scale(1.44); opacity: 0.88; }

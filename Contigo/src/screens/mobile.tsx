@@ -638,7 +638,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
         </div>
       </div>
 
-      <FloatingSupportBtn onPress={() => navigate(6)} bottom={90} />
+      <FloatingSupportBtn onPress={() => navigate(6)} bottom={124} />
 
       {/* Sticky button */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 20px 40px', backgroundColor: C.surface, borderTop: `1px solid ${C.border}` }}>
@@ -956,7 +956,6 @@ export function MobileScreen07({ navigate }: { navigate: (n: number) => void }) 
         </div>
       </div>
 
-      <FloatingSupportBtn onPress={() => navigate(6)} bottom={20} />
     </div>
   )
 }
@@ -975,6 +974,29 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
   const [myActivities, setMyActivities] = useState<string[]>(['Proponer una llamada corta'])
   const [showNewActivity, setShowNewActivity] = useState(false)
   const [newActivityText, setNewActivityText] = useState('')
+
+  // Schedule an in-person meeting
+  const [selectedMeeting, setSelectedMeeting] = useState('')
+  const [showMeetingComposer, setShowMeetingComposer] = useState(false)
+  const [showMeetingConfirm, setShowMeetingConfirm] = useState(false)
+  const [meetingMessage, setMeetingMessage] = useState('')
+  const [meetingSent, setMeetingSent] = useState(false)
+
+  const suggestedActivities = ['Tomar un café juntos', 'Dar una caminata corta']
+  const meetingOptions = [...suggestedActivities, ...myActivities]
+
+  const prepareMeetingMessage = () => {
+    if (!selectedMeeting) return
+    setMeetingSent(false)
+    setMeetingMessage(`Hola Mamá, me gustaría que programáramos un espacio para ${selectedMeeting.toLowerCase()}. ¿Te gustaría? Podemos acordar el momento que nos funcione. Si ahora no puedes, está bien.`)
+    setShowMeetingComposer(true)
+  }
+
+  const sendMeetingMessage = () => {
+    setShowMeetingConfirm(false)
+    setShowMeetingComposer(false)
+    setMeetingSent(true)
+  }
 
   const generateDraft = () => {
     setAiLoading(true)
@@ -1047,7 +1069,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
 
           <p style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Sugeridas por el equipo</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-            {['Tomar un café juntos', 'Dar una caminata corta'].map((act, i) => (
+            {suggestedActivities.map((act, i) => (
               <div key={i} style={{ backgroundColor: C.soft, borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 14, color: C.body, flex: 1 }}>{act}</span>
                 <span style={{ fontSize: 10, color: C.muted, fontStyle: 'italic' }}>Contenido por validar</span>
@@ -1060,7 +1082,10 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
             <div key={i} style={{ backgroundColor: C.surface, borderRadius: 12, border: `1px solid ${C.border}`, padding: '12px 14px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 14, color: C.body, flex: 1 }}>{act}</span>
               <button
-                onClick={() => setMyActivities(a => a.filter((_, idx) => idx !== i))}
+                onClick={() => {
+                  setMyActivities(a => a.filter((_, idx) => idx !== i))
+                  if (selectedMeeting === act) setSelectedMeeting('')
+                }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.critical, display: 'flex', padding: 4 }}>
                 {Ic.x}
               </button>
@@ -1089,6 +1114,59 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
             </button>
           )}
         </div>
+
+        {/* Schedule an in-person meeting */}
+        <Card style={{ marginTop: 20, borderTop: `4px solid ${C.brand}` }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: C.brandSoft, color: C.brand, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {Ic.calendar}
+            </div>
+            <div>
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: C.heading, margin: '0 0 4px' }}>Programar un encuentro</h3>
+              <p style={{ fontSize: 13, color: C.muted, lineHeight: '18px', margin: 0 }}>Elige una actividad y prepara una invitación para Mamá.</p>
+            </div>
+          </div>
+
+          <label htmlFor="meeting-activity" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: C.heading, marginBottom: 7 }}>
+            ¿Qué espacio quieres proponer?
+          </label>
+          <div style={{ position: 'relative', marginBottom: 12 }}>
+            <select
+              id="meeting-activity"
+              value={selectedMeeting}
+              onChange={e => { setSelectedMeeting(e.target.value); setMeetingSent(false) }}
+              style={{
+                width: '100%', appearance: 'none', padding: '13px 42px 13px 14px',
+                borderRadius: 12, border: `1.5px solid ${selectedMeeting ? C.brand : C.border}`,
+                backgroundColor: C.surface, color: selectedMeeting ? C.body : C.muted,
+                fontSize: 14, fontFamily: 'inherit', outline: 'none', cursor: 'pointer',
+              }}>
+              <option value="">Selecciona una actividad</option>
+              {meetingOptions.map((activity, i) => <option key={`${activity}-${i}`} value={activity}>{activity}</option>)}
+            </select>
+            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: C.muted, display: 'flex', pointerEvents: 'none' }}>{Ic.chevDown}</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, backgroundColor: C.soft, borderRadius: 12, padding: '10px 12px', marginBottom: 14 }}>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', backgroundColor: C.surface, color: C.brand, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Ic.user}</div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Enviar a</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: C.heading, margin: 0 }}>Mamá</p>
+            </div>
+            <StatusChip label="Contacto de confianza" variant="ok" />
+          </div>
+
+          <Btn variant="primary" fullWidth icon={Ic.message} disabled={!selectedMeeting} onClick={prepareMeetingMessage}>
+            Preparar mensaje
+          </Btn>
+
+          {meetingSent && (
+            <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, backgroundColor: '#E8F4EE', color: C.success, borderRadius: 10, padding: '10px 12px' }}>
+              <span style={{ display: 'flex' }}>{Ic.checkCircle}</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Invitación enviada a Mamá.</span>
+            </div>
+          )}
+        </Card>
 
         <button
           onClick={() => navigate(2)}
@@ -1160,6 +1238,44 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
           </>
         )}
       </BottomSheet>
+
+      {/* Meeting invitation composer */}
+      <BottomSheet open={showMeetingComposer} onClose={() => setShowMeetingComposer(false)} title="Invitar a Mamá">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, backgroundColor: C.soft, borderRadius: 12, padding: '11px 12px', marginBottom: 16 }}>
+          <span style={{ display: 'flex', color: C.brand }}>{Ic.calendar}</span>
+          <div>
+            <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Actividad elegida</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: C.heading, margin: 0 }}>{selectedMeeting}</p>
+          </div>
+        </div>
+        <TextArea
+          label="Mensaje para Mamá"
+          value={meetingMessage}
+          onChange={setMeetingMessage}
+          helper="Puedes modificar la invitación antes de enviarla."
+        />
+        <div style={{ marginTop: 14 }}>
+          <PrivacyNote text="El mensaje solo se enviará cuando lo confirmes. Tú controlas cada paso." />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+          <Btn variant="primary" fullWidth icon={Ic.message} disabled={!meetingMessage.trim()} onClick={() => setShowMeetingConfirm(true)}>Enviar a Mamá</Btn>
+          <Btn variant="tertiary" fullWidth onClick={() => setShowMeetingComposer(false)}>Cancelar</Btn>
+        </div>
+      </BottomSheet>
+
+      {/* Explicit confirmation before sending */}
+      <Modal open={showMeetingConfirm} onClose={() => setShowMeetingConfirm(false)} title="¿Enviar esta invitación?">
+        <p style={{ fontSize: 14, color: C.body, lineHeight: '20px', marginBottom: 12 }}>
+          El mensaje se enviará directamente a Mamá.
+        </p>
+        <div style={{ backgroundColor: C.soft, borderRadius: 12, padding: 14, marginBottom: 18, maxHeight: 150, overflowY: 'auto' }}>
+          <p style={{ fontSize: 13, color: C.body, lineHeight: '19px', margin: 0 }}>{meetingMessage}</p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <Btn variant="primary" fullWidth icon={Ic.message} onClick={sendMeetingMessage}>Sí, enviar invitación</Btn>
+          <Btn variant="tertiary" fullWidth onClick={() => setShowMeetingConfirm(false)}>Seguir editando</Btn>
+        </div>
+      </Modal>
     </div>
   )
 }
