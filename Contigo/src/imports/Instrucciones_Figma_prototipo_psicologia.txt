@@ -1,0 +1,613 @@
+FIGMA DESIGN BRIEF — “CONTIGO”
+High-fidelity psychology and crisis-support application prototype
+
+IMPORTANT LANGUAGE RULE
+
+Write the design instructions and layer names in English if useful for Figma, but ALL visible interface copy must be in natural, warm Spanish appropriate for Colombia. Use “Contigo” only as a temporary, easily replaceable working name for the application. Do not invent, rewrite, or clinically interpret any questionnaire content marked as pending validation.
+
+PROJECT GOAL
+
+Design a highly polished, interactive, high-fidelity prototype for an application that supports people with suicidal ideation or suicidal behavior (PCS), their informal caregivers, and a researcher/administrator.
+
+The application is not a game, social network, diagnostic tool, or substitute for professional or emergency care. Its interface should help users complete daily check-ins, prepare and use a safety plan, access coping tools, reconnect with trusted people, and receive support with the lowest possible cognitive load.
+
+Create exactly 15 primary frames:
+
+- 12 mobile frames at 390 x 844 px for PCS and informal caregivers.
+- 3 desktop web frames at 1440 x 1024 px for the researcher/administrator.
+- Also create the modal, bottom-sheet, toast, loading, empty, error, disabled, selected, completed, and confirmation states described below as component variants or overlays. These overlays do not count as additional primary frames.
+
+The result must be a real, connected Figma prototype, not a wireframe. Use Auto Layout, reusable components, component properties and variants, variables/design tokens, consistent naming, and realistic prototype connections.
+
+ETHICAL AND EMOTIONAL DESIGN PRINCIPLES
+
+1. Create a calm, safe, respectful, private, and nonjudgmental experience.
+2. Do not use RPG mechanics, XP, streak pressure, rankings, badges, trophies, confetti, celebratory language, or gamified rewards.
+3. Do not use guilt, urgency manipulation, countdowns, punitive error messages, or language such as “fallaste”, “rompiste tu racha”, or “debes hacerlo”.
+4. Always provide a low-pressure exit such as “Ahora no”, “Volver más tarde”, or “No puedo hacer esto en este momento”.
+5. Never show the PCS a clinical classification such as “riesgo alto” or an algorithmic prediction. Translate system responses into clear support choices. Risk classifications may only appear in the authorized administrator area.
+6. Do not portray distressed people, self-harm, weapons, medication, heights, injuries, blood, or emergency imagery. Use abstract organic shapes, subtle botanical line art, and neutral supportive illustrations.
+7. Avoid large red surfaces and alarm-style visuals. Reserve a muted brick color for critical actions only, always paired with an icon and clear text.
+8. Use private and discreet notification wording. A lock-screen notification should say “Tienes un momento para ti” rather than mention suicide, risk, EMA, or a safety plan.
+9. Do not include public profiles, followers, likes, comments, public activity, or social-media sharing.
+10. Use fictitious names, pseudonymous participant IDs, and synthetic data throughout the prototype. Do not display real patient information.
+11. Keep emergency and professional-help actions available, but do not hard-code a telephone number. Use labels such as “Llamar a emergencias” and “Línea de ayuda configurada”; final numbers must be supplied and validated by the clinical/research team.
+12. Make the PCS safety plan available offline. Show this discreetly as “Disponible sin conexión”.
+
+VISUAL DIRECTION
+
+Create a modern, human, calm healthcare aesthetic. It should feel trustworthy and warm without looking childish, institutional, cold, or overly clinical. Prefer clear hierarchy, generous breathing room, rounded cards, soft surfaces, and restrained organic illustration.
+
+Use a light theme for this first prototype because it improves legibility and reduces visual heaviness during emotionally demanding moments. Do not create a dark-mode-first design.
+
+COLOR TOKENS
+
+- Canvas / page background: #F5F8F7
+- Primary surface: #FFFFFF
+- Secondary soft surface: #EAF2F0
+- Primary brand teal: #246B64
+- Primary hover/pressed: #1C554F
+- Soft selected teal: #D7EAE6
+- Deep heading color: #17343A
+- Primary body text: #26383D
+- Secondary text: #64757A
+- Subtle border: #D7E1DF
+- Supportive blue: #4C6F8A
+- Warm accent: #D9A85F
+- Success: #3E7657
+- Critical action only: #A94747
+- Critical soft surface: #F8E9E7
+- Focus ring: #2F7D73 with a clearly visible 3 px outline
+
+All text and interactive controls must meet WCAG AA contrast. Never communicate status through color alone. Pair every state with text and/or an icon.
+
+TYPOGRAPHY
+
+Use Inter, SF Pro, or another highly legible modern sans-serif. Do not use decorative, handwritten, rounded-childlike, or gaming fonts.
+
+- Mobile display heading: 28 px / 34 px, semibold
+- Mobile page title: 24 px / 30 px, semibold
+- Section heading: 18 px / 24 px, semibold
+- Body: 16 px / 24 px, regular
+- Secondary/supporting text: 14 px / 20 px
+- Button: 16 px / 20 px, semibold
+- Desktop data text: minimum 14 px
+
+Allow text resizing and avoid fixed-height containers for body copy.
+
+LAYOUT AND COMPONENT STYLE
+
+- Use an 8 px spacing system.
+- Mobile horizontal padding: 20 px.
+- Mobile safe areas: approximately 47 px top and 34 px bottom.
+- Desktop content grid: 12 columns, 32 px gutters, maximum content width around 1280 px.
+- Standard card radius: 16 px.
+- Large supportive card radius: 20 px.
+- Button radius: 12 px.
+- Pill radius: 999 px.
+- Minimum touch target: 48 x 48 px.
+- Primary buttons should generally be 52–56 px high and full width on mobile.
+- Use subtle shadows only: approximately 0 4 16 rgba(23, 52, 58, 0.08).
+- Use thin borders and surface color changes instead of heavy shadows.
+- Use simple premium outline icons with rounded terminals, consistent 2 px strokes, and text labels.
+- Do not use emoji as functional icons.
+- Use restrained abstract botanical illustrations and soft organic shapes as accents, never as the main information carrier.
+
+MOBILE NAVIGATION SYSTEM
+
+PCS mobile bottom navigation:
+
+- “Inicio”
+- “Mi plan”
+- “Acompañamiento”
+- “Perfil”
+
+Add a persistent, visually distinct but calm action above the navigation labeled “Necesito apoyo ahora”. It must be reachable from every authenticated PCS frame and open Mobile Screen 6.
+
+Caregiver mobile bottom navigation:
+
+- “Inicio”
+- “Mensajes”
+- “Plan de apoyo”
+- “Registro”
+- “Perfil”
+
+Do not mix PCS and caregiver navigation. The account role determines which navigation system appears.
+
+MOBILE SCREEN 1 — ACTIVATE OR CLAIM ACCOUNT
+
+Purpose: allow a PCS or invited caregiver to activate a pre-created account without exposing unnecessary sensitive information.
+
+Create a calm welcome screen with the working logo “Contigo”, a short line of copy, and a simple activation form.
+
+Visible copy:
+
+- Heading: “Activa tu cuenta”
+- Supporting text: “Ingresa el código que recibiste para empezar de forma segura.”
+- Input label: “Código de activación”
+- Primary button: “Continuar”
+- Secondary text link: “Necesito ayuda con mi código”
+- Privacy note with lock icon: “Tu información es privada y solo se usa para brindarte el acompañamiento autorizado.”
+
+Create component variants for PCS and caregiver activation. After the code is validated, reveal only the minimum profile fields required by the assigned role. For the caregiver variant include: name, age, relationship, contact number, caregiver username, PCS identifier, and the nickname used for the PCS. Do not ask for a diagnosis on this screen.
+
+Interaction:
+
+- Valid PCS code → Mobile Screen 2.
+- Valid caregiver invitation → Mobile Screen 9.
+- Invalid or expired code → inline error that says “No pudimos validar el código. Revísalo o solicita ayuda.” Do not erase the entered value.
+
+MOBILE SCREEN 2 — PCS HOME
+
+Purpose: provide a low-friction overview and immediate access to support without overwhelming the user.
+
+Top area:
+
+- Greeting: “Hola, [Nombre]”
+- Supporting text: “¿Qué necesitas en este momento?”
+- Small discreet profile/avatar button.
+
+Create one large primary supportive card:
+
+- Title: “Estoy aquí contigo”
+- Body: “Podemos ir paso a paso. Elige la opción que te resulte más posible ahora.”
+- Primary button: “Necesito apoyo ahora” → Mobile Screen 6.
+
+Below it, create three clear action cards:
+
+1. “Registro de hoy” with status “Pendiente” and button “Completar ahora” → Mobile Screen 3.
+2. “Mi plan de seguridad” with status “Disponible sin conexión” and button “Ver mi plan” → Mobile Screen 5.
+3. “Conectar con alguien” with supporting text “Mensajes y formas sencillas de acercarte” and button “Ver opciones” → Mobile Screen 8.
+
+Add a small private widget titled “Cerca de ti” showing one recent caring-contact message and one neutral thumbnail sent by a caregiver. The preview must not reveal sensitive information in a way that would be visible at a distance.
+
+Add an overflow action “Invitar a una persona cercana”. Open a bottom-sheet overlay with contact method, invitation preview, privacy explanation, and a final “Enviar invitación” confirmation. Do not send automatically.
+
+MOBILE SCREEN 3 — DAILY EMA CHECK-IN
+
+Purpose: let the PCS answer the daily three-question check-in with minimum effort and without introducing unvalidated clinical wording.
+
+Visible copy:
+
+- Back action: “Salir y continuar después”
+- Heading: “¿Cómo estás hoy?”
+- Supporting text: “Son 3 preguntas. Tus respuestas son privadas.”
+- Progress indicator: “Pregunta 1 de 3” with a simple progress bar.
+
+Use one question per viewport/state. Build three interactive variants inside the same primary frame and connect them with “Siguiente”. Use large, clearly labeled response options and selected states.
+
+Use these exact placeholders until the research team provides validated wording:
+
+- “[[PREGUNTA EMA 1 — TEXTO CLÍNICO POR VALIDAR]]”
+- “[[PREGUNTA EMA 2 — TEXTO CLÍNICO POR VALIDAR]]”
+- “[[PREGUNTA EMA 3 — TEXTO CLÍNICO POR VALIDAR]]”
+- “[[ESCALA Y ETIQUETAS DE RESPUESTA POR VALIDAR]]”
+
+Do not invent clinical questions, thresholds, or interpretations.
+
+Buttons:
+
+- Primary: “Siguiente” / final state “Enviar respuestas”
+- Secondary: “Prefiero responder después”
+
+Interaction:
+
+- Submit → Mobile Screen 4.
+- Leaving before completion → save-draft confirmation overlay with “Guardar y salir” and “Seguir respondiendo”.
+
+MOBILE SCREEN 4 — CHECK-IN RESPONSE AND SUPPORT ROUTING
+
+Purpose: acknowledge the report and offer appropriate next steps without exposing a clinical risk label.
+
+Design a calm confirmation state, not a celebration.
+
+Visible copy:
+
+- Heading: “Gracias por contarnos cómo estás”
+- Body: “No tienes que resolver todo ahora. Podemos elegir un siguiente paso.”
+
+Create four large support actions:
+
+1. “Abrir mi plan de seguridad” → Mobile Screen 6.
+2. “Contactar a [Apodo]” → contact-choice bottom sheet.
+3. “Llamar a una línea de ayuda” → confirmation bottom sheet.
+4. “Volver al inicio” → Mobile Screen 2.
+
+Create three hidden component variants for neutral, increased-support, and urgent-support routing. Only the authorized system state changes the order and emphasis of actions. The PCS-facing copy must never say “riesgo bajo/medio/alto”.
+
+For the urgent-support variant, place “Busquemos apoyo ahora” at the top and emphasize professional help, but keep the visual tone calm. Include a critical action “Llamar a emergencias” using the muted brick token, an emergency-phone icon, and a confirmation step to avoid accidental calls.
+
+MOBILE SCREEN 5 — SAFETY PLAN OVERVIEW AND EDITOR
+
+Purpose: allow the PCS to prepare, review, and update the information needed during a crisis.
+
+Visible copy:
+
+- Heading: “Mi plan de seguridad”
+- Supporting text: “Prepáralo cuando tengas calma. Podrás consultarlo incluso sin conexión.”
+- Status: “Última actualización: [fecha]”
+
+Present the plan as six numbered, expandable cards:
+
+1. “Señales y situaciones que reconozco”
+2. “Lo que puedo hacer por mi cuenta”
+3. “Personas y lugares que pueden acompañarme”
+4. “Personas a quienes puedo pedir ayuda”
+5. “Ayuda profesional y líneas de atención”
+6. “Cómo hacer mi entorno más seguro”
+
+Each card must show a concise completion status such as “Completo”, “Falta información”, or “Sin empezar”, always with text and icon.
+
+Buttons:
+
+- Primary sticky button: “Usar mi plan ahora” → Mobile Screen 6.
+- Inline action on every card: “Editar”.
+
+The “Editar” action opens a full-height bottom sheet with structured fields, optional examples, “Guardar cambios”, “Cancelar”, autosave feedback, and a non-destructive delete confirmation. Include a separate skill picker containing the names “SELF SOOTHE”, “IMPROVE the moment”, “TIPP”, and “Pros y contras”, but label all technique descriptions “Contenido clínico por validar”.
+
+MOBILE SCREEN 6 — CRISIS MODE / USE SAFETY PLAN
+
+Purpose: guide the PCS through the safety plan one manageable step at a time during a crisis.
+
+This must be the lowest-cognitive-load screen in the entire product. Remove standard bottom navigation while crisis mode is active. Keep only a close/back action with confirmation and the persistent professional-help action.
+
+Top area:
+
+- Heading: “Estás aquí. Vamos paso a paso.”
+- Supporting text: “No tienes que hacerlo todo. Empecemos por una opción.”
+- Progress text such as “Paso 2 de 6”, but no countdown and no competitive progress treatment.
+
+Show only one large action card at a time. For the prototype, make the active card:
+
+- Title: “Prueba una habilidad que elegiste”
+- Selected skill: “Respiración pausada”
+- Support text: “Ve a tu ritmo. Puedes detenerte cuando lo necesites.”
+- Primary button: “Abrir esta habilidad” → Mobile Screen 7.
+- Secondary button: “Elegir otra opción”.
+- Tertiary action: “No puedo hacer esto ahora”. Move gently to the next plan step without guilt.
+
+Add a persistent bottom action group:
+
+- “Contactar a [Apodo]”
+- “Línea de ayuda configurada”
+- Critical action: “Llamar a emergencias”
+
+Phone and messaging actions must open confirmation sheets first. Include cancel, calling, connection error, and no-network states. Never leave the user at a dead end; the offline safety plan must remain available.
+
+MOBILE SCREEN 7 — COPING SKILL DETAIL
+
+Purpose: present one selected coping or distress-tolerance tool without overload.
+
+Visible copy:
+
+- Back: “Volver a mi plan”
+- Heading: “Respiración pausada”
+- Body placeholder: “[[INSTRUCCIONES CLÍNICAS BREVES POR VALIDAR]]”
+- Reassurance: “Puedes detenerte o elegir otra opción cuando quieras.”
+
+Create a large, slow, subtle breathing visual using an expanding organic circle. Include “Reducir movimiento” and an accessible nonanimated version. Do not use a mandatory timer. If an optional duration control is included, use “1 minuto”, “2 minutos”, and “Sin tiempo”.
+
+Buttons:
+
+- Primary: “Terminé por ahora” → return to the current state of Mobile Screen 6.
+- Secondary: “Probar otra habilidad”.
+- Tertiary: “Contactar a alguien”.
+
+MOBILE SCREEN 8 — CONNECTION AND JITAI SUPPORT
+
+Purpose: respond to a low-connection prompt with options that preserve autonomy and avoid social pressure.
+
+Use discreet, warm copy:
+
+- Heading: “¿Te serviría sentirte acompañado/a?”
+- Body: “Puedes elegir una forma pequeña de acercarte. También puedes hacerlo después.”
+
+Create four option cards:
+
+1. “Ver un mensaje de [Apodo]” — opens a saved caring contact in a private modal.
+2. “Ayúdame a escribirle” — opens a guided message composer.
+3. “Proponer un encuentro” — opens a bottom sheet with preconfigured activity suggestions.
+4. “Ahora no” — dismisses and returns to Mobile Screen 2 without penalty.
+
+The guided composer should include a neutral example, editable text, and buttons “Copiar mensaje” and “Abrir en WhatsApp”. Show a confirmation before leaving the app and make clear that nothing is sent until the user confirms in WhatsApp.
+
+Include a discreet notification-preview variant with the lock-screen-safe title “Tienes un momento para ti”.
+
+MOBILE SCREEN 9 — CAREGIVER HOME
+
+Purpose: give the informal caregiver simple, actionable ways to support the linked PCS without exposing unnecessary clinical data.
+
+Top area:
+
+- Greeting: “Hola, [Nombre del cuidador]”
+- Heading: “Acompañar a [Apodo]”
+- Supporting text: “Aquí tienes formas sencillas de estar cerca.”
+
+Create four action cards:
+
+1. “Preparar un mensaje cercano” → Mobile Screen 10.
+2. “Ver plan de apoyo” → Mobile Screen 11.
+3. “Registrar contacto de hoy” with status “Pendiente” → Mobile Screen 12.
+4. “Aprender a acercarme” with topics “Conexión social”, “Validación”, “Toma de perspectiva” and “Valores”. Open a content-preview bottom sheet rather than a new primary frame.
+
+Do not show the PCS raw ideation score, risk prediction, or detailed EMA answers on the caregiver home screen.
+
+Include a settings action “Desvincular mi cuenta”. Open a serious confirmation modal explaining what access will be lost, with “Cancelar” as the primary safe action and “Desvincularme” as the muted critical action.
+
+MOBILE SCREEN 10 — CREATE A CARING CONTACT
+
+Purpose: help the caregiver prepare a brief, authentic, pressure-free message that the PCS can access when support may be useful.
+
+Visible copy:
+
+- Heading: “Un mensaje para [Apodo]”
+- Body: “Escribe algo cercano, breve y sin exigir una respuesta.”
+- Helper chips: “Recordarle que estás”, “Compartir un recuerdo”, “Ofrecer compañía”
+- Text-area placeholder: “Por ejemplo: Pensé en ti y quería recordarte que estoy aquí. No tienes que responder ahora.”
+- Character guidance, not a restrictive countdown: “Los mensajes breves suelen ser más fáciles de recibir.”
+
+Add a private preview card showing exactly how the PCS will see the message.
+
+Buttons:
+
+- Primary: “Guardar mensaje” → success toast and Mobile Screen 9.
+- Secondary: “Guardar como borrador”.
+- Tertiary: “Cancelar”.
+
+Add a short privacy note explaining that the message is stored for the linked PCS and is not posted publicly.
+
+MOBILE SCREEN 11 — CAREGIVER VIEW OF SAFETY PLAN
+
+Purpose: allow the caregiver to consult the authorized parts of the PCS safety plan and respond during a crisis.
+
+Clearly show a badge “Solo lectura” and “Actualizado por [Apodo] el [fecha]”. The caregiver must not be able to edit the PCS plan.
+
+Use three priority sections:
+
+1. “Qué puede ayudarle ahora” — selected coping skills.
+2. “A quién contactar” — trusted people and professional support.
+3. “Cómo ayudar a mantener un entorno seguro” — checklist supplied by the clinical team.
+
+Add a calm callout:
+
+- Title: “Si hay peligro inmediato”
+- Body: “Sigue el protocolo indicado por el equipo responsable.”
+- Critical action: “Llamar a emergencias”.
+
+Add a primary action “Acompañar paso a paso” that changes the cards into a focused checklist mode. Include completion checkmarks but no score or celebration.
+
+MOBILE SCREEN 12 — CAREGIVER DAILY INTERACTION CHECK-IN
+
+Purpose: record daily contact and, when applicable, a more detailed interaction assessment.
+
+Visible copy:
+
+- Heading: “Contacto de hoy”
+- Supporting text: “Este registro toma cerca de un minuto.”
+
+Create the following form in a comfortable vertically scrolling layout:
+
+1. “¿Tuviste contacto con [Apodo] hoy?” — “Sí”, “No”, “Prefiero no responder”.
+2. If “Sí”: “¿Cómo calificarías la calidad de la interacción?” — accessible labeled scale.
+3. “¿Quién inició el contacto?” — “Yo”, “[Apodo]”, “Ambos”.
+4. Optional expanded assessment with agreement scales for:
+   - “Me sentí cómodo/a compartiendo cosas personales.”
+   - “Me sentí cómodo/a hablando de temas importantes.”
+   - “Pude mostrar mis sentimientos y actuar con naturalidad.”
+
+Buttons:
+
+- Primary: “Guardar registro” → confirmation state and Mobile Screen 9.
+- Secondary: “Completar después”.
+
+Use supportive completion copy: “Registro guardado. Gracias por dedicar este momento.” Do not award points or streaks.
+
+DESKTOP ADMIN NAVIGATION
+
+Use a desktop side navigation with:
+
+- “Resumen”
+- “Participantes”
+- “Cuentas y vínculos”
+- “Registros EMA”
+- “Planes de seguridad”
+- “Auditoría”
+- “Configuración”
+
+Use participant IDs or approved pseudonyms by default. Full identifying data should be hidden or revealed only through an explicit authorized action.
+
+DESKTOP SCREEN 13 — RESEARCHER/ADMIN DASHBOARD
+
+Purpose: provide an operational overview without turning sensitive mental-health information into a visually sensational alarm dashboard.
+
+Top bar:
+
+- Page title: “Resumen del estudio”
+- Date-range selector.
+- Role and session-security indicator.
+- Primary action: “Crear participante” → account-creation modal or Desktop Screen 15.
+
+Create four restrained summary cards:
+
+- “Participantes activos”
+- “Registros EMA de hoy”
+- “Planes de seguridad completos”
+- “Vínculos con cuidadores”
+
+Below, create a participant-status table using synthetic data with columns:
+
+- ID participante
+- Último registro EMA
+- Adherencia
+- Plan de seguridad
+- Cuidador vinculado
+- Estado de revisión
+- Acción “Ver detalle”
+
+Use calm status chips with icons and text. A support-required state may use the critical soft surface, but never a flashing, pulsing, or saturated-red treatment.
+
+Add a small trend chart titled “Diligenciamiento EMA — últimos 14 días”. This chart represents completion/adherence, not a clinical diagnosis.
+
+Interaction:
+
+- “Ver detalle” → Desktop Screen 14.
+- “Crear participante” → Desktop Screen 15 or its creation modal state.
+
+DESKTOP SCREEN 14 — PARTICIPANT DETAIL AND AUTHORIZED REVIEW
+
+Purpose: let the authorized administrator review one participant’s research records, safety-plan status, caregiver linkage, and crisis protocol actions.
+
+Header:
+
+- “Participante PCS-024”
+- Access/privacy label: “Información sensible — acceso registrado”
+- Linked caregiver status.
+- Last update timestamp.
+
+Use tabs:
+
+- “Resumen”
+- “EMA”
+- “Plan de seguridad”
+- “Cuidador”
+- “Historial de acceso”
+
+In the Summary tab include:
+
+- A synthetic EMA trend chart with clear axes and accessible legend.
+- Daily completion history.
+- Safety-plan completion status.
+- Caregiver interaction-log summary.
+- A chronological activity timeline.
+
+Provide a button “Ver plan de seguridad” that opens a right-side drawer. Provide a critical button “Activar protocolo de crisis” only for authorized roles. It must open a confirmation modal that shows the participant ID, requires selecting a reason, explains that the action is logged, and offers “Cancelar” and “Confirmar activación”. Do not simulate an automatic emergency call.
+
+Do not create clinical thresholds or label synthetic chart values unless these are explicitly marked “Valores de demostración — reglas por validar”.
+
+DESKTOP SCREEN 15 — ACCOUNT AND LINK MANAGEMENT
+
+Purpose: create participant records, issue account-claim codes, link invited caregivers, and unlink records safely.
+
+Create two main panels:
+
+1. “Crear participante”
+   - Participant study ID.
+   - Minimal required profile fields.
+   - Button “Crear cuenta y generar código”.
+   - Success state showing a copyable activation code and “Enviar invitación” action.
+
+2. “Vínculos PCS–cuidador”
+   - Search field.
+   - Table showing PCS ID, caregiver username, relationship, link date, and status.
+   - Actions “Ver” and “Desvincular”.
+
+“Desvincular” must open a confirmation modal that clearly identifies both records, explains the impact on caregiver access, requires an optional administrative note, and uses “Cancelar” as the primary safe action. After confirmation, show a toast with “Vínculo eliminado” and an “Deshacer” action when technically possible.
+
+Add an audit-history panel containing actor, action, date/time, and participant ID. Use synthetic data.
+
+REUSABLE COMPONENTS TO BUILD
+
+Create reusable components and variants for:
+
+- Mobile top bar and desktop top bar.
+- PCS and caregiver bottom navigation.
+- Persistent “Necesito apoyo ahora” action.
+- Primary, secondary, tertiary, destructive, icon-only, loading, disabled, pressed, and focus button states.
+- Text fields, code input, text area, search, password/secure input, helper text, error, and success states.
+- Cards: supportive hero, action card, plan step, caregiver action, data summary, and read-only card.
+- Status chips with icon and text.
+- Progress bar and question progress.
+- Likert-scale control with text labels.
+- Contact row with call and message actions.
+- Safety-plan step card with complete, partial, empty, active, and read-only variants.
+- Modal, bottom sheet, right-side desktop drawer, toast, tooltip, and confirmation dialog.
+- EMA chart, adherence chart, accessible legend, and empty-data state.
+- Table rows with default, hover, selected, flagged, loading, and empty states.
+- Skeleton loading, offline banner, recoverable-error message, and retry state.
+
+PROTOTYPE CONNECTIONS
+
+Create real prototype interactions for these flows:
+
+PCS account and daily flow:
+
+- Mobile 1 “Continuar” with valid PCS code → Mobile 2.
+- Mobile 2 “Completar ahora” → Mobile 3.
+- Mobile 3 question states progress from 1 to 3.
+- Mobile 3 “Enviar respuestas” → Mobile 4.
+- Mobile 4 “Volver al inicio” → Mobile 2.
+
+PCS safety flow:
+
+- Persistent “Necesito apoyo ahora” from any PCS screen → Mobile 6.
+- Mobile 2 “Ver mi plan” → Mobile 5.
+- Mobile 5 “Usar mi plan ahora” → Mobile 6.
+- Mobile 6 “Abrir esta habilidad” → Mobile 7.
+- Mobile 7 “Terminé por ahora” → Mobile 6 with the current step marked complete.
+- Mobile 4 “Abrir mi plan de seguridad” → Mobile 6.
+
+PCS connection flow:
+
+- Mobile 2 “Ver opciones” → Mobile 8.
+- Mobile 8 “Ahora no” → Mobile 2.
+- Mobile 8 caring-contact, composer, encounter suggestions, WhatsApp confirmation, and contact-choice actions open overlays.
+
+Caregiver flow:
+
+- Mobile 1 valid caregiver invitation → Mobile 9.
+- Mobile 9 “Preparar un mensaje cercano” → Mobile 10.
+- Mobile 10 “Guardar mensaje” → success toast → Mobile 9.
+- Mobile 9 “Ver plan de apoyo” → Mobile 11.
+- Mobile 9 “Registrar contacto de hoy” → Mobile 12.
+- Mobile 12 “Guardar registro” → confirmation → Mobile 9.
+
+Administrator flow:
+
+- Desktop 13 “Ver detalle” → Desktop 14.
+- Desktop 13 “Crear participante” → Desktop 15 or creation modal.
+- Desktop 14 tabs switch with Smart Animate or dissolve.
+- Desktop 14 “Ver plan de seguridad” → right-side drawer.
+- Desktop 14 “Activar protocolo de crisis” → confirmation modal.
+- Desktop 15 “Desvincular” → confirmation → success toast.
+
+MOTION AND FEEDBACK
+
+- Use subtle 200–300 ms ease-out transitions.
+- Use Smart Animate for progress, card expansion, bottom sheets, and navigation indicators.
+- Avoid bounce, confetti, flashing, shaking, dramatic zooms, or emotionally intense motion.
+- Respect “Reduce motion”; provide dissolve/no-motion variants.
+- Use calm haptic feedback only for explicit completion or critical confirmation, never for pressure.
+- Preserve entered data when navigating back or encountering an error.
+
+ACCESSIBILITY REQUIREMENTS
+
+- WCAG AA color contrast at minimum.
+- Minimum 48 x 48 px touch targets.
+- Visible keyboard focus on desktop.
+- Logical tab order.
+- Screen-reader-friendly labels for every icon and input.
+- Do not use placeholder text as the only field label.
+- Do not rely on color alone for status or selected states.
+- Support text resizing without clipping.
+- Keep critical actions separated from routine actions to prevent accidental taps.
+- Use plain language and short sentences.
+- Provide “Reducir movimiento” for animated coping tools.
+- Charts require text summaries and accessible legends.
+
+CONTENT AND DATA RULES
+
+- Use Spanish from Colombia for all visible copy.
+- Keep the tone warm, direct, respectful, and nonjudgmental.
+- Use “[Nombre]”, “[Apodo]”, “[fecha]”, and “PCS-024” as replaceable synthetic placeholders.
+- Mark all research questionnaires, clinical instructions, scoring rules, thresholds, and crisis-routing logic as pending validation when exact content has not been supplied.
+- Do not invent emergency telephone numbers.
+- Do not claim that the application predicts, diagnoses, prevents, or treats suicide.
+- Do not use real user data in the mockup.
+
+FINAL QUALITY CHECK
+
+The 15 primary frames must look like parts of the same production-ready system while adapting appropriately to each role. The PCS experience must be the simplest and calmest, especially in crisis mode. The caregiver experience must emphasize actionable support without exposing excessive clinical information. The administrator experience must prioritize secure, auditable access and dense-but-readable data management.
+
+Ensure that spacing, typography, iconography, color, corner radius, shadows, navigation, form behavior, empty states, error recovery, permissions, privacy cues, and interaction states remain consistent across the prototype.
+
+Deliver a complete connected high-fidelity Figma prototype with reusable components, Auto Layout, variables, responsive constraints, and clearly named frames and layers.

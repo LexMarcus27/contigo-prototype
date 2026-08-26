@@ -1,0 +1,443 @@
+FIGMA MAKE UPDATE BRIEF — CONTIGO V2
+
+OBJECTIVE
+
+Update the EXISTING “Contigo” high-fidelity prototype by applying the corrections below. This is an incremental revision of the current project, not a request to redesign or regenerate the application from scratch.
+
+Preserve the existing visual system, screen dimensions, components, navigation, spacing, typography, colors, accessibility patterns, and all flows that are not explicitly changed in this brief. Do not create duplicate versions of existing screens. Modify the current frames and add only the new state specified as “M9-A — Registrar encuentro personal”.
+
+All visible interface copy must be written in natural Spanish for users in Colombia. The instructions in this document are in English only to make the implementation requirements precise.
+
+
+PRODUCT AND SAFETY CONTEXT
+
+Contigo is a mental-health support application for:
+
+1. PCS: a person experiencing suicidal thoughts or suicidal behavior.
+2. Informal caregiver: a trusted person who supports the PCS.
+3. Researcher/administrator: an authorized professional who manages study information.
+
+The interface must remain calm, private, supportive, non-judgmental, and easy to use under emotional distress. Avoid gamification, social-media patterns, alarming visual language, guilt-inducing copy, and unsupported clinical conclusions. Do not invent therapeutic or clinical content. When content will later be supplied or validated by the researcher, show a polished placeholder clearly labeled as pending validation.
+
+
+GLOBAL IMPLEMENTATION RULES
+
+- Edit the existing frames in place.
+- Preserve the current mobile and desktop viewport sizes used by the prototype.
+- Keep the existing light healthcare aesthetic, design tokens, components, icon family, border radii, shadows, typography, and navigation structure.
+- Maintain strong readability, large touch targets, clear hierarchy, sufficient contrast, and low cognitive load.
+- Use reusable components and variants for the floating support button, selected-contact cards, activity cards, warning callouts, rating controls, table rows, and detail drawer/modal.
+- Preserve every existing interaction unless this brief explicitly removes or replaces it.
+- Every new button must have a real prototype connection or an intentionally designed state.
+- Do not use lorem ipsum. Use the Spanish placeholder copy provided below.
+- Do not invent diagnosis, risk scores, clinical interpretations, or automatic recommendations.
+- Do not expose private information outside the appropriate user role.
+
+
+CHANGE 1 — GLOBAL FLOATING SUPPORT BUTTON FOR PCS
+
+Problem: the support element currently shown at the bottom of M2 looks like an informational message instead of an actionable button.
+
+Replace it with a clearly recognizable floating action button for crisis support.
+
+Button label:
+“Necesito apoyo ahora”
+
+Implementation:
+
+- Use a prominent but calm floating action button with an appropriate support or shield icon.
+- It must look tappable and visually different from cards, alerts, and informational banners.
+- Keep it fixed above the bottom navigation and safe-area inset without hiding page content.
+- Add clear pressed, focused, and default states.
+- Connect it directly to M6 — Modo crisis.
+- Show it on all authenticated PCS screens: M2, M3, M4, M5, M7, and M8.
+- Do not show it on M1, caregiver screens, researcher/administrator screens, or M6 itself. M6 is already the crisis-support destination.
+- If a screen scrolls, the button remains accessible while avoiding overlap with important controls.
+
+
+CHANGE 2 — M2: LEARNING MODULE
+
+Add a new learning module to M2 that supports user story HU 1.12. It will eventually contain researcher-supplied narrative content about crisis coping and interpersonal skills.
+
+Suggested visible copy:
+
+Section title:
+“Aprender habilidades”
+
+Introductory text:
+“Encuentra recursos breves para afrontar momentos difíciles y fortalecer tus relaciones.”
+
+Show two content cards:
+
+1. “Afrontar una crisis”
+2. “Habilidades interpersonales”
+
+Each card must include:
+
+- A calm image or illustration placeholder.
+- A short content preview placeholder.
+- A button labeled “Explorar contenido”.
+- A small internal annotation labeled “Contenido narrativo e imagen por validar con el equipo investigador”. This annotation is part of the prototype specification and should be subtle, not presented as an error.
+
+For now, tapping “Explorar contenido” may open a reusable full-screen content-preview state or bottom sheet that preserves the selected title, displays the placeholder image, and says:
+“Este contenido será proporcionado y validado por el equipo investigador.”
+
+Do not write or imply clinical guidance that has not been supplied.
+
+
+CHANGE 3 — M5: SUPPORT CONTACTS AND SAFETY-PLAN INFORMATION
+
+Update M5 so the PCS can enter the information that will later appear in M6.
+
+A. Trusted support contacts
+
+Section title:
+“Personas a quienes puedo pedir ayuda”
+
+Primary action:
+“Agregar desde mis contactos”
+
+Interaction requirements:
+
+- Tapping the action opens a device-contact permission/selection state.
+- Clearly explain why access is needed before requesting permission.
+- Include permission-granted, permission-denied, empty, loading, and contact-selected states.
+- If permission is denied, offer a respectful retry option and a manual-entry alternative.
+- After selection, display each person as a removable card containing name, relationship or label, phone number if available, and a “Quitar” action.
+- Removing a person must require confirmation or provide an immediate undo action.
+- Support adding multiple contacts; do not limit the plan to one caregiver.
+- The selected contacts must populate the support-contact section in M6.
+
+B. Helpful social activities
+
+Add a section titled:
+“Actividades sociales que pueden ayudarme”
+
+Helper text:
+“Agrega actividades sencillas que podrías hacer con otra persona cuando necesites apoyo.”
+
+Action:
+“Agregar actividad”
+
+Display saved items as editable and removable cards or list rows. These activities must populate the corresponding section in M6.
+
+C. Making the environment safer
+
+Add a section titled:
+“Cómo puedo hacer mi entorno más seguro”
+
+Helper text:
+“Escribe acciones concretas que te ayuden a reducir riesgos en tu entorno.”
+
+Provide a calm multiline input and allow the user to save, edit, and review the information. The saved content must populate the corresponding section in M6.
+
+Do not add prescriptive clinical examples unless they have been validated by the researcher. A neutral placeholder is acceptable.
+
+
+CHANGE 4 — M6: CRISIS MODE CONTENT AND ORDER
+
+Update M6 so it presents the PCS safety-plan information in a calm, highly scannable sequence. Do not show the global floating support button on this screen.
+
+Use this exact section order:
+
+1. “Qué puedo hacer por mi cuenta”
+2. “Actividades sociales que pueden ayudarme”
+3. “Cómo puedo hacer mi entorno más seguro”
+4. “Personas a quienes puedo pedir ayuda”
+5. Professional and emergency help already present in the prototype
+
+Requirements:
+
+- The first section keeps the existing self-help content.
+- The second section displays the social activities saved in M5.
+- The third section displays the safer-environment actions saved in M5.
+- The fourth section displays ALL trusted contacts selected in M5, not only the caregiver.
+- Each contact card should provide the existing safe contact actions, such as calling or preparing a message, without automatically contacting anyone.
+- If a section has no saved information, show a supportive empty state with a clear route back to M5 to complete it.
+- Preserve the existing professional and emergency support options and make them easy to reach.
+- Keep the screen calm and concise; use progressive disclosure where needed.
+- Do not rank people, generate a risk label, or claim that an action guarantees safety.
+
+
+CHANGE 5 — M8: AI-ASSISTED MESSAGE CREATOR
+
+Revise the “Ayúdame a escribirle” area so users understand exactly what it does.
+
+Section title:
+“Asistente para crear mensajes”
+
+Introductory copy:
+“Una herramienta con inteligencia artificial te ayuda a crear un borrador para comunicarte con alguien de confianza.”
+
+Evidence/context label:
+“IA basada en artículos revisados por el equipo investigador”
+
+Mandatory explanatory note:
+“La IA propone un borrador. Tú decides qué editar y enviar. El mensaje nunca se envía automáticamente.”
+
+Safety note:
+“Esta herramienta no reemplaza la orientación profesional ni ofrece consejos clínicos.”
+
+Interaction requirements:
+
+- Keep the existing message-creation flow, but identify it clearly as an AI-assisted drafting tool.
+- The user must review the generated draft before any sharing or sending action becomes available.
+- Allow editing, regenerating, copying, and discarding the draft.
+- Never auto-send a message or imply that it has been sent.
+- Show a clear loading state while generating and a recoverable error state.
+- Preserve privacy-oriented language throughout the flow.
+
+
+CHANGE 6 — M8: ACTIVITIES FOR AN IN-PERSON MEETING
+
+Update the personal-encounter area to combine predefined activities from the researcher with activities created by the user.
+
+Section title:
+“Ideas para un encuentro personal”
+
+Create two clearly differentiated groups:
+
+1. “Sugeridas por el equipo”
+2. “Mis actividades”
+
+Requirements:
+
+- The first group shows polished placeholder activity cards because the definitive activities will be supplied by the researcher.
+- Label them subtly as “Contenido por validar con el equipo investigador”.
+- The second group contains custom activities added by the user.
+- Add a button labeled “Agregar actividad”.
+- Allow the user to create, edit, and remove their own activities.
+- Do not allow the user to edit the researcher-supplied activities.
+- Preserve a clear visual distinction between predefined and personal content without making one look superior to the other.
+
+
+CHANGE 7 — M9: CAREGIVER HOME
+
+A. Add a personal-encounter log entry point
+
+Add a visible module/card titled:
+“Registrar encuentro”
+
+Body copy:
+“Registra cómo fue un encuentro personal con tu persona cercana.”
+
+Primary action:
+“Registrar ahora”
+
+Connect this action to the new screen/state M9-A — Registrar encuentro personal.
+
+B. Update the learning area
+
+Keep or add a module titled:
+“Aprender a acercarme”
+
+This module will contain narrative content provided by the researcher. For now, show:
+
+- A calm image or illustration placeholder.
+- A short preview placeholder.
+- The label “Contenido narrativo por validar”.
+- A button labeled “Explorar contenido”.
+
+Tapping it may open a reusable content-preview state that clearly says:
+“Este contenido será proporcionado y validado por el equipo investigador.”
+
+Do not invent the narrative or clinical recommendations.
+
+
+CHANGE 8 — NEW M9-A: REGISTRAR ENCUENTRO PERSONAL
+
+Create one new mobile full-screen form connected from M9. Name the frame:
+“M9-A — Registrar encuentro personal”
+
+Purpose: allow the informal caregiver to record how a recent in-person interaction felt.
+
+Header:
+“Registrar encuentro”
+
+Opening question:
+“¿Puedes puntuar la interacción que tuviste con tu persona cercana?”
+
+Add an accessible rating control. Because the definitive scale has not been specified, label the component in the design documentation as:
+“Escala y etiquetas por validar con el equipo investigador”
+
+Do not invent clinical thresholds, traffic-light categories, or risk interpretations.
+
+Add a subsection titled:
+“Valoración adicional”
+
+Include these three statements exactly as written:
+
+1. “Me sentí cómodo/a contándole a esta persona cosas que no les cuento a otras personas”
+2. “Me sentí cómodo/a al discutir problemas significativos con esta persona”
+3. “Mostré mis verdaderos sentimientos y me comporté de forma natural con esta persona”
+
+For each statement, show a consistent accessible response control. Mark the definitive response options as:
+“Opciones de respuesta por validar con el equipo investigador”
+
+Include:
+
+- Back/cancel navigation to M9.
+- A primary button labeled “Guardar registro”.
+- Disabled state until required answers are complete.
+- A confirmation state after saving, followed by navigation back to M9.
+- A non-judgmental validation/error state.
+- Clear privacy copy indicating that the record is private and used according to the study’s permissions.
+
+
+CHANGE 9 — M10: CARING-CONTACT MESSAGE GUIDANCE
+
+Add an important reminder near the message editor, before the save/review action.
+
+Callout title:
+“Antes de guardar, recuerda”
+
+Use a muted soft-red or warm warning surface with accessible contrast. It should attract attention without feeling like an emergency alert.
+
+Initial reminder content:
+
+- “Trata de evitar dar consejos que la persona no ha pedido.”
+- “Evita juzgar o cuestionar lo que siente.”
+- “No exijas una respuesta inmediata.”
+- “Evita minimizar lo que está viviendo.”
+
+Add a subtle design annotation:
+“Orientaciones pendientes de validación final por el equipo investigador”.
+
+Keep the rest of the existing caring-contact creation flow and preview behavior unchanged.
+
+
+CHANGE 10 — M11: REMOVE CONTACT SECTION
+
+Remove the complete “A quién contactar” section from M11.
+
+After removal:
+
+- Close the empty space and rebalance the layout.
+- Preserve the other useful content, including “Qué puede ayudarle ahora”, “Cómo ayudar a mantener un entorno seguro”, and the existing urgent-help callout.
+- Do not recreate the removed section under another label.
+- Do not add a replacement contact list on M11.
+
+
+CHANGE 11 — M12: SIMPLIFY THE DAILY CONTACT LOG
+
+Remove the entire “Valoración adicional” section from M12.
+
+The daily log should remain short and contain only:
+
+- Whether contact occurred: yes/no.
+- Perceived quality of the contact.
+- Who initiated the contact.
+
+Requirements:
+
+- Preserve the existing simple, non-judgmental tone.
+- Keep the submit/save interaction and confirmation state.
+- Rebalance spacing after removing the section.
+- Do not move the three additional statements from M9-A into M12.
+
+
+CHANGE 12 — D14: EMA HISTORY AND RESPONSE DETAIL
+
+In the EMA tab of D14, add a list/table of completed EMA questionnaires.
+
+Table requirements:
+
+- Clear section title: “EMA completadas”.
+- One row per completed EMA.
+- Show the date and time of completion.
+- Show an appropriate neutral status such as “Completada”.
+- Include a row action labeled “Ver respuestas”.
+- Provide empty, loading, and error states.
+- Do not show a risk score, automated conclusion, diagnosis, or invented clinical summary.
+
+Response-detail interaction:
+
+- Clicking a row or “Ver respuestas” opens a right-side drawer or modal without losing the table context.
+- The detail view must show the participant identifier already authorized in the prototype, completion date/time, and every original question with its exact recorded answer.
+- Preserve question order.
+- Include a clear close/back action.
+- Access is restricted to the authorized researcher/administrator role.
+- Add a subtle interface indication that access to sensitive responses is audited, for example:
+  “El acceso a estas respuestas queda registrado.”
+- Do not expose this information to PCS or caregiver roles.
+- Keep all other D14 tabs and functions unchanged.
+
+
+DATA DEPENDENCIES TO REPRESENT IN THE PROTOTYPE
+
+Represent these relationships visually and through realistic prototype states:
+
+- Contacts selected in M5 appear in “Personas a quienes puedo pedir ayuda” in M6.
+- Social activities created in M5 appear in “Actividades sociales que pueden ayudarme” in M6.
+- Safer-environment actions saved in M5 appear in “Cómo puedo hacer mi entorno más seguro” in M6.
+- Completed EMA submissions appear as rows in D14 and open their exact recorded responses.
+
+Use realistic example content only to demonstrate layout and state. Clearly distinguish sample data from researcher-validated clinical content.
+
+
+UPDATED PROTOTYPE CONNECTIONS
+
+Create and verify these interactions:
+
+- M2 floating “Necesito apoyo ahora” → M6.
+- M3 floating “Necesito apoyo ahora” → M6.
+- M4 floating “Necesito apoyo ahora” → M6.
+- M5 floating “Necesito apoyo ahora” → M6.
+- M7 floating “Necesito apoyo ahora” → M6.
+- M8 floating “Necesito apoyo ahora” → M6.
+- M5 “Agregar desde mis contactos” → contact permission/selection state → selected-contact cards in M5.
+- M5 saved contacts, social activities, and safer-environment actions → populated states in M6.
+- M2 “Explorar contenido” → learning-content placeholder state → back to M2.
+- M8 message assistant → generate/loading state → editable draft → user-controlled copy/share action.
+- M8 “Agregar actividad” → create/edit custom activity state → “Mis actividades”.
+- M9 “Registrar ahora” → M9-A.
+- M9-A cancel/back → M9.
+- M9-A “Guardar registro” → confirmation → M9.
+- M9 “Explorar contenido” → narrative-content placeholder state → back to M9.
+- D14 EMA row or “Ver respuestas” → response-detail drawer/modal → close back to the same table position.
+
+Use the same transition language as the existing prototype. Prefer short, calm transitions and preserve user context.
+
+
+DO NOT CHANGE
+
+- Do not redesign the product’s overall visual identity.
+- Do not renumber the existing screens. Add only M9-A as a clearly named new frame/state.
+- Do not alter unaffected screens or user flows.
+- Do not remove existing emergency or professional-help options from M6.
+- Do not add social-media, community feed, public sharing, follower, comment, like, leaderboard, reward, or gamification features.
+- Do not automate calls, messages, or emergency actions without an explicit user action.
+- Do not add clinical claims, risk calculations, or therapeutic content that has not been supplied by the researcher.
+- Do not merge the caregiver’s M9-A encounter assessment with the short M12 daily contact log.
+
+
+ACCEPTANCE CHECKLIST
+
+The update is complete only if every item below is true:
+
+[ ] The existing project was updated in place and no duplicate app was created.
+[ ] The PCS floating support control is unmistakably a button and appears on M2, M3, M4, M5, M7, and M8.
+[ ] Every PCS floating support button opens M6.
+[ ] The floating support button does not appear on M1, M6, caregiver screens, or administrator screens.
+[ ] M2 includes learning modules for crisis coping and interpersonal skills with researcher-content placeholders.
+[ ] M5 can add multiple people from device contacts and show selected people as removable cards.
+[ ] M5 contains editable social activities and safer-environment information.
+[ ] M6 shows content in this exact initial order: self-help, social activities, safer environment.
+[ ] M6 then shows all selected support contacts, followed by professional/emergency help.
+[ ] M8 clearly identifies the message tool as AI-assisted, grounded in researcher-reviewed articles, and never auto-sends.
+[ ] M8 separates researcher-provided encounter activities from user-created activities.
+[ ] M9 includes “Registrar encuentro” linked to M9-A.
+[ ] M9 includes “Aprender a acercarme” with a narrative-content placeholder.
+[ ] M9-A contains the opening interaction-rating question and the three exact additional-assessment statements.
+[ ] M10 includes the visible soft-red reminder about messages to avoid.
+[ ] M11 no longer contains any “A quién contactar” section.
+[ ] M12 no longer contains “Valoración adicional” and keeps only contact occurrence, quality, and initiator.
+[ ] D14 lists completed EMAs and opens their exact questions and answers in a drawer/modal.
+[ ] D14 EMA access is restricted to the authorized administrator/researcher role and indicates audit logging.
+[ ] No new clinical advice, risk labels, automatic interpretations, or unvalidated narratives were invented.
+[ ] All new interactions are connected, testable, accessible, and visually consistent with the current Contigo prototype.
+
+
+FINAL DELIVERY REQUIREMENT
+
+Apply all corrections to the existing high-fidelity Contigo prototype. Keep the result presentation-ready and fully connected. Before finishing, run through every updated interaction in prototype mode and confirm that the revised screens, overlays, empty states, populated states, error states, and back-navigation behave consistently.
