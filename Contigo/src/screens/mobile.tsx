@@ -88,7 +88,6 @@ export function MobileScreen01({ navigate }: { navigate: (n: number) => void }) 
 // ── Screen 2: PCS Home ────────────────────────────────────────────────────────
 
 export function MobileScreen02({ navigate }: { navigate: (n: number) => void }) {
-  const [showInvite, setShowInvite] = useState(false)
   const [showContent, setShowContent] = useState<string | null>(null)
 
   return (
@@ -150,6 +149,17 @@ export function MobileScreen02({ navigate }: { navigate: (n: number) => void }) 
             </div>
             <Btn onClick={() => navigate(8)} variant="secondary" fullWidth small>Ver opciones</Btn>
           </Card>
+
+          <Card>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 4px' }}>Preguntas para conectar</h3>
+                <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Conoce mejor a tu persona cercana, a su ritmo y al tuyo</p>
+              </div>
+              <span style={{ color: C.warm }}>{Ic.message}</span>
+            </div>
+            <Btn onClick={() => navigate(18)} variant="secondary" fullWidth small>Comenzar una pregunta</Btn>
+          </Card>
         </div>
 
         {/* Cerca de ti widget */}
@@ -169,7 +179,7 @@ export function MobileScreen02({ navigate }: { navigate: (n: number) => void }) 
         </div>
 
         <button
-          onClick={() => setShowInvite(true)}
+          onClick={() => navigate(17)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, fontSize: 14, fontWeight: 600, fontFamily: 'inherit', padding: '4px 0', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 28 }}>
           <span style={{ display: 'flex' }}>{Ic.plus}</span>
           Invitar a una persona cercana
@@ -202,22 +212,6 @@ export function MobileScreen02({ navigate }: { navigate: (n: number) => void }) 
 
       <FloatingSupportBtn onPress={() => navigate(6)} bottom={90} />
       <PCSBottomNav active="inicio" navigate={navigate} />
-
-      <BottomSheet open={showInvite} onClose={() => setShowInvite(false)} title="Invitar a alguien cercano">
-        <p style={{ fontSize: 14, color: C.muted, lineHeight: '20px', marginBottom: 16 }}>
-          Puedes invitar a alguien de confianza para que te acompañe desde la aplicación.
-          Nada se envía hasta que confirmes.
-        </p>
-        <Input label="Nombre o apodo" value="" onChange={() => {}} placeholder="Ej: Mamá, Jorge" />
-        <div style={{ marginTop: 12 }}>
-          <Input label="Forma de contacto" value="" onChange={() => {}} placeholder="Número o correo" />
-        </div>
-        <PrivacyNote text="La persona solo verá lo que tú decidas compartir con ella." />
-        <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="primary" fullWidth>Enviar invitación</Btn>
-          <Btn variant="tertiary" fullWidth onClick={() => setShowInvite(false)}>Ahora no</Btn>
-        </div>
-      </BottomSheet>
 
       <BottomSheet open={!!showContent} onClose={() => setShowContent(null)} title={showContent ?? ''}>
         <div style={{ height: 120, backgroundColor: C.soft, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
@@ -1313,6 +1307,19 @@ export function MobileScreen09({ navigate }: { navigate: (n: number) => void }) 
               <div style={{ flex: 1 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 2px' }}>Preparar un mensaje cercano</h3>
                 <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Para que Sofi lo lea cuando lo necesite</p>
+              </div>
+              <span style={{ color: C.muted }}>{Ic.chevRight}</span>
+            </div>
+          </Card>
+
+          <Card onClick={() => navigate(19)} style={{ cursor: 'pointer' }}>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FBF2E3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ color: C.warm }}>{Ic.heart}</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 2px' }}>Preguntas para conectar</h3>
+                <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Comparte una pregunta con Sofi</p>
               </div>
               <span style={{ color: C.muted }}>{Ic.chevRight}</span>
             </div>

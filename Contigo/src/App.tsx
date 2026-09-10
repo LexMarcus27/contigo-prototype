@@ -5,6 +5,7 @@ import {
   MobileScreen05, MobileScreen06, MobileScreen07, MobileScreen08,
   MobileScreen09, MobileScreen09A, MobileScreen10, MobileScreen11, MobileScreen12,
 } from './screens/mobile'
+import { MobileScreen13, MobileScreen14 } from './screens/social'
 import { DesktopScreen13, DesktopScreen14, DesktopScreen15 } from './screens/desktop'
 
 const SCREENS = [
@@ -21,6 +22,9 @@ const SCREENS = [
   { id: 11, label: 'M11 Plan cuidador' },
   { id: 12, label: 'M12 Registro cuidador' },
   { id: 16, label: 'M9A Encuentro' },
+  { id: 17, label: 'M13 Elegir relación' },
+  { id: 18, label: 'M14 Preguntas PCS' },
+  { id: 19, label: 'M14 Preguntas cuidador' },
   { id: 13, label: 'D13 Dashboard' },
   { id: 14, label: 'D14 Participante' },
   { id: 15, label: 'D15 Cuentas' },
@@ -28,7 +32,7 @@ const SCREENS = [
 
 export default function App() {
   const [screen, setScreen] = useState(1)
-  const isMobile = screen <= 12 || screen === 16
+  const isMobile = ![13, 14, 15].includes(screen)
 
   const navigate = (n: number) => setScreen(n)
 
@@ -47,6 +51,9 @@ export default function App() {
       case 11: return <MobileScreen11 navigate={navigate} />
       case 12: return <MobileScreen12 navigate={navigate} />
       case 16: return <MobileScreen09A navigate={navigate} />
+      case 17: return <MobileScreen13 navigate={navigate} />
+      case 18: return <MobileScreen14 navigate={navigate} role="pcs" />
+      case 19: return <MobileScreen14 navigate={navigate} role="caregiver" />
       case 13: return <DesktopScreen13 navigate={navigate} />
       case 14: return <DesktopScreen14 navigate={navigate} />
       case 15: return <DesktopScreen15 navigate={navigate} />
@@ -75,7 +82,7 @@ export default function App() {
 
         {/* Screen buttons */}
         {SCREENS.map(s => {
-          const isDesktop = s.id >= 13
+          const isDesktop = [13, 14, 15].includes(s.id)
           const active = screen === s.id
           return (
             <button
