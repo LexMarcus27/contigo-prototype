@@ -303,7 +303,7 @@ const PCS_TAB_SCREENS: Record<string, number> = {
 
 // ── Floating Support Button (PCS M2–M5 and M8; never M1, M6–M7, caregiver, admin) ─
 
-export function FloatingSupportBtn({ onPress, bottom = 64 }: { onPress: () => void; bottom?: number }) {
+export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => void; bottom?: number }) {
   return (
     <button
       type="button"
@@ -313,14 +313,14 @@ export function FloatingSupportBtn({ onPress, bottom = 64 }: { onPress: () => vo
       style={{
         position: 'absolute', right: 18, bottom, zIndex: 40,
         backgroundColor: C.brandSoft, color: C.brand,
-        border: '1px solid rgba(36,107,100,0.16)', borderRadius: 18, height: 58,
+        border: '1px solid rgba(36,107,100,0.16)', borderRadius: 16, height: 52,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        padding: '0 20px 0 12px', maxWidth: 'calc(100% - 36px)',
-        fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+        padding: '0 16px 0 10px', maxWidth: 'calc(100% - 36px)',
+        fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
         boxShadow: '0 10px 28px rgba(23,52,58,0.24), 0 3px 8px rgba(36,107,100,0.18)',
       }}>
       <span style={{
-        width: 36, height: 36, borderRadius: 12, backgroundColor: C.brand, color: '#fff',
+        width: 32, height: 32, borderRadius: 10, backgroundColor: C.brand, color: '#fff',
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       }}>{Ic.heart}</span>
       Necesito apoyo ahora

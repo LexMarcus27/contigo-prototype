@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { C } from './ui'
 import {
-  MobileScreen01, MobileScreen02, MobileScreen03, MobileScreen04,
+  MobileScreen01, MobileScreen03, MobileScreen04,
   MobileScreen05, MobileScreen06, MobileScreen07, MobileScreen08,
   MobileScreen09, MobileScreen09A, MobileScreen10, MobileScreen11, MobileScreen12,
 } from './screens/mobile'
-import { MobileScreen13, MobileScreen14 } from './screens/social'
+import { MobileScreen14 } from './screens/social'
 import { DesktopScreen13, DesktopScreen14, DesktopScreen15 } from './screens/desktop'
+import MobileHomeScreen from './screens/home'
+import SocialNetworkScreen from './screens/network'
+import { EMPTY_JOURNEY, type NetworkEntry } from './journey'
 
 const SCREENS = [
   { id: 1, label: 'M1 Activar cuenta' },
@@ -22,7 +25,7 @@ const SCREENS = [
   { id: 11, label: 'M11 Plan cuidador' },
   { id: 12, label: 'M12 Registro cuidador' },
   { id: 16, label: 'M9A Encuentro' },
-  { id: 17, label: 'M13 Elegir relación' },
+  { id: 17, label: 'M17 Conoce tu red' },
   { id: 18, label: 'M14 Preguntas PCS' },
   { id: 19, label: 'M14 Preguntas cuidador' },
   { id: 13, label: 'D13 Dashboard' },
@@ -31,15 +34,24 @@ const SCREENS = [
 ]
 
 export default function App() {
-  const [screen, setScreen] = useState(1)
+  const searchParams = new URLSearchParams(window.location.search)
+  const demoMode = searchParams.get('demo') === '1'
+  const requestedScreen = Number(searchParams.get('screen'))
+  const [screen, setScreen] = useState(Number.isFinite(requestedScreen) && requestedScreen > 0 ? requestedScreen : 2)
+  const [journey, setJourney] = useState(EMPTY_JOURNEY)
+  const [networkEntry, setNetworkEntry] = useState<NetworkEntry>('auto')
   const isMobile = ![13, 14, 15].includes(screen)
 
   const navigate = (n: number) => setScreen(n)
+  const openNetwork = (entry: NetworkEntry) => {
+    setNetworkEntry(entry)
+    setScreen(17)
+  }
 
   const renderScreen = () => {
     switch (screen) {
       case 1:  return <MobileScreen01 navigate={navigate} />
-      case 2:  return <MobileScreen02 navigate={navigate} />
+      case 2:  return <MobileHomeScreen navigate={navigate} journey={journey} setJourney={setJourney} openNetwork={openNetwork} demoMode={demoMode} />
       case 3:  return <MobileScreen03 navigate={navigate} />
       case 4:  return <MobileScreen04 navigate={navigate} />
       case 5:  return <MobileScreen05 navigate={navigate} />
@@ -51,7 +63,7 @@ export default function App() {
       case 11: return <MobileScreen11 navigate={navigate} />
       case 12: return <MobileScreen12 navigate={navigate} />
       case 16: return <MobileScreen09A navigate={navigate} />
-      case 17: return <MobileScreen13 navigate={navigate} />
+      case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} />
       case 18: return <MobileScreen14 navigate={navigate} role="pcs" />
       case 19: return <MobileScreen14 navigate={navigate} role="caregiver" />
       case 13: return <DesktopScreen13 navigate={navigate} />
@@ -64,7 +76,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: isMobile ? '#DDE6E4' : C.canvas }}>
       {/* Navigation bar */}
-      <nav style={{
+      {demoMode && <nav style={{
         backgroundColor: C.heading, padding: '0 16px', height: 44,
         display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto',
         flexShrink: 0, boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
@@ -102,15 +114,15 @@ export default function App() {
             </button>
           )
         })}
-      </nav>
+      </nav>}
 
       {/* Screen content */}
       {isMobile ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 16px 32px', overflowY: 'auto' }}>
+        <div className="prototype-stage" style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: demoMode ? '24px 16px 32px' : '0', overflowY: 'auto' }}>
           {/* Phone label */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             {/* Phone frame */}
-            <div style={{
+            <div className="phone-shell" style={{
               width: 390,
               height: 844,
               borderRadius: 44,
@@ -123,9 +135,9 @@ export default function App() {
               {renderScreen()}
             </div>
             {/* Screen label */}
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: 500, margin: 0 }}>
+            {demoMode && <p style={{ fontSize: 12, color: C.muted, fontWeight: 500, margin: 0 }}>
               {SCREENS.find(s => s.id === screen)?.label} · 390 × 844 px
-            </p>
+            </p>}
           </div>
         </div>
       ) : (

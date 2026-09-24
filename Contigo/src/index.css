@@ -8,6 +8,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+html, body, #root { min-height: 100%; margin: 0; }
+
 * { scrollbar-width: none; box-sizing: border-box; }
 *::-webkit-scrollbar { display: none; }
 
@@ -30,6 +32,22 @@ body {
 .floating-support-button:focus-visible {
   outline: 3px solid rgba(47,125,115,0.34);
   outline-offset: 3px;
+}
+
+.gentle-spinner { animation: gentle-spin 900ms linear infinite; }
+
+@keyframes gentle-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 420px) {
+  .prototype-stage { width: 100%; }
+  .phone-shell {
+    width: 100vw !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
 }
 
 @keyframes breathe {

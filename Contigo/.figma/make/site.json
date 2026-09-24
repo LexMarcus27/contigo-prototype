@@ -1,0 +1,11 @@
+{
+  "title": "Contigo",
+  "description": "Prototipo de apoyo para reconocer la red social, cuidar vínculos y acceder al plan de seguridad.",
+  "language": "es",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": true
+  }
+}
