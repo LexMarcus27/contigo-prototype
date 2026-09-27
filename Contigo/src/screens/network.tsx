@@ -5,6 +5,7 @@ import {
   C,
   Card,
   FloatingSupportBtn,
+  supportContentPadding,
   Ic,
   PrivacyNote,
   ProgressBar,
@@ -965,7 +966,7 @@ export default function SocialNetworkScreen({
         </div>
       </header>
 
-      <main style={{ flex: 1, overflowY: "auto", padding: "0 20px 24px" }}>
+      <main style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 20px 24px", paddingBottom: supportContentPadding(18) }}>
         {view === "intro" && (
           <div>
             <div

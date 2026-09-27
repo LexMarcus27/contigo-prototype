@@ -259,7 +259,7 @@ export function BottomSheet({ open, onClose, title, children }: { open: boolean;
 
   if (!open) return null
   return (
-    <div role="dialog" aria-modal="true" aria-label={title ?? 'Panel'} style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
+    <div className="ui-overlay" role="dialog" aria-modal="true" aria-label={title ?? 'Panel'} style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
       <div
         aria-hidden="true"
         style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(23,52,58,0.45)', animation: 'fade-in 0.2s ease' }}
@@ -294,7 +294,7 @@ export function BottomSheet({ open, onClose, title, children }: { open: boolean;
 export function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: ReactNode }) {
   if (!open) return null
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div className="ui-overlay" style={{ position: 'absolute', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div
         style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(23,52,58,0.5)', animation: 'fade-in 0.2s ease' }}
         onClick={onClose}
@@ -378,19 +378,27 @@ const PCS_TAB_SCREENS: Record<string, number> = {
 
 // ── Floating Support Button (PCS M2–M5 and M8; never M1, M6–M7, caregiver, admin) ─
 
+const SUPPORT_BUTTON_HEIGHT = 52
+
+// Let the last action scroll above the floating button, including the safe area.
+export function supportContentPadding(bottom = 20) {
+  return `calc(${bottom + SUPPORT_BUTTON_HEIGHT + 24}px + env(safe-area-inset-bottom, 0px))`
+}
+
 export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => void; bottom?: number }) {
-  const hasBottomNavigation = bottom >= 70
   return (
-    <div style={{ flexShrink: 0, padding: `10px 18px calc(${hasBottomNavigation ? '76px' : '8px'} + env(safe-area-inset-bottom))`, backgroundColor: C.canvas }}>
       <button
         type="button"
         className="floating-support-button"
         onClick={onPress}
         aria-label="Necesito apoyo ahora"
         style={{
-          width: '100%', backgroundColor: C.brandSoft, color: C.brand,
-          border: '1px solid rgba(36,107,100,0.16)', borderRadius: 16, minHeight: 52,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+          position: 'absolute', right: 18,
+          bottom: `calc(${bottom}px + env(safe-area-inset-bottom, 0px))`, zIndex: 30,
+          width: 'max-content', maxWidth: 'calc(100% - 36px)',
+          backgroundColor: C.brandSoft, color: C.brand,
+          border: '1px solid rgba(36,107,100,0.16)', borderRadius: 16, minHeight: SUPPORT_BUTTON_HEIGHT,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
           padding: '0 16px 0 10px', fontSize: 14, fontWeight: 700,
           cursor: 'pointer', fontFamily: 'inherit',
           boxShadow: '0 6px 18px rgba(23,52,58,0.16)',
@@ -401,7 +409,6 @@ export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => vo
         }}>{Ic.heart}</span>
         Necesito apoyo ahora
       </button>
-    </div>
   )
 }
 
@@ -414,7 +421,7 @@ export function PCSBottomNav({ active, navigate }: { active: string; navigate: (
   ]
   return (
     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: C.surface, borderTop: `1px solid ${C.border}` }}>
-      <div style={{ display: 'flex', paddingBottom: 28 }}>
+      <div style={{ display: 'flex', paddingBottom: 'calc(28px + env(safe-area-inset-bottom, 0px))' }}>
         {tabs.map(t => (
           <button
             key={t.id}

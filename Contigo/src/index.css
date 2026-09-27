@@ -18,6 +18,12 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* A dialog owns the interaction while open; keep the support pill out of it. */
+.phone-shell:has(.ui-overlay) .floating-support-button {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .floating-support-button:hover {
   background-color: #CBE4DF !important;
   box-shadow: 0 13px 32px rgba(23,52,58,0.28), 0 4px 10px rgba(36,107,100,0.2) !important;

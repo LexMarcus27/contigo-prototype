@@ -6,6 +6,7 @@ import {
   C,
   Card,
   FloatingSupportBtn,
+  supportContentPadding,
   Ic,
   PCSBottomNav,
   StatusBar,
@@ -31,6 +32,7 @@ interface HomeProps {
 type Sheet = "profile" | "notifications" | "history" | "caregivers" | "learning" | null
 
 const moduleTints = [C.brandSoft, C.soft, C.soft, C.soft, C.criticalSoft]
+const SUPPORT_BOTTOM = 104
 
 export default function MobileHomeScreen({
   navigate,
@@ -135,7 +137,7 @@ export default function MobileHomeScreen({
       }}
     >
       <StatusBar />
-      <div style={{ flex: 1, overflowY: "auto", padding: "4px 20px 24px" }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "4px 20px 24px", paddingBottom: supportContentPadding(SUPPORT_BOTTOM) }}>
         <header
           style={{
             display: "flex",
@@ -318,7 +320,7 @@ export default function MobileHomeScreen({
         </section>
       </div>
 
-      <FloatingSupportBtn onPress={() => navigate(6)} bottom={92} />
+      <FloatingSupportBtn onPress={() => navigate(6)} bottom={SUPPORT_BOTTOM} />
       <PCSBottomNav active="inicio" navigate={navigate} />
 
       <BottomSheet open={sheet === "caregivers"} onClose={() => setSheet(null)} title="Cuidar un vínculo">

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   C, Ic, Btn, Input, TextArea, Card, ActionCard, StatusChip, BottomSheet, Modal, Toast,
   PrivacyNote, ProgressBar, StatusBar, PCSBottomNav, CaregiverBottomNav,
-  ContigoLogo, SectionHeading, Divider, useToast, FloatingSupportBtn,
+  ContigoLogo, SectionHeading, Divider, useToast, FloatingSupportBtn, supportContentPadding,
 } from '../ui'
 
 // ── Screen 1: Activate Account ───────────────────────────────────────────────
@@ -210,7 +210,7 @@ export function MobileScreen02({ navigate }: { navigate: (n: number) => void }) 
         </div>
       </div>
 
-      <FloatingSupportBtn onPress={() => navigate(6)} bottom={90} />
+      <FloatingSupportBtn onPress={() => navigate(6)} bottom={104} />
       <PCSBottomNav active="inicio" navigate={navigate} />
 
       <BottomSheet open={!!showContent} onClose={() => setShowContent(null)} title={showContent ?? ''}>
@@ -465,7 +465,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
         <h1 style={{ fontSize: 22, fontWeight: 700, color: C.heading, margin: 0 }}>Mi plan de seguridad</h1>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingBottom: 180 }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 20px', paddingBottom: supportContentPadding(124) }}>
         <div style={{ marginBottom: 20 }}>
           <p style={{ fontSize: 14, color: C.muted, lineHeight: '20px', marginBottom: 8 }}>
             Prepáralo cuando tengas calma. Podrás consultarlo incluso sin conexión.
@@ -1066,7 +1066,7 @@ export function MobileScreen08({
         <button aria-label="Volver al inicio" onClick={() => navigate(2)} style={{ width: 44, height: 44, background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'grid', placeItems: 'center' }}>{Ic.arrowLeft}</button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 20px 24px', paddingBottom: supportContentPadding(20) }}>
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ fontSize: 26, fontWeight: 700, color: C.heading, lineHeight: '32px', marginBottom: 8 }}>
             ¿Te serviría sentirte acompañada?
