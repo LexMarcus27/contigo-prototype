@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  C, Ic, Btn, Input, TextArea, Card, StatusChip, BottomSheet, Modal, Toast,
+  C, Ic, Btn, Input, TextArea, Card, ActionCard, StatusChip, BottomSheet, Modal, Toast,
   PrivacyNote, ProgressBar, StatusBar, PCSBottomNav, CaregiverBottomNav,
   ContigoLogo, SectionHeading, Divider, useToast, FloatingSupportBtn,
 } from '../ui'
@@ -956,7 +956,21 @@ export function MobileScreen07({ navigate }: { navigate: (n: number) => void }) 
 
 // ── Screen 8: Connection & JITAI ─────────────────────────────────────────────
 
-export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) {
+export function MobileScreen08({
+  navigate,
+  caregiverName,
+  hasAccess,
+  onOpenNetwork,
+  availableCaregivers,
+  onSelectCaregiver,
+}: {
+  navigate: (n: number) => void
+  caregiverName: string | null
+  hasAccess: boolean
+  onOpenNetwork: () => void
+  availableCaregivers: Array<{ id: string; name: string }>
+  onSelectCaregiver: (personId: string) => void
+}) {
   const [showMessage, setShowMessage] = useState(false)
   const [showComposer, setShowComposer] = useState(false)
   const [composedText, setComposedText] = useState('')
@@ -979,11 +993,12 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
   const suggestedActivities = ['Tomar un café juntos', 'Dar una caminata corta']
   const meetingOptions = [...suggestedActivities, ...myActivities]
   const linkedContactWhatsApp = '573000000001'
+  const recipient = caregiverName ?? "tu cuidador informal"
 
   const prepareMeetingMessage = () => {
     if (!selectedMeeting) return
     setMeetingSent(false)
-    setMeetingMessage(`Hola Mamá, me gustaría que programáramos un espacio para ${selectedMeeting.toLowerCase()}. ¿Te gustaría? Podemos acordar el momento que nos funcione. Si ahora no puedes, está bien.`)
+    setMeetingMessage(`Hola ${recipient}, me gustaría que programáramos un espacio para ${selectedMeeting.toLowerCase()}. ¿Te gustaría? Podemos acordar el momento que nos funcione. Si ahora no puedes, está bien.`)
     setShowMeetingComposer(true)
   }
 
@@ -1001,19 +1016,57 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
     setAiDraft('')
     setTimeout(() => {
       setAiLoading(false)
-      setAiDraft('Hola Mamá, pensé en ti hoy y quería escribirte. No tienes que responder ahora. Solo quería que supieras que estoy aquí.')
-      setComposedText('Hola Mamá, pensé en ti hoy y quería escribirte. No tienes que responder ahora. Solo quería que supieras que estoy aquí.')
+      setAiDraft(`Hola ${recipient}, pensé en ti hoy y quería escribirte. No tienes que responder ahora. Solo quería que supieras que estoy aquí.`)
+      setComposedText(`Hola ${recipient}, pensé en ti hoy y quería escribirte. No tienes que responder ahora. Solo quería que supieras que estoy aquí.`)
     }, 1800)
+  }
+
+  if (!hasAccess) {
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas }}>
+        <StatusBar />
+        <div style={{ flex: 1, overflowY: 'auto', padding: '28px 20px 120px', textAlign: 'center' }}>
+          <div style={{ width: 76, height: 76, borderRadius: 24, margin: '18px auto 20px', backgroundColor: C.brandSoft, color: C.brand, display: 'grid', placeItems: 'center' }}>
+            {Ic.link}
+          </div>
+          <p style={{ fontSize: 23, lineHeight: '30px', fontWeight: 750, color: C.heading, margin: '0 0 10px' }}>
+            {availableCaregivers.length > 0 ? "Elige un cuidador informal" : "Necesitas un cuidador informal asociado"}
+          </p>
+          <p style={{ fontSize: 14, lineHeight: '22px', color: C.muted, margin: '0 0 20px' }}>
+            {availableCaregivers.length > 0
+              ? "Solo aparecen las personas que aceptaron y tienen una asociación activa contigo."
+              : "Una invitación enviada o aceptada no basta. Estas herramientas se habilitan cuando la persona queda vinculada activamente contigo."}
+          </p>
+          {availableCaregivers.map((person) => (
+            <ActionCard
+              key={person.id}
+              ariaLabel={`Elegir a ${person.name}, cuidador informal asociado`}
+              onClick={() => onSelectCaregiver(person.id)}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 9 }}
+            >
+              <span style={{ color: C.brand }}>{Ic.user}</span>
+              <span style={{ flex: 1, color: C.heading, fontSize: 14, fontWeight: 700 }}>{person.name}</span>
+              <StatusChip label="Asociado" variant="ok" />
+            </ActionCard>
+          ))}
+          {availableCaregivers.length === 0 && (
+            <Btn fullWidth onClick={onOpenNetwork}>Ver mi red e invitaciones</Btn>
+          )}
+          <Btn variant="secondary" fullWidth onClick={() => navigate(2)} style={{ marginTop: 9 }}>Volver al inicio</Btn>
+        </div>
+        <FloatingSupportBtn onPress={() => navigate(6)} bottom={20} />
+      </div>
+    )
   }
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 10 }}>
-        <button onClick={() => navigate(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
+        <button aria-label="Volver al inicio" onClick={() => navigate(2)} style={{ width: 44, height: 44, background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'grid', placeItems: 'center' }}>{Ic.arrowLeft}</button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 140px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ fontSize: 26, fontWeight: 700, color: C.heading, lineHeight: '32px', marginBottom: 8 }}>
             ¿Te serviría sentirte acompañada?
@@ -1024,18 +1077,35 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
         </div>
 
         {/* Caring contact message */}
-        <Card onClick={() => setShowMessage(true)} style={{ cursor: 'pointer', marginBottom: 12 }}>
+        <ActionCard ariaLabel={`Ver un mensaje de ${recipient}`} onClick={() => setShowMessage(true)} style={{ marginBottom: 12 }}>
           <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.soft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 20 }}>🌿</span>
             </div>
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 3px' }}>Ver un mensaje de Mamá</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 3px' }}>Ver un mensaje de {recipient}</h3>
               <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Un mensaje que guardó para ti</p>
             </div>
             <span style={{ color: C.muted }}>{Ic.chevRight}</span>
           </div>
-        </Card>
+        </ActionCard>
+
+        <ActionCard
+          ariaLabel={`Preguntas para conectar con ${recipient}`}
+          onClick={() => navigate(18)}
+          style={{ marginBottom: 12 }}
+        >
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.brandSoft, color: C.brand, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+              {Ic.message}
+            </div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 3px' }}>Preguntas para conectar</p>
+              <p style={{ fontSize: 13, color: C.muted, lineHeight: '18px', margin: 0 }}>Un espacio de preguntas para conversar con {recipient} y conocerse mejor</p>
+            </div>
+            <span aria-hidden="true" style={{ color: C.brand }}>{Ic.chevRight}</span>
+          </div>
+        </ActionCard>
 
         {/* AI message assistant */}
         <div style={{ backgroundColor: C.surface, borderRadius: 16, border: `1px solid ${C.border}`, padding: 18, marginBottom: 12 }}>
@@ -1079,6 +1149,8 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
             <div key={i} style={{ backgroundColor: C.surface, borderRadius: 12, border: `1px solid ${C.border}`, padding: '12px 14px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 14, color: C.body, flex: 1 }}>{act}</span>
               <button
+                type="button"
+                aria-label={`Eliminar actividad ${act}`}
                 onClick={() => {
                   setMyActivities(a => a.filter((_, idx) => idx !== i))
                   if (selectedMeeting === act) setSelectedMeeting('')
@@ -1120,7 +1192,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
             </div>
             <div>
               <h3 style={{ fontSize: 17, fontWeight: 700, color: C.heading, margin: '0 0 4px' }}>Programar un encuentro</h3>
-              <p style={{ fontSize: 13, color: C.muted, lineHeight: '18px', margin: 0 }}>Elige una actividad y prepara una invitación para Mamá.</p>
+              <p style={{ fontSize: 13, color: C.muted, lineHeight: '18px', margin: 0 }}>Elige una actividad y prepara una invitación para {recipient}.</p>
             </div>
           </div>
 
@@ -1148,7 +1220,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
             <div style={{ width: 34, height: 34, borderRadius: '50%', backgroundColor: C.surface, color: C.brand, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Ic.user}</div>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Enviar a</p>
-              <p style={{ fontSize: 14, fontWeight: 600, color: C.heading, margin: 0 }}>Mamá</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: C.heading, margin: 0 }}>{recipient}</p>
             </div>
             <StatusChip label="Contacto de confianza" variant="ok" />
           </div>
@@ -1160,7 +1232,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
           {meetingSent && (
             <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, backgroundColor: '#E8F4EE', color: C.success, borderRadius: 10, padding: '10px 12px' }}>
               <span style={{ display: 'flex' }}>{Ic.checkCircle}</span>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Mensaje preparado para Mamá en WhatsApp.</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Mensaje preparado para {recipient} en WhatsApp.</span>
             </div>
           )}
         </Card>
@@ -1183,7 +1255,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
               <span style={{ fontSize: 18 }}>🌿</span>
             </div>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: C.heading, margin: 0 }}>Mamá</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: C.heading, margin: 0 }}>{recipient}</p>
               <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>14 ago 2026</p>
             </div>
           </div>
@@ -1237,7 +1309,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
       </BottomSheet>
 
       {/* Meeting invitation composer */}
-      <BottomSheet open={showMeetingComposer} onClose={() => setShowMeetingComposer(false)} title="Invitar a Mamá">
+      <BottomSheet open={showMeetingComposer} onClose={() => setShowMeetingComposer(false)} title={`Invitar a ${recipient}`}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, backgroundColor: C.soft, borderRadius: 12, padding: '11px 12px', marginBottom: 16 }}>
           <span style={{ display: 'flex', color: C.brand }}>{Ic.calendar}</span>
           <div>
@@ -1246,7 +1318,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
           </div>
         </div>
         <TextArea
-          label="Mensaje para Mamá"
+          label={`Mensaje para ${recipient}`}
           value={meetingMessage}
           onChange={setMeetingMessage}
           helper="Puedes modificar la invitación antes de enviarla."
@@ -1255,7 +1327,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
           <PrivacyNote text="El mensaje solo se enviará cuando lo confirmes. Tú controlas cada paso." />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
-          <Btn variant="primary" fullWidth icon={Ic.message} disabled={!meetingMessage.trim()} onClick={() => setShowMeetingConfirm(true)}>Enviar a Mamá</Btn>
+          <Btn variant="primary" fullWidth icon={Ic.message} disabled={!meetingMessage.trim()} onClick={() => setShowMeetingConfirm(true)}>Enviar a {recipient}</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => setShowMeetingComposer(false)}>Cancelar</Btn>
         </div>
       </BottomSheet>
@@ -1263,7 +1335,7 @@ export function MobileScreen08({ navigate }: { navigate: (n: number) => void }) 
       {/* Explicit confirmation before sending */}
       <Modal open={showMeetingConfirm} onClose={() => setShowMeetingConfirm(false)} title="¿Enviar esta invitación?">
         <p style={{ fontSize: 14, color: C.body, lineHeight: '20px', marginBottom: 12 }}>
-          Abriremos el chat de Mamá en WhatsApp con el mensaje listo. Tú decidirás cuándo enviarlo.
+          Abriremos el chat de {recipient} en WhatsApp con el mensaje listo. Tú decidirás cuándo enviarlo.
         </p>
         <div style={{ backgroundColor: C.soft, borderRadius: 12, padding: 14, marginBottom: 18, maxHeight: 150, overflowY: 'auto' }}>
           <p style={{ fontSize: 13, color: C.body, lineHeight: '19px', margin: 0 }}>{meetingMessage}</p>

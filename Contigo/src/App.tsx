@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { C } from './ui'
 import {
   MobileScreen01, MobileScreen03, MobileScreen04,
@@ -9,7 +9,13 @@ import { MobileScreen14 } from './screens/social'
 import { DesktopScreen13, DesktopScreen14, DesktopScreen15 } from './screens/desktop'
 import MobileHomeScreen from './screens/home'
 import SocialNetworkScreen from './screens/network'
-import { EMPTY_JOURNEY, type NetworkEntry } from './journey'
+import {
+  canStrengthenRelationship,
+  EMPTY_JOURNEY,
+  validCaregivers,
+  type JourneyState,
+  type NetworkEntry,
+} from './journey'
 
 const SCREENS = [
   { id: 1, label: 'M1 Activar cuenta' },
@@ -35,12 +41,44 @@ const SCREENS = [
 
 export default function App() {
   const searchParams = new URLSearchParams(window.location.search)
-  const demoMode = searchParams.get('demo') === '1'
+  const demoMode = searchParams.get("demo") === "1"
+  const storageKey = demoMode
+    ? "contigo-demo-pcs-sofia-testing"
+    : "contigo-demo-pcs-sofia"
   const requestedScreen = Number(searchParams.get('screen'))
   const [screen, setScreen] = useState(Number.isFinite(requestedScreen) && requestedScreen > 0 ? requestedScreen : 2)
-  const [journey, setJourney] = useState(EMPTY_JOURNEY)
+  const [journey, setJourney] = useState<JourneyState>(() => {
+    try {
+      const saved = window.localStorage.getItem(storageKey)
+      if (!saved) return EMPTY_JOURNEY
+      const parsed = JSON.parse(saved) as Partial<JourneyState>
+      return {
+        ...EMPTY_JOURNEY,
+        ...parsed,
+        people: (parsed.people ?? []).map((person) => ({
+          ...person,
+          invitationStatus: person.invitationStatus ?? "not-invited",
+        })),
+        associations: parsed.associations ?? [],
+        onboardingStatus:
+          parsed.onboardingStatus ??
+          (parsed.mapGenerated ? "completed" : "not-started"),
+        onboardingWelcomeShown:
+          parsed.onboardingWelcomeShown ?? Boolean(parsed.mapGenerated),
+      }
+    } catch {
+      return EMPTY_JOURNEY
+    }
+  })
   const [networkEntry, setNetworkEntry] = useState<NetworkEntry>('auto')
   const isMobile = ![13, 14, 15].includes(screen)
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify(journey),
+    )
+  }, [journey, storageKey])
 
   const navigate = (n: number) => setScreen(n)
   const openNetwork = (entry: NetworkEntry) => {
@@ -57,14 +95,61 @@ export default function App() {
       case 5:  return <MobileScreen05 navigate={navigate} />
       case 6:  return <MobileScreen06 navigate={navigate} />
       case 7:  return <MobileScreen07 navigate={navigate} />
-      case 8:  return <MobileScreen08 navigate={navigate} />
+      case 8: {
+        const selected = journey.people.find(
+          (person) => person.id === journey.selectedPersonId,
+        )
+        return (
+          <MobileScreen08
+            navigate={navigate}
+            caregiverName={selected?.name ?? null}
+            hasAccess={canStrengthenRelationship(
+              journey,
+              journey.selectedPersonId,
+            )}
+            onOpenNetwork={() => openNetwork("results")}
+            availableCaregivers={validCaregivers(journey)}
+            onSelectCaregiver={(personId) =>
+              setJourney((current) => ({
+                ...current,
+                selectedPersonId: personId,
+              }))
+            }
+          />
+        )
+      }
       case 9:  return <MobileScreen09 navigate={navigate} />
       case 10: return <MobileScreen10 navigate={navigate} />
       case 11: return <MobileScreen11 navigate={navigate} />
       case 12: return <MobileScreen12 navigate={navigate} />
       case 16: return <MobileScreen09A navigate={navigate} />
       case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} />
-      case 18: return <MobileScreen14 navigate={navigate} role="pcs" />
+      case 18:
+        return canStrengthenRelationship(journey, journey.selectedPersonId) ? (
+          <MobileScreen14
+            navigate={navigate}
+            role="pcs"
+            otherName={
+              journey.people.find(
+                (person) => person.id === journey.selectedPersonId,
+              )?.name
+            }
+          />
+        ) : (
+          <MobileScreen08
+            navigate={navigate}
+            caregiverName={null}
+            hasAccess={false}
+            onOpenNetwork={() => openNetwork("results")}
+            availableCaregivers={validCaregivers(journey)}
+            onSelectCaregiver={(personId) =>
+              setJourney((current) => ({
+                ...current,
+                selectedPersonId: personId,
+              }))
+            }
+          />
+        )
       case 19: return <MobileScreen14 navigate={navigate} role="caregiver" />
       case 13: return <DesktopScreen13 navigate={navigate} />
       case 14: return <DesktopScreen14 navigate={navigate} />
@@ -86,7 +171,9 @@ export default function App() {
           <div style={{ width: 22, height: 22, borderRadius: 6, backgroundColor: C.brand, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '-0.3px' }}>Contigo</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.surface, whiteSpace: "nowrap" }}>
+            Demostración · datos ficticios
+          </span>
         </div>
 
         {/* Divider */}

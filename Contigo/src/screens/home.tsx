@@ -1,6 +1,7 @@
 import { useState } from "react"
 import {
   BottomSheet,
+  ActionCard,
   Btn,
   C,
   Card,
@@ -11,13 +12,11 @@ import {
   StatusChip,
 } from "../ui"
 import {
-  createDemoJourney,
-  EMPTY_JOURNEY,
+  validCaregivers,
   type JourneyState,
   type NetworkEntry,
+  type NetworkPerson,
 } from "../journey"
-
-type HomeVariant = "auto" | "first" | "progress" | "ready" | "selected" | "activity" | "check-in" | "offline" | "error"
 
 interface HomeProps {
   navigate: (screen: number) => void
@@ -29,181 +28,59 @@ interface HomeProps {
   demoMode: boolean
 }
 
-const demoProgress: JourneyState = {
-  ...EMPTY_JOURNEY,
-  mapStarted: true,
-  people: [
-    {
-      id: "demo-progress-m",
-      name: "M.",
-      relationshipType: "Familia",
-      answers: Array(18).fill(5),
-      status: "complete",
-    },
-    {
-      id: "demo-progress-alex",
-      name: "Alex",
-      answers: Array(18).fill(null),
-      status: "pending",
-    },
-  ],
-}
+type Sheet = "profile" | "notifications" | "history" | "caregivers" | "learning" | null
 
-function deriveVariant(journey: JourneyState): Exclude<HomeVariant, "auto"> {
-  if (journey.activityInProgress) return "activity"
-  if (journey.selectedPersonId) return "selected"
-  if (journey.mapGenerated) return "ready"
-  if (journey.mapStarted || journey.people.length > 0) return "progress"
-  return "first"
-}
+const moduleTints = [C.brandSoft, C.soft, C.soft, C.soft, C.criticalSoft]
 
 export default function MobileHomeScreen({
   navigate,
   journey,
   setJourney,
   openNetwork,
-  demoMode,
 }: HomeProps) {
-  const [toolsOpen, setToolsOpen] = useState(false)
-  const [headerPanel, setHeaderPanel] =
-    useState<"notifications" | "profile" | null>(null)
-  const [variant, setVariant] = useState<HomeVariant>("auto")
-
-  const effectiveVariant = variant === "auto" ? deriveVariant(journey) : variant
+  const [sheet, setSheet] = useState<Sheet>(null)
+  const [learningTitle, setLearningTitle] = useState("")
+  const caregivers = validCaregivers(journey)
+  const pendingInvitations = journey.people.filter(
+    (person) => person.invitationStatus === "pending",
+  ).length
   const completed = journey.people.filter(
     (person) => person.status === "complete",
   ).length
-  const selectedPerson = journey.people.find(
-    (person) => person.id === journey.selectedPersonId,
-  )
+  const showWelcome = journey.onboardingStatus === "not-started"
 
-  const selectDemoVariant = (nextVariant: HomeVariant) => {
-    setVariant(nextVariant)
-    if (nextVariant === "first") setJourney({ ...EMPTY_JOURNEY })
-    if (nextVariant === "progress")
-      setJourney({
-        ...demoProgress,
-        people: demoProgress.people.map((person) => ({
-          ...person,
-          answers: [...person.answers],
-        })),
-      })
-    if (
-      nextVariant === "ready" ||
-      nextVariant === "check-in" ||
-      nextVariant === "offline" ||
-      nextVariant === "error"
-    ) {
-      setJourney(createDemoJourney())
+  const openCareTools = () => {
+    if (caregivers.length === 1) {
+      setJourney((current) => ({
+        ...current,
+        selectedPersonId: caregivers[0].id,
+      }))
+      navigate(8)
+      return
     }
-    if (nextVariant === "selected" || nextVariant === "activity") {
-      const demo = createDemoJourney()
-      setJourney({
-        ...demo,
-        selectedPersonId: demo.people[0].id,
-        activityInProgress: nextVariant === "activity",
-      })
-    }
+    setSheet("caregivers")
   }
 
-  const nextStep = (() => {
-    if (effectiveVariant === "error") {
-      return {
-        eyebrow: "No pudimos actualizar tu información",
-        title: "Puedes intentarlo de nuevo o continuar con otra herramienta.",
-        action: "Intentar de nuevo",
-        onAction: () => setVariant("auto"),
-      }
-    }
-    if (effectiveVariant === "offline") {
-      return {
-        eyebrow: "Estás sin conexión",
-        title:
-          "Tu plan de seguridad sigue disponible. Los cambios se sincronizarán después.",
-        action: "Ver mi plan",
-        onAction: () => navigate(5),
-      }
-    }
-    if (effectiveVariant === "check-in") {
-      return {
-        eyebrow: "Tu siguiente paso",
-        title:
-          "¿Quieres registrar cómo estás hoy? Puedes hacerlo a tu propio ritmo.",
-        action: "Registrar cómo estoy",
-        onAction: () => navigate(3),
-      }
-    }
-    if (effectiveVariant === "activity") {
-      return {
-        eyebrow: "Tu siguiente paso",
-        title: `Retoma la actividad que guardaste${
-          selectedPerson ? ` con ${selectedPerson.name}` : ""
-        }.`,
-        action: "Retomar actividad",
-        onAction: () => navigate(8),
-      }
-    }
-    if (effectiveVariant === "selected") {
-      return {
-        eyebrow: "Tu siguiente paso",
-        title: `Continúa fortaleciendo tu vínculo${
-          selectedPerson ? ` con ${selectedPerson.name}` : ""
-        }.`,
-        action: "Tejer este vínculo",
-        onAction: () => navigate(8),
-      }
-    }
-    if (effectiveVariant === "ready") {
-      return {
-        eyebrow: "Tu mapa está listo",
-        title: "Revísalo y elige libremente dónde te gustaría tejer.",
-        action: "Ver mi red y elegir",
-        onAction: () => openNetwork("results"),
-      }
-    }
-    if (effectiveVariant === "progress") {
-      return {
-        eyebrow: "Tu siguiente paso",
-        title: "Continúa construyendo tu red cuando te resulte posible.",
-        action: "Continuar mi mapa",
-        onAction: () => openNetwork("progress"),
-      }
-    }
-    return {
-      eyebrow: "Tu siguiente paso",
-      title: "Empieza reconociendo las personas que forman parte de tu vida.",
-      action: "Construir mi mapa",
-      onAction: () => openNetwork("intro"),
-    }
-  })()
+  const selectCaregiver = (person: NetworkPerson) => {
+    setJourney((current) => ({ ...current, selectedPersonId: person.id }))
+    setSheet(null)
+    navigate(8)
+  }
 
-  const stages = [
+  const tools = [
     {
-      number: 1,
-      title: "¿Dónde quieres tejer?",
-      subtitle: "Conoce tu red",
-      description:
-        "Reconoce con quiénes cuentas hoy y observa cómo está tejida tu red.",
-      status: journey.mapGenerated
-        ? "Completado"
-        : journey.mapStarted
-          ? "En progreso"
-          : "Recomendado",
-      statusVariant: journey.mapGenerated
-        ? "ok"
-        : journey.mapStarted
-          ? "warn"
-          : "blue",
-      detail:
-        journey.people.length > 0
-          ? `${completed} de ${journey.people.length} relaciones caracterizadas`
-          : undefined,
-      action: journey.mapGenerated
-        ? "Ver mi red"
-        : journey.mapStarted
-          ? "Continuar mi mapa"
-          : "Construir mi mapa",
-      onAction: () =>
+      title: "Conocer mi red",
+      description: "Construye o revisa tu mapa e invita a personas cercanas",
+      icon: Ic.users,
+      status:
+        pendingInvitations > 0
+          ? `${pendingInvitations} ${pendingInvitations === 1 ? "invitación pendiente" : "invitaciones pendientes"}`
+          : journey.mapGenerated
+            ? `${completed} relaciones en tu mapa`
+            : journey.mapStarted
+              ? "Mapa en progreso"
+              : "Aún no has comenzado",
+      action: () =>
         openNetwork(
           journey.mapGenerated
             ? "results"
@@ -211,100 +88,41 @@ export default function MobileHomeScreen({
               ? "progress"
               : "intro",
         ),
-      active: ["first", "progress"].includes(effectiveVariant),
-    },
-    {
-      number: 2,
-      title: "Elige un vínculo",
-      description:
-        "Escoge una relación en la que te gustaría acercarte, comunicarte o recibir acompañamiento.",
-      status: selectedPerson
-        ? "Persona seleccionada"
-        : journey.mapGenerated
-          ? "Siguiente paso"
-          : "Disponible",
-      statusVariant: selectedPerson
-        ? "ok"
-        : journey.mapGenerated
-          ? "blue"
-          : "default",
-      detail: selectedPerson
-        ? `Elegiste tejer con ${selectedPerson.name}.`
-        : undefined,
-      action: selectedPerson ? "Cambiar elección" : "Elegir una persona",
-      onAction: () => openNetwork("results"),
-      active: effectiveVariant === "ready",
-    },
-    {
-      number: 3,
-      title: "Teje el vínculo",
-      description: selectedPerson
-        ? `Encuentra formas pequeñas y cuidadosas de acercarte a ${selectedPerson.name}.`
-        : "Explora formas cuidadosas de acercarte a una persona importante para ti.",
-      status: journey.activityInProgress
-        ? "Actividad en curso"
-        : selectedPerson
-          ? "Listo para comenzar"
-          : "Disponible para explorar",
-      statusVariant: journey.activityInProgress
-        ? "warn"
-        : selectedPerson
-          ? "ok"
-          : "default",
-      action: journey.activityInProgress
-        ? "Retomar"
-        : selectedPerson
-          ? "Continuar fortaleciendo este vínculo"
-          : "Explorar herramientas",
-      onAction: () => navigate(8),
-      active: ["selected", "activity"].includes(effectiveVariant),
-    },
-    {
-      number: 4,
-      title: "Observa tu proceso",
-      description:
-        "Registra cómo estás y observa tus interacciones con calma, a tu propio ritmo.",
-      status: journey.dailyCheckInPending ? "Registro disponible" : "Al día",
-      statusVariant: journey.dailyCheckInPending ? "warm" : "ok",
-      action: journey.dailyCheckInPending
-        ? "Registrar cómo estoy"
-        : "Ver actividad reciente",
-      onAction: () => navigate(3),
-      active: effectiveVariant === "check-in",
-    },
-  ] as const
-
-  const tools: Array<{
-    title: string
-    description: string
-    action: () => void
-  }> = [
-    {
-      title: "Conocer mi red",
-      description: "Construir o revisar mi mapa",
-      action: () => openNetwork(journey.mapGenerated ? "results" : "auto"),
     },
     {
       title: "Cuidar un vínculo",
       description: "Mensajes, encuentros y preguntas para conectar",
-      action: () => navigate(8),
+      icon: Ic.heart,
+      status:
+        caregivers.length > 0
+          ? `${caregivers.length} ${caregivers.length === 1 ? "cuidador informal asociado" : "cuidadores informales asociados"}`
+          : "Necesita una invitación aceptada y una vinculación activa",
+      action: openCareTools,
     },
     {
       title: "Registrar cómo estoy",
       description: "Registro breve y EMA",
+      icon: Ic.clipboard,
+      status: journey.dailyCheckInPending ? "Registro disponible" : "Registro al día",
       action: () => navigate(3),
     },
     {
       title: "Consultar mensajes y actividad",
-      description: "Acompañamiento reciente",
-      action: () => navigate(8),
+      description: "Revisa tu acompañamiento y tus interacciones recientes",
+      icon: Ic.message,
+      status: "Sin actividad reciente",
+      action: () => setSheet("history"),
     },
     {
       title: "Plan de seguridad y apoyo inmediato",
-      description: "Disponible incluso sin conexión",
+      description: "Consulta tu plan y encuentra apoyo cuando lo necesites",
+      icon: Ic.shield,
+      status: "Disponible sin cuidadores asociados",
       action: () => navigate(5),
     },
   ]
+
+  const learning = ["Afrontar una crisis", "Habilidades interpersonales"]
 
   return (
     <div
@@ -317,395 +135,241 @@ export default function MobileHomeScreen({
       }}
     >
       <StatusBar />
-      <div style={{ flex: 1, overflowY: "auto", padding: "4px 20px 180px" }}>
-        {demoMode && (
-          <div style={{ marginBottom: 14 }}>
-            <label
-              htmlFor="home-demo-state"
-              style={{
-                display: "block",
-                fontSize: 11,
-                fontWeight: 700,
-                color: C.muted,
-                marginBottom: 5,
-              }}
-            >
-              Demo · Estado de pantalla
-            </label>
-            <select
-              id="home-demo-state"
-              value={variant}
-              onChange={(event) =>
-                selectDemoVariant(event.target.value as HomeVariant)
-              }
-              style={{
-                width: "100%",
-                height: 40,
-                border: `1px solid ${C.border}`,
-                borderRadius: 10,
-                padding: "0 10px",
-                color: C.body,
-                backgroundColor: C.surface,
-              }}
-            >
-              <option value="auto">Automático</option>
-              <option value="first">Primer ingreso</option>
-              <option value="progress">Mapa en progreso</option>
-              <option value="ready">Mapa listo</option>
-              <option value="selected">Persona elegida</option>
-              <option value="activity">Actividad</option>
-              <option value="check-in">Registro pendiente</option>
-              <option value="offline">Sin conexión</option>
-              <option value="error">Error</option>
-            </select>
-          </div>
-        )}
-
+      <div style={{ flex: 1, overflowY: "auto", padding: "4px 20px 24px" }}>
         <header
           style={{
             display: "flex",
             justifyContent: "space-between",
             gap: 12,
             alignItems: "flex-start",
-            marginBottom: 18,
+            marginBottom: 22,
           }}
         >
-          <div>
-            <h1
+          <div style={{ minWidth: 0 }}>
+            <p
               style={{
                 fontSize: 27,
+                fontWeight: 750,
                 color: C.heading,
                 margin: "0 0 5px",
                 lineHeight: "32px",
               }}
             >
               Hola, Sofía
-            </h1>
-            <p
-              style={{
-                fontSize: 14,
-                lineHeight: "20px",
-                color: C.muted,
-                margin: 0,
-              }}
-            >
-              Aquí puedes reconocer tu red, cuidar tus vínculos y encontrar
-              apoyo cuando lo necesites.
+            </p>
+            <p style={{ fontSize: 14, lineHeight: "20px", color: C.muted, margin: 0 }}>
+              ¿Qué te gustaría hacer hoy?
             </p>
           </div>
-          <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-            <button
-              type="button"
-              aria-label="Ver notificaciones"
-              onClick={() => setHeaderPanel("notifications")}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 14,
-                border: `1px solid ${C.border}`,
-                background: C.surface,
-                color: C.brand,
-                display: "grid",
-                placeItems: "center",
-                cursor: "pointer",
-              }}
-            >
-              {Ic.message}
-            </button>
-            <button
-              type="button"
-              aria-label="Abrir perfil"
-              onClick={() => setHeaderPanel("profile")}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 14,
-                border: "none",
-                background: C.brandSoft,
-                color: C.brand,
-                display: "grid",
-                placeItems: "center",
-                cursor: "pointer",
-              }}
-            >
-              {Ic.user}
-            </button>
+          <div style={{ display: "flex", gap: 7, flexShrink: 0 }}>
+            <Btn variant="tertiary" icon={Ic.message} onClick={() => setSheet("notifications")} aria-label="Ver notificaciones">
+              <span aria-hidden="true"> </span>
+            </Btn>
+            <Btn variant="secondary" icon={Ic.user} onClick={() => setSheet("profile")} aria-label="Abrir perfil">
+              <span aria-hidden="true"> </span>
+            </Btn>
           </div>
         </header>
 
-        <section
-          style={{
-            background: `linear-gradient(145deg, ${C.brand}, ${C.brandHover})`,
-            borderRadius: 20,
-            padding: 20,
-            color: "white",
-            marginBottom: 24,
-            boxShadow: "0 12px 28px rgba(36,107,100,.18)",
-          }}
-        >
-          <p
+        {showWelcome && (
+          <Card
             style={{
-              margin: "0 0 7px",
-              fontSize: 12,
-              fontWeight: 750,
-              letterSpacing: ".04em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,.72)",
+              padding: 20,
+              marginBottom: 24,
+              background: `linear-gradient(145deg, ${C.brand}, ${C.brandHover})`,
+              border: "none",
+              color: C.surface,
+              boxShadow: "0 12px 28px rgba(36,107,100,.18)",
             }}
           >
-            {nextStep.eyebrow}
-          </p>
-          <h2 style={{ margin: "0 0 16px", fontSize: 19, lineHeight: "26px" }}>
-            {nextStep.title}
-          </h2>
-          <Btn
-            fullWidth
-            onClick={nextStep.onAction}
-            style={{ backgroundColor: "white", color: C.brand, height: 46 }}
-          >
-            {nextStep.action}
-          </Btn>
-        </section>
-
-        <div style={{ marginBottom: 12 }}>
-          <h2 style={{ fontSize: 19, color: C.heading, margin: "0 0 4px" }}>
-            Tu recorrido
-          </h2>
-          <p
-            style={{
-              fontSize: 13,
-              lineHeight: "19px",
-              color: C.muted,
-              margin: 0,
-            }}
-          >
-            Es una ruta recomendada. Puedes explorarla a tu propio ritmo.
-          </p>
-        </div>
-
-        <div style={{ position: "relative" }}>
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              left: 22,
-              top: 28,
-              bottom: 34,
-              width: 2,
-              background: `linear-gradient(${C.brandSoft}, ${C.border})`,
-            }}
-          />
-          {stages.map((stage) => (
-            <div
-              key={stage.number}
+            <div style={{ color: C.surface, marginBottom: 12 }}>{Ic.users}</div>
+            <p style={{ fontSize: 20, lineHeight: "26px", fontWeight: 750, margin: "0 0 8px" }}>
+              Antes de empezar, reconoce las personas que forman parte de tu vida
+            </p>
+            <p style={{ fontSize: 13, lineHeight: "20px", color: C.surface, margin: "0 0 16px" }}>
+              Construye tu mapa de red y, al terminar, invita a quienes quieras para que te acompañen como cuidadores informales.
+            </p>
+            <Btn
+              fullWidth
+              onClick={() => {
+                setJourney((current) => ({
+                  ...current,
+                  onboardingStatus: "in-progress",
+                  onboardingWelcomeShown: true,
+                }))
+                openNetwork("intro")
+              }}
+              style={{ backgroundColor: C.surface, color: C.brand }}
+            >
+              Construir mi mapa
+            </Btn>
+            <Btn
+              variant="tertiary"
+              fullWidth
+              onClick={() =>
+                setJourney((current) => ({
+                  ...current,
+                  onboardingStatus: "deferred",
+                  onboardingWelcomeShown: true,
+                }))
+              }
               style={{
-                position: "relative",
-                display: "grid",
-                gridTemplateColumns: "46px 1fr",
-                gap: 10,
-                paddingBottom: 14,
+                color: C.surface,
+                border: `1px solid ${C.surface}`,
+                backgroundColor: "transparent",
+                marginTop: 10,
+                minHeight: 44,
               }}
             >
-              <div
-                aria-hidden="true"
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background: stage.active ? C.brand : C.surface,
-                  color: stage.active ? "white" : C.brand,
-                  border: `2px solid ${stage.active ? C.brand : C.brandSoft}`,
-                  display: "grid",
-                  placeItems: "center",
-                  fontSize: 15,
-                  fontWeight: 750,
-                  zIndex: 1,
-                }}
-              >
-                {stage.number}
-              </div>
-              <Card
-                style={{
-                  padding: 17,
-                  border: stage.active
-                    ? `2px solid ${C.brand}`
-                    : `1px solid ${C.border}`,
-                  boxShadow: stage.active
-                    ? "0 9px 22px rgba(36,107,100,.12)"
-                    : "0 3px 12px rgba(23,52,58,.05)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 8,
-                    alignItems: "flex-start",
-                    marginBottom: 8,
-                  }}
-                >
-                  <div>
-                    <h3
-                      style={{
-                        fontSize: 16,
-                        lineHeight: "21px",
-                        color: C.heading,
-                        margin: 0,
-                      }}
-                    >
-                      {stage.title}
-                    </h3>
-                    {"subtitle" in stage && stage.subtitle && (
-                      <p
-                        style={{
-                          margin: "2px 0 0",
-                          color: C.brand,
-                          fontSize: 12,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {stage.subtitle}
-                      </p>
-                    )}
-                  </div>
-                  <StatusChip
-                    label={stage.status}
-                    variant={stage.statusVariant}
-                  />
-                </div>
-                <p
-                  style={{
-                    fontSize: 13,
-                    lineHeight: "19px",
-                    color: C.muted,
-                    margin: "0 0 8px",
-                  }}
-                >
-                  {stage.description}
-                </p>
-                {"detail" in stage && stage.detail && (
-                  <p
+              Hacerlo después
+            </Btn>
+          </Card>
+        )}
+
+        {!showWelcome && journey.onboardingStatus === "deferred" && !journey.mapGenerated && (
+          <Card style={{ marginBottom: 20, borderLeft: `4px solid ${C.brand}` }}>
+            <p style={{ fontSize: 12, fontWeight: 750, color: C.brand, margin: "0 0 5px" }}>TU MAPA TE ESPERA</p>
+            <p style={{ fontSize: 14, lineHeight: "20px", color: C.body, margin: "0 0 12px" }}>
+              Puedes reconocer tu red cuando te resulte posible. El plan y el apoyo inmediato siguen disponibles.
+            </p>
+            <Btn variant="secondary" fullWidth onClick={() => openNetwork("intro")}>Continuar mi mapa</Btn>
+          </Card>
+        )}
+
+        <section>
+          <div style={{ marginBottom: 12 }}>
+            <p style={{ fontSize: 19, fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>Tus herramientas</p>
+            <p style={{ fontSize: 13, lineHeight: "19px", color: C.muted, margin: 0 }}>Elige la que te sea más útil en este momento.</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+            {tools.map((tool, index) => (
+              index === 4 ? (
+              <Card key={tool.title} style={{ padding: 16, boxShadow: "0 5px 16px rgba(23,52,58,.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+                  <div
                     style={{
-                      fontSize: 12,
-                      color: C.body,
-                      fontWeight: 650,
-                      margin: "0 0 10px",
+                      width: 48,
+                      height: 48,
+                      borderRadius: 14,
+                      display: "grid",
+                      placeItems: "center",
+                      flexShrink: 0,
+                      backgroundColor: moduleTints[index],
+                      color: index === 4 ? C.critical : index === 2 ? C.warm : index === 1 ? C.blue : C.brand,
                     }}
                   >
-                    {stage.detail}
-                  </p>
-                )}
-                <button
-                  type="button"
-                  onClick={stage.onAction}
-                  style={{
-                    minHeight: 44,
-                    border: "none",
-                    background: "transparent",
-                    color: C.brand,
-                    padding: 0,
-                    fontFamily: "inherit",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                    textAlign: "left",
-                  }}
-                >
-                  {stage.action} {Ic.chevRight}
-                </button>
+                    {tool.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 16, lineHeight: "21px", fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>{tool.title}</p>
+                    <p style={{ fontSize: 13, lineHeight: "18px", color: C.muted, margin: "0 0 7px" }}>{tool.description}</p>
+                    <p style={{ fontSize: 11.5, lineHeight: "16px", fontWeight: 650, color: index === 4 ? C.critical : C.brand, margin: 0 }}>{tool.status}</p>
+                  </div>
+                  <span aria-hidden="true" style={{ color: C.critical, flexShrink: 0 }}>{Ic.shield}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 14 }}>
+                  <Btn variant="secondary" small onClick={() => navigate(5)}>Ver mi plan</Btn>
+                  <Btn variant="critical" small onClick={() => navigate(6)}>Apoyo ahora</Btn>
+                </div>
               </Card>
-            </div>
-          ))}
-        </div>
+              ) : (
+                <ActionCard
+                  key={tool.title}
+                  onClick={tool.action}
+                  ariaLabel={`${tool.title}. ${tool.description}. ${tool.status}`}
+                  style={{ padding: 16, boxShadow: "0 5px 16px rgba(23,52,58,.06)" }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 14, display: "grid", placeItems: "center", flexShrink: 0, backgroundColor: moduleTints[index], color: index === 2 ? C.warm : index === 1 ? C.blue : C.brand }}>
+                      {tool.icon}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 16, lineHeight: "21px", fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>{tool.title}</p>
+                      <p style={{ fontSize: 13, lineHeight: "18px", color: C.muted, margin: "0 0 7px" }}>{tool.description}</p>
+                      <p style={{ fontSize: 11.5, lineHeight: "16px", fontWeight: 650, color: C.brand, margin: 0 }}>{tool.status}</p>
+                    </div>
+                    <span aria-hidden="true" style={{ color: C.brand, flexShrink: 0 }}>{Ic.chevRight}</span>
+                  </div>
+                </ActionCard>
+              )
+            ))}
+          </div>
+        </section>
 
-        <Btn
-          variant="secondary"
-          fullWidth
-          onClick={() => setToolsOpen(true)}
-          style={{ marginTop: 4 }}
-        >
-          Ver todas las herramientas
-        </Btn>
+        <section style={{ marginTop: 30 }}>
+          <p style={{ fontSize: 19, fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>Aprender habilidades</p>
+          <p style={{ fontSize: 13, lineHeight: "19px", color: C.muted, margin: "0 0 14px" }}>
+            Recursos breves para afrontar momentos difíciles y fortalecer tus relaciones.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+            {learning.map((title, index) => (
+              <Card key={title} style={{ padding: 0, overflow: "hidden" }}>
+                <div style={{ height: 76, backgroundColor: index === 0 ? C.brandSoft : C.soft, display: "grid", placeItems: "center", color: index === 0 ? C.brand : C.blue }}>
+                  {index === 0 ? Ic.shield : Ic.users}
+                </div>
+                <div style={{ padding: 15 }}>
+                  <p style={{ fontSize: 15, fontWeight: 750, color: C.heading, margin: "0 0 6px" }}>{title}</p>
+                  <p style={{ fontSize: 12, lineHeight: "18px", color: C.muted, margin: "0 0 12px" }}>Contenido pendiente de validación por el equipo investigador.</p>
+                  <Btn variant="secondary" fullWidth small onClick={() => { setLearningTitle(title); setSheet("learning") }}>Explorar contenido</Btn>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
       </div>
 
       <FloatingSupportBtn onPress={() => navigate(6)} bottom={92} />
       <PCSBottomNav active="inicio" navigate={navigate} />
 
-      <BottomSheet
-        open={toolsOpen}
-        onClose={() => setToolsOpen(false)}
-        title="Todas las herramientas"
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {tools.map(({ title, description, action }) => (
-            <button
-              type="button"
-              key={title}
-              onClick={action}
-              style={{
-                width: "100%",
-                minHeight: 62,
-                border: `1px solid ${C.border}`,
-                borderRadius: 13,
-                padding: "12px 14px",
-                background: C.surface,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 10,
-                textAlign: "left",
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              <span>
-                <strong
-                  style={{
-                    display: "block",
-                    color: C.heading,
-                    fontSize: 14,
-                    marginBottom: 3,
-                  }}
-                >
-                  {title}
-                </strong>
-                <span
-                  style={{ color: C.muted, fontSize: 12, lineHeight: "17px" }}
-                >
-                  {description}
-                </span>
-              </span>
-              <span style={{ color: C.brand, flexShrink: 0 }}>
-                {Ic.chevRight}
-              </span>
-            </button>
-          ))}
+      <BottomSheet open={sheet === "caregivers"} onClose={() => setSheet(null)} title="Cuidar un vínculo">
+        {caregivers.length === 0 ? (
+          <div>
+            <StatusChip label="Sin cuidadores asociados" variant="warn" />
+            <p style={{ fontSize: 15, lineHeight: "22px", color: C.body, margin: "15px 0 7px", fontWeight: 700 }}>Todavía no hay un vínculo habilitado</p>
+            <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 18px" }}>
+              Cuando alguien acepte tu invitación y quede vinculado contigo, podrás usar aquí mensajes, encuentros y preguntas para conectar.
+            </p>
+            <Btn fullWidth onClick={() => { setSheet(null); openNetwork(journey.mapGenerated ? "results" : "auto") }}>Invitar a alguien</Btn>
+            <Btn variant="tertiary" fullWidth onClick={() => setSheet(null)} style={{ marginTop: 7 }}>Volver al inicio</Btn>
+          </div>
+        ) : (
+          <div>
+            <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 13px" }}>Elige un cuidador informal asociado para esta actividad.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {caregivers.map((person) => (
+                <ActionCard key={person.id} ariaLabel={`Elegir a ${person.name}, cuidador informal asociado`} onClick={() => selectCaregiver(person)} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ color: C.brand }}>{Ic.user}</span>
+                  <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: C.heading }}>{person.name}</span>
+                  <StatusChip label="Asociado" variant="ok" />
+                </ActionCard>
+              ))}
+            </div>
+          </div>
+        )}
+      </BottomSheet>
+
+      <BottomSheet open={sheet === "history"} onClose={() => setSheet(null)} title="Mensajes y actividad">
+        <div style={{ textAlign: "center", padding: "14px 0" }}>
+          <div style={{ color: C.brand, marginBottom: 12 }}>{Ic.message}</div>
+          <p style={{ fontSize: 16, fontWeight: 750, color: C.heading, margin: "0 0 7px" }}>Aún no hay actividad para mostrar</p>
+          <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 18px" }}>Este prototipo no muestra interacciones clínicas ni mensajes inventados.</p>
+          <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver al inicio</Btn>
         </div>
       </BottomSheet>
 
-      <BottomSheet
-        open={headerPanel !== null}
-        onClose={() => setHeaderPanel(null)}
-        title={headerPanel === "profile" ? "Tu perfil" : "Notificaciones"}
-      >
-        <p
-          style={{
-            fontSize: 14,
-            color: C.muted,
-            lineHeight: "21px",
-            margin: "0 0 18px",
-          }}
-        >
-          {headerPanel === "profile"
-            ? "Desde aquí podrás revisar tu cuenta, privacidad y preferencias de acompañamiento."
-            : "No tienes notificaciones nuevas. Tus mensajes sensibles se mantienen privados en esta vista."}
+      <BottomSheet open={sheet === "learning"} onClose={() => setSheet(null)} title={learningTitle}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ height: 100, borderRadius: 14, backgroundColor: C.soft, color: C.brand, display: "grid", placeItems: "center", marginBottom: 16 }}>{learningTitle === learning[0] ? Ic.shield : Ic.users}</div>
+          <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>Este contenido será proporcionado y validado por el equipo investigador.</p>
+          <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver</Btn>
+        </div>
+      </BottomSheet>
+
+      <BottomSheet open={sheet === "profile" || sheet === "notifications"} onClose={() => setSheet(null)} title={sheet === "profile" ? "Tu perfil" : "Notificaciones"}>
+        <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
+          {sheet === "profile" ? "Desde aquí podrás revisar tu cuenta, privacidad y preferencias de acompañamiento." : "No tienes notificaciones nuevas."}
         </p>
-        <Btn variant="secondary" fullWidth onClick={() => setHeaderPanel(null)}>
-          Cerrar
-        </Btn>
+        <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Cerrar</Btn>
       </BottomSheet>
     </div>
   )

@@ -653,12 +653,14 @@ type ConnectionStage = "answering" | "waiting" | "revealed"
 export function MobileScreen14({
   navigate,
   role,
+  otherName: suppliedOtherName,
 }: {
   navigate: Navigate
   role: "pcs" | "caregiver"
+  otherName?: string
 }) {
-  const homeScreen = role === "pcs" ? 2 : 9
-  const otherName = role === "pcs" ? "Mamá" : "Sofi"
+  const homeScreen = role === "pcs" ? 8 : 9
+  const otherName = suppliedOtherName ?? (role === "pcs" ? "tu cuidador informal" : "Sofi")
   const [questionIndex, setQuestionIndex] = useState(role === "pcs" ? 0 : 2)
   const [stage, setStage] = useState<ConnectionStage>("answering")
   const [format, setFormat] = useState<ResponseFormat>("text")

@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap');
 @import 'tailwindcss';
 
+html, body, #root { min-height: 100%; margin: 0; }
+
 body {
   font-family: 'Inter', system-ui, sans-serif;
   background-color: #F5F8F7;
   color: #26383D;
   -webkit-font-smoothing: antialiased;
 }
-
-html, body, #root { min-height: 100%; margin: 0; }
 
 * { scrollbar-width: none; box-sizing: border-box; }
 *::-webkit-scrollbar { display: none; }
@@ -34,20 +34,10 @@ html, body, #root { min-height: 100%; margin: 0; }
   outline-offset: 3px;
 }
 
-.gentle-spinner { animation: gentle-spin 900ms linear infinite; }
-
-@keyframes gentle-spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 420px) {
-  .prototype-stage { width: 100%; }
-  .phone-shell {
-    width: 100vw !important;
-    height: 100dvh !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
+.action-card:focus-visible,
+button:focus-visible {
+  outline: 3px solid rgba(47,125,115,0.34);
+  outline-offset: 3px;
 }
 
 @keyframes breathe {
@@ -73,4 +63,20 @@ html, body, #root { min-height: 100%; margin: 0; }
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
+}
+
+.gentle-spinner { animation: gentle-spin 900ms linear infinite; }
+
+@keyframes gentle-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 420px) {
+  .prototype-stage { width: 100%; }
+  .phone-shell {
+    width: 100vw !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
 }

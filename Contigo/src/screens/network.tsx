@@ -12,6 +12,7 @@ import {
   StatusChip,
 } from "../ui"
 import {
+  canStrengthenRelationship,
   createDemoJourney,
   type JourneyState,
   type NetworkEntry,
@@ -90,6 +91,8 @@ type Metrics = {
   negativity: number
   importance: number
   finalCloseness: number
+  calculatedAmbivalence: number
+  reportedAmbivalence: number
   ring: "Íntimo" | "Personal" | "Ocasional"
   classification: "Mayormente positiva" | "Ambivalente" | "Mayormente negativa" | "Baja intensidad"
   shape: "circle" | "diamond" | "triangle" | "square"
@@ -100,7 +103,7 @@ const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
 function answer(person: NetworkPerson, questionNumber: number) {
-  return person.answers[questionNumber - 2] ?? 1
+  return person.answers[questionNumber - 2] ?? Number.NaN
 }
 
 function pomp(person: NetworkPerson, questionNumbers: number[]) {
@@ -120,6 +123,9 @@ function metricsFor(person: NetworkPerson): Metrics {
   const positivity = pomp(person, [10, 11, 15])
   const negativity = pomp(person, [7, 9, 12, 16, 17, 18])
   const importance = clamp((answer(person, 2) - 1) / 5, 0, 1)
+  const calculatedAmbivalence =
+    (positivity + negativity) / 2 - Math.abs(positivity - negativity)
+  const reportedAmbivalence = clamp((answer(person, 19) - 1) / 5, 0, 1)
   const finalCloseness = Math.max(0, closeness - 0.4 * negativity)
   const ring =
     finalCloseness >= 0.7
@@ -135,6 +141,8 @@ function metricsFor(person: NetworkPerson): Metrics {
       negativity,
       importance,
       finalCloseness,
+      calculatedAmbivalence,
+      reportedAmbivalence,
       ring,
       classification: "Mayormente positiva",
       shape: "circle",
@@ -148,6 +156,8 @@ function metricsFor(person: NetworkPerson): Metrics {
       negativity,
       importance,
       finalCloseness,
+      calculatedAmbivalence,
+      reportedAmbivalence,
       ring,
       classification: "Ambivalente",
       shape: "diamond",
@@ -161,6 +171,8 @@ function metricsFor(person: NetworkPerson): Metrics {
       negativity,
       importance,
       finalCloseness,
+      calculatedAmbivalence,
+      reportedAmbivalence,
       ring,
       classification: "Mayormente negativa",
       shape: "triangle",
@@ -173,11 +185,39 @@ function metricsFor(person: NetworkPerson): Metrics {
     negativity,
     importance,
     finalCloseness,
+    calculatedAmbivalence,
+    reportedAmbivalence,
     ring,
     classification: "Baja intensidad",
     shape: "square",
     color: "#4C6F8A",
   }
+}
+
+function invitationLabel(person: NetworkPerson, journey: JourneyState) {
+  if (canStrengthenRelationship(journey, person.id))
+    return "Cuidador informal asociado"
+  if (person.invitationStatus === "accepted") return "Vinculación en proceso"
+  const labels = {
+    "not-invited": "Sin invitación",
+    pending: "Pendiente de aceptación",
+    declined: "Invitación rechazada",
+    cancelled: "Invitación cancelada",
+    expired: "Invitación expirada",
+  } as const
+  return labels[
+    person.invitationStatus as keyof typeof labels
+  ] ?? "Sin invitación"
+}
+
+function invitationVariant(
+  person: NetworkPerson,
+  journey: JourneyState,
+): "ok" | "warn" | "default" | "blue" {
+  if (canStrengthenRelationship(journey, person.id)) return "ok"
+  if (person.invitationStatus === "pending") return "warn"
+  if (person.invitationStatus === "accepted") return "blue"
+  return "default"
 }
 
 function SvgNode({
@@ -320,13 +360,13 @@ function ClosenessMap({
           strokeWidth="1.5"
         />
       ))}
-      <text x="52" y="35" fontSize="11" fontWeight="700" fill={C.muted}>
+      <text x="52" y="35" fontSize="12" fontWeight="700" fill={C.muted}>
         Familia
       </text>
       <text
         x="268"
         y="35"
-        fontSize="11"
+        fontSize="12"
         textAnchor="end"
         fontWeight="700"
         fill={C.muted}
@@ -336,14 +376,14 @@ function ClosenessMap({
       <text
         x="283"
         y="293"
-        fontSize="11"
+        fontSize="12"
         textAnchor="end"
         fontWeight="700"
         fill={C.muted}
       >
         Trabajo / estudio
       </text>
-      <text x="37" y="293" fontSize="10" fontWeight="700" fill={C.muted}>
+      <text x="37" y="293" fontSize="12" fontWeight="700" fill={C.muted}>
         Comunidad
       </text>
       <circle cx={center} cy={center} r="22" fill={C.heading} />
@@ -386,14 +426,16 @@ function ClosenessMap({
               x={labelX}
               y={clamp(labelY, 28, 294)}
               textAnchor={anchor}
-              fontSize="11.5"
+              fontSize="12"
               fontWeight="700"
               fill={C.heading}
               stroke="#fff"
               strokeWidth="3"
               paintOrder="stroke"
             >
-              {person.name}
+              {person.name.length > 10
+                ? `${person.name.slice(0, 9)}…`
+                : person.name}
             </text>
           </g>
         )
@@ -409,7 +451,7 @@ function QualityGrid({
   people: NetworkPerson[]
   onSelect: (id: string) => void
 }) {
-  const plot = { x: 50, y: 43, width: 238, height: 222 }
+  const plot = { x: 50, y: 72, width: 238, height: 184 }
   const placed: Array<{ x: number; y: number }> = []
 
   return (
@@ -469,27 +511,27 @@ function QualityGrid({
         stroke="#B8CAC6"
         strokeDasharray="4 4"
       />
-      <text x="57" y="59" fontSize="9.5" fontWeight="700" fill={C.muted}>
+      <text x="50" y="32" fontSize="12" fontWeight="700" fill={C.muted}>
         Mayormente negativa
       </text>
       <text
-        x="279"
-        y="59"
+        x="288"
+        y="32"
         textAnchor="end"
-        fontSize="9.5"
+        fontSize="12"
         fontWeight="700"
         fill={C.muted}
       >
         Ambivalente
       </text>
-      <text x="57" y="253" fontSize="9.5" fontWeight="700" fill={C.muted}>
+      <text x="50" y="286" fontSize="12" fontWeight="700" fill={C.muted}>
         Baja intensidad
       </text>
       <text
-        x="279"
-        y="253"
+        x="288"
+        y="286"
         textAnchor="end"
-        fontSize="9.5"
+        fontSize="12"
         fontWeight="700"
         fill={C.muted}
       >
@@ -497,7 +539,7 @@ function QualityGrid({
       </text>
       <text
         x="169"
-        y="306"
+        y="316"
         textAnchor="middle"
         fontSize="12"
         fontWeight="700"
@@ -505,10 +547,10 @@ function QualityGrid({
       >
         Positividad
       </text>
-      <text x="50" y="286" fontSize="10.5" fill={C.muted}>
+      <text x="50" y="273" fontSize="12" fill={C.muted}>
         Baja
       </text>
-      <text x="288" y="286" textAnchor="end" fontSize="10.5" fill={C.muted}>
+      <text x="288" y="273" textAnchor="end" fontSize="12" fill={C.muted}>
         Alta
       </text>
       <text
@@ -522,10 +564,10 @@ function QualityGrid({
       >
         Negatividad
       </text>
-      <text x="38" y="50" textAnchor="end" fontSize="10.5" fill={C.muted}>
+      <text x="42" y="78" textAnchor="end" fontSize="12" fill={C.muted}>
         Alta
       </text>
-      <text x="38" y="265" textAnchor="end" fontSize="10.5" fill={C.muted}>
+      <text x="42" y="256" textAnchor="end" fontSize="12" fill={C.muted}>
         Baja
       </text>
       {people.map((person, index) => {
@@ -579,18 +621,26 @@ function QualityGrid({
             style={{ cursor: "pointer" }}
           >
             <SvgNode x={x} y={y} size={size} metrics={metrics} />
+            <path
+              d={`M${x} ${y}L${labelX} ${labelY}`}
+              stroke={C.muted}
+              strokeWidth="1"
+              opacity="0.45"
+            />
             <text
               x={labelX}
               y={labelY}
               textAnchor={anchor}
-              fontSize="11.5"
+              fontSize="12"
               fontWeight="700"
               fill={C.heading}
               stroke="#fff"
               strokeWidth="3"
               paintOrder="stroke"
             >
-              {person.name}
+              {person.name.length > 10
+                ? `${person.name.slice(0, 9)}…`
+                : person.name}
             </text>
           </g>
         )
@@ -642,6 +692,7 @@ export default function SocialNetworkScreen({
     existingId: string
   } | null>(null)
   const [reviewMessage, setReviewMessage] = useState("")
+  const [demoPanelOpen, setDemoPanelOpen] = useState(false)
 
   const currentPerson =
     journey.people.find((person) => person.id === currentPersonId) ?? null
@@ -650,10 +701,15 @@ export default function SocialNetworkScreen({
   const candidate =
     journey.people.find((person) => person.id === candidateId) ?? null
   const completePeople = journey.people.filter(
-    (person) => person.status === "complete",
+    (person) =>
+      person.status === "complete" &&
+      person.answers.length >= 18 &&
+      person.answers.every(
+        (value) => value !== null && value >= 1 && value <= 6,
+      ),
   )
   const incompletePeople = journey.people.filter(
-    (person) => person.status !== "complete",
+    (person) => !completePeople.some((complete) => complete.id === person.id),
   )
 
   const updatePerson = (id: string, update: Partial<NetworkPerson>) => {
@@ -679,6 +735,7 @@ export default function SocialNetworkScreen({
           name: trimmed,
           answers: Array(18).fill(null),
           status: "pending",
+          invitationStatus: "not-invited",
         },
       ],
     }))
@@ -794,6 +851,11 @@ export default function SocialNetworkScreen({
 
   const confirmSelection = (destination: "activity" | "invite") => {
     if (!candidateId) return
+    if (
+      destination === "activity" &&
+      !canStrengthenRelationship(journey, candidateId)
+    )
+      return
     setJourney((current) => ({
       ...current,
       selectedPersonId: candidateId,
@@ -903,7 +965,7 @@ export default function SocialNetworkScreen({
         </div>
       </header>
 
-      <main style={{ flex: 1, overflowY: "auto", padding: "0 20px 118px" }}>
+      <main style={{ flex: 1, overflowY: "auto", padding: "0 20px 24px" }}>
         {view === "intro" && (
           <div>
             <div
@@ -930,7 +992,7 @@ export default function SocialNetworkScreen({
                 textAlign: "center",
               }}
             >
-              Mira con quiénes cuentas hoy
+              Antes de empezar, construye tu mapa de red
             </h2>
             <p
               style={{
@@ -941,8 +1003,9 @@ export default function SocialNetworkScreen({
                 textAlign: "center",
               }}
             >
-              Antes de trabajar en tejer vínculos, vale la pena reconocer
-              quiénes forman parte de tu vida y cómo está tu red.
+              Reconoce las personas que forman parte de tu vida. Al terminar,
+              podrás invitar a quienes quieras para que te acompañen en la
+              aplicación como cuidadores informales.
             </p>
             <PrivacyNote text="Puedes usar nombres, iniciales o apodos. Esta herramienta no evalúa a las personas ni te obliga a explicar cada relación." />
             <details
@@ -979,11 +1042,19 @@ export default function SocialNetworkScreen({
             <Btn
               fullWidth
               onClick={() => {
-                setJourney((current) => ({ ...current, mapStarted: true }))
+                setJourney((current) => ({
+                  ...current,
+                  mapStarted: true,
+                  onboardingStatus:
+                    current.onboardingStatus === "completed"
+                      ? "completed"
+                      : "in-progress",
+                  onboardingWelcomeShown: true,
+                }))
                 setView("names")
               }}
             >
-              Comenzar mi mapa
+              Construir mi mapa
             </Btn>
             {journey.people.length > 0 && (
               <Btn
@@ -993,6 +1064,23 @@ export default function SocialNetworkScreen({
                 style={{ marginTop: 10 }}
               >
                 Continuar un mapa guardado
+              </Btn>
+            )}
+            {journey.people.length === 0 && (
+              <Btn
+                variant="tertiary"
+                fullWidth
+                onClick={() => {
+                  setJourney((current) => ({
+                    ...current,
+                    onboardingStatus: "deferred",
+                    onboardingWelcomeShown: true,
+                  }))
+                  navigate(2)
+                }}
+                style={{ marginTop: 8 }}
+              >
+                Hacerlo después
               </Btn>
             )}
             {demoMode && (
@@ -1835,7 +1923,7 @@ export default function SocialNetworkScreen({
                         ? "0 2px 7px rgba(23,52,58,.09)"
                         : "none",
                     font: "inherit",
-                    fontSize: 10.5,
+                    fontSize: 12,
                     lineHeight: "14px",
                     fontWeight: 700,
                     cursor: "pointer",
@@ -1854,8 +1942,8 @@ export default function SocialNetworkScreen({
                 />
                 <p
                   style={{
-                    fontSize: 12,
-                    lineHeight: "18px",
+                    fontSize: 14,
+                    lineHeight: "20px",
                     color: C.muted,
                     margin: "10px 0 0",
                   }}
@@ -1875,8 +1963,8 @@ export default function SocialNetworkScreen({
                 />
                 <p
                   style={{
-                    fontSize: 12,
-                    lineHeight: "18px",
+                    fontSize: 14,
+                    lineHeight: "20px",
                     color: C.muted,
                     margin: "10px 0 0",
                   }}
@@ -1935,14 +2023,20 @@ export default function SocialNetworkScreen({
                         <span
                           style={{
                             display: "block",
-                            fontSize: 12,
-                            lineHeight: "17px",
+                            fontSize: 14,
+                            lineHeight: "20px",
                             color: C.muted,
                           }}
                         >
                           {person.relationshipType} · Cercanía{" "}
                           {metrics.ring.toLocaleLowerCase("es")} ·{" "}
                           {metrics.classification}
+                        </span>
+                        <span style={{ display: "block", marginTop: 7 }}>
+                          <StatusChip
+                            label={invitationLabel(person, journey)}
+                            variant={invitationVariant(person, journey)}
+                          />
                         </span>
                       </span>
                       <span style={{ color: C.brand }}>{Ic.chevRight}</span>
@@ -1960,7 +2054,7 @@ export default function SocialNetworkScreen({
                   setView("choose")
                 }}
               >
-                Elegir un vínculo para fortalecer
+                Gestionar invitaciones y vínculos
               </Btn>
               <Btn
                 variant="tertiary"
@@ -1984,7 +2078,7 @@ export default function SocialNetworkScreen({
                 margin: "3px 0 8px",
               }}
             >
-              ¿Con cuál relación te gustaría trabajar?
+              Invitaciones y vínculos
             </h2>
             <p
               style={{
@@ -1994,8 +2088,8 @@ export default function SocialNetworkScreen({
                 margin: "0 0 16px",
               }}
             >
-              El mapa es una ayuda para reflexionar. La decisión siempre es tuya
-              y puedes cambiarla después.
+              Invita a cada persona por separado o consulta su estado. Estar en
+              el mapa no convierte a nadie en cuidador informal.
             </p>
             {!candidate &&
               completePeople.map((person) => {
@@ -2031,6 +2125,12 @@ export default function SocialNetworkScreen({
                       <span style={{ fontSize: 12, color: C.muted }}>
                         {person.relationshipType}
                       </span>
+                      <span style={{ display: "block", marginTop: 5 }}>
+                        <StatusChip
+                          label={invitationLabel(person, journey)}
+                          variant={invitationVariant(person, journey)}
+                        />
+                      </span>
                     </span>
                     <span style={{ color: C.brand }}>{Ic.chevRight}</span>
                   </button>
@@ -2044,7 +2144,10 @@ export default function SocialNetworkScreen({
                     marginBottom: 15,
                   }}
                 >
-                  <StatusChip label="Persona elegida" variant="ok" />
+                  <StatusChip
+                    label={invitationLabel(candidate, journey)}
+                    variant={invitationVariant(candidate, journey)}
+                  />
                   <h3
                     style={{
                       fontSize: 21,
@@ -2090,30 +2193,40 @@ export default function SocialNetworkScreen({
                     background: C.surface,
                   }}
                 />
-                <p
-                  style={{
-                    fontSize: 14,
-                    lineHeight: "21px",
-                    color: C.muted,
-                    margin: "15px 0",
-                  }}
-                >
-                  Puedes empezar con una actividad privada, preparar un mensaje
-                  o invitar a esta persona a acompañarte en Contigo.
+                <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "15px 0" }}>
+                  {canStrengthenRelationship(journey, candidate.id)
+                    ? "Esta persona aceptó y tiene una asociación activa contigo."
+                    : candidate.invitationStatus === "pending"
+                      ? "La invitación está pendiente. Las herramientas compartidas seguirán inhabilitadas hasta que acepte y quede vinculada contigo."
+                      : candidate.invitationStatus === "accepted"
+                        ? "La invitación fue aceptada, pero la vinculación activa todavía está en proceso."
+                        : "Puedes invitar a esta persona como cuidador informal. No se compartirán tus respuestas ni la puntuación del mapa."}
                 </p>
                 <div
                   style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 >
-                  <Btn fullWidth onClick={() => confirmSelection("activity")}>
-                    Empezar a tejer este vínculo
-                  </Btn>
-                  <Btn
-                    variant="secondary"
-                    fullWidth
-                    onClick={() => confirmSelection("invite")}
-                  >
-                    Invitar a acompañarme
-                  </Btn>
+                  {canStrengthenRelationship(journey, candidate.id) &&
+                    journey.onboardingStatus === "completed" && (
+                      <Btn fullWidth onClick={() => confirmSelection("activity")}>
+                        Fortalecer este vínculo
+                      </Btn>
+                    )}
+                  {candidate.invitationStatus === "not-invited" && (
+                    <Btn fullWidth onClick={() => confirmSelection("invite")}>
+                      Invitar como cuidador informal
+                    </Btn>
+                  )}
+                  {["declined", "cancelled", "expired"].includes(
+                    candidate.invitationStatus,
+                  ) && (
+                    <Btn
+                      variant="secondary"
+                      fullWidth
+                      onClick={() => confirmSelection("invite")}
+                    >
+                      Revisar una nueva invitación
+                    </Btn>
+                  )}
                   <Btn
                     variant="tertiary"
                     fullWidth
@@ -2124,8 +2237,35 @@ export default function SocialNetworkScreen({
                   >
                     Elegir después
                   </Btn>
+                  {demoMode && (
+                    <Btn
+                      variant="secondary"
+                      fullWidth
+                      onClick={() => setDemoPanelOpen(true)}
+                    >
+                      Abrir panel de prueba
+                    </Btn>
+                  )}
                 </div>
               </>
+            )}
+            {!candidate && (
+              <Btn
+                variant="tertiary"
+                fullWidth
+                onClick={() => {
+                  setJourney((current) => ({
+                    ...current,
+                    onboardingStatus: "completed",
+                  }))
+                  navigate(2)
+                }}
+                style={{ marginTop: 9 }}
+              >
+                {journey.onboardingStatus === "completed"
+                  ? "Volver al inicio"
+                  : "Continuar sin invitar por ahora"}
+              </Btn>
             )}
           </div>
         )}
@@ -2164,10 +2304,29 @@ export default function SocialNetworkScreen({
                 margin: "0 0 17px",
               }}
             >
-              La invitación solo se enviará después de tu confirmación. El mapa
-              y tus respuestas no se compartirán.
+              Revisa el mensaje antes de confirmar. El mapa y tus respuestas no
+              se compartirán.
             </p>
-            <PrivacyNote text="Podrás revisar el mensaje antes de enviarlo y cancelar si cambias de opinión." />
+            <Card style={{ textAlign: "left", marginBottom: 14 }}>
+              <p style={{ fontSize: 12, color: C.muted, margin: "0 0 4px" }}>
+                Destinatario
+              </p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: C.heading, margin: "0 0 2px" }}>
+                {candidate.name}
+              </p>
+              <p style={{ fontSize: 12, color: C.brand, margin: "0 0 14px" }}>
+                Rol: cuidador informal
+              </p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: C.muted, margin: "0 0 6px" }}>
+                BORRADOR DE PROTOTIPO · PENDIENTE DE VALIDACIÓN
+              </p>
+              <p style={{ fontSize: 14, lineHeight: "21px", color: C.body, margin: 0 }}>
+                Hola, me gustaría invitarte a Contigo para que, si lo deseas,
+                puedas acompañarme como cuidador informal. Puedes conocer la
+                invitación y decidir si quieres participar.
+              </p>
+            </Card>
+            <PrivacyNote text="Este borrador no incluye respuestas, puntuaciones, diagnósticos ni el motivo privado de tu elección." />
             <div
               style={{
                 display: "flex",
@@ -2176,9 +2335,27 @@ export default function SocialNetworkScreen({
                 marginTop: 20,
               }}
             >
-              <Btn fullWidth onClick={() => setView("sent")}>
-                Confirmar invitación
-              </Btn>
+              {demoMode ? (
+                <Btn
+                  fullWidth
+                  onClick={() => {
+                    updatePerson(candidate.id, { invitationStatus: "pending" })
+                    setView("sent")
+                  }}
+                >
+                  Simular envío de invitación
+                </Btn>
+              ) : (
+                <>
+                  <Btn fullWidth disabled>
+                    Envío real pendiente de integración
+                  </Btn>
+                  <p style={{ fontSize: 12, lineHeight: "18px", color: C.muted, margin: 0 }}>
+                    Puedes revisar el borrador, pero este prototipo no entregará
+                    ningún mensaje ni cambiará el estado de la invitación.
+                  </p>
+                </>
+              )}
               <Btn
                 variant="secondary"
                 fullWidth
@@ -2207,7 +2384,7 @@ export default function SocialNetworkScreen({
               {Ic.checkCircle}
             </div>
             <h2 style={{ fontSize: 23, color: C.heading, margin: "0 0 9px" }}>
-              Tu elección quedó guardada
+              Invitación simulada · pendiente de aceptación
             </h2>
             <p
               style={{
@@ -2217,25 +2394,125 @@ export default function SocialNetworkScreen({
                 margin: "0 0 20px",
               }}
             >
-              Elegiste trabajar el vínculo con {candidate.name}. La invitación
-              quedó representada como enviada dentro de este prototipo.
+              No se entregó ningún mensaje real. La invitación para{" "}
+              {candidate.name} quedó representada como pendiente únicamente para
+              probar el flujo. Esto no significa que haya aceptado ni que ya
+              esté vinculada contigo.
             </p>
-            <Btn fullWidth onClick={() => navigate(8)}>
-              Continuar a “Teje el vínculo”
+            <Btn
+              fullWidth
+              onClick={() => {
+                setCandidateId(null)
+                setView("choose")
+              }}
+            >
+              Invitar a otra persona
             </Btn>
             <Btn
               variant="secondary"
               fullWidth
-              onClick={() => navigate(2)}
+              onClick={() => {
+                setJourney((current) => ({
+                  ...current,
+                  onboardingStatus: "completed",
+                }))
+                navigate(2)
+              }}
               style={{ marginTop: 9 }}
             >
-              Volver al inicio
+              Ir al inicio
             </Btn>
           </div>
         )}
       </main>
 
       <FloatingSupportBtn onPress={() => navigate(6)} bottom={18} />
+
+      <BottomSheet
+        open={demoMode && demoPanelOpen}
+        onClose={() => setDemoPanelOpen(false)}
+        title="Panel de prueba"
+      >
+        {candidate && (
+          <div>
+            <StatusChip label="Demostración · datos ficticios" variant="blue" />
+            <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "12px 0 16px" }}>
+              Estos controles representan acciones externas del cuidador. No son
+              acciones disponibles para una PCS ni realizan una aceptación real.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <Btn
+                variant="secondary"
+                fullWidth
+                onClick={() => {
+                  const caregiverId =
+                    candidate.caregiverId ?? `caregiver-${candidate.id}`
+                  updatePerson(candidate.id, {
+                    invitationStatus: "accepted",
+                    caregiverId,
+                  })
+                  setDemoPanelOpen(false)
+                }}
+              >
+                Simular aceptación sin asociación
+              </Btn>
+              <Btn
+                fullWidth
+                onClick={() => {
+                  const caregiverId =
+                    candidate.caregiverId ?? `caregiver-${candidate.id}`
+                  updatePerson(candidate.id, {
+                    invitationStatus: "accepted",
+                    caregiverId,
+                  })
+                  setJourney((current) => ({
+                    ...current,
+                    associations: [
+                      ...current.associations.filter(
+                        (item) => item.personId !== candidate.id,
+                      ),
+                      {
+                        id: `association-${candidate.id}`,
+                        pcsId: "pcs-sofia",
+                        caregiverId,
+                        personId: candidate.id,
+                        active: true,
+                      },
+                    ],
+                  }))
+                  setDemoPanelOpen(false)
+                }}
+              >
+                Simular aceptación y asociación activa
+              </Btn>
+              <Btn
+                variant="tertiary"
+                fullWidth
+                onClick={() => {
+                  updatePerson(candidate.id, {
+                    invitationStatus: "declined",
+                  })
+                  setJourney((current) => ({
+                    ...current,
+                    selectedPersonId:
+                      current.selectedPersonId === candidate.id
+                        ? null
+                        : current.selectedPersonId,
+                    associations: current.associations.map((item) =>
+                      item.personId === candidate.id
+                        ? { ...item, active: false }
+                        : item,
+                    ),
+                  }))
+                  setDemoPanelOpen(false)
+                }}
+              >
+                Simular rechazo o revocación
+              </Btn>
+            </div>
+          </div>
+        )}
+      </BottomSheet>
 
       <BottomSheet
         open={detailPerson !== null}
@@ -2263,6 +2540,10 @@ export default function SocialNetworkScreen({
                     label={`Cercanía ${metrics.ring.toLocaleLowerCase("es")}`}
                     variant="ok"
                   />
+                  <StatusChip
+                    label={invitationLabel(detailPerson, journey)}
+                    variant={invitationVariant(detailPerson, journey)}
+                  />
                 </div>
                 <p
                   style={{
@@ -2273,6 +2554,12 @@ export default function SocialNetworkScreen({
                   }}
                 >
                   <strong>Lectura actual:</strong> {metrics.classification}
+                </p>
+                <p style={{ fontSize: 12, lineHeight: "18px", color: C.muted, margin: "0 0 10px" }}>
+                  Positividad {metrics.positivity.toFixed(2)} · Negatividad{" "}
+                  {metrics.negativity.toFixed(2)} · Cercanía final{" "}
+                  {metrics.finalCloseness.toFixed(2)} · Ambivalencia calculada{" "}
+                  {metrics.calculatedAmbivalence.toFixed(2)}
                 </p>
                 <p
                   style={{
@@ -2288,11 +2575,13 @@ export default function SocialNetworkScreen({
                 <div
                   style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 >
-                  <Btn
-                    fullWidth
-                    onClick={() => chooseCandidate(detailPerson.id)}
-                  >
-                    Considerar este vínculo
+                  <Btn fullWidth onClick={() => chooseCandidate(detailPerson.id)}>
+                    {canStrengthenRelationship(journey, detailPerson.id) &&
+                    journey.onboardingStatus === "completed"
+                      ? "Fortalecer este vínculo"
+                      : detailPerson.invitationStatus === "not-invited"
+                        ? "Invitar como cuidador informal"
+                        : "Consultar estado de vinculación"}
                   </Btn>
                   <Btn
                     variant="secondary"

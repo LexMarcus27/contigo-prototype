@@ -1,4 +1,4 @@
-import { type ReactNode, useState, useEffect } from 'react'
+import { type ReactNode, useState, useEffect, useRef } from 'react'
 
 export const C = {
   canvas: '#F5F8F7',
@@ -190,24 +190,99 @@ export function Card({ children, style, onClick }: { children: ReactNode; style?
   )
 }
 
+export function ActionCard({
+  children,
+  style,
+  onClick,
+  ariaLabel,
+}: {
+  children: ReactNode
+  style?: React.CSSProperties
+  onClick: () => void
+  ariaLabel: string
+}) {
+  return (
+    <button
+      type="button"
+      className="action-card"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      style={{
+        width: '100%', backgroundColor: C.surface, borderRadius: 16, padding: 20,
+        border: `1px solid ${C.border}`, boxShadow: '0 4px 16px rgba(23,52,58,0.07)',
+        cursor: 'pointer', font: 'inherit', textAlign: 'left', color: C.body,
+        ...style,
+      }}>
+      {children}
+    </button>
+  )
+}
+
 // ── Bottom Sheet ─────────────────────────────────────────────────────────────
 
 export function BottomSheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: ReactNode }) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const returnFocusRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    returnFocusRef.current = document.activeElement as HTMLElement
+    const frame = window.requestAnimationFrame(() => closeRef.current?.focus())
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+      if (event.key === 'Tab' && panelRef.current) {
+        const focusable = Array.from(
+          panelRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+          ),
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      document.removeEventListener('keydown', closeOnEscape)
+      returnFocusRef.current?.focus()
+    }
+  }, [open])
+
   if (!open) return null
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
+    <div role="dialog" aria-modal="true" aria-label={title ?? 'Panel'} style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
       <div
+        aria-hidden="true"
         style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(23,52,58,0.45)', animation: 'fade-in 0.2s ease' }}
         onClick={onClose}
       />
-      <div style={{
+      <div ref={panelRef} style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
         backgroundColor: C.surface, borderRadius: '20px 20px 0 0',
         padding: '12px 20px 40px', animation: 'slide-up 0.28s ease',
         maxHeight: '80%', overflowY: 'auto',
       }}>
-        <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: C.border, margin: '0 auto 20px' }} />
-        {title && <h3 style={{ fontSize: 18, fontWeight: 700, color: C.heading, marginBottom: 16 }}>{title}</h3>}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
+          {title && <h3 style={{ fontSize: 18, fontWeight: 700, color: C.heading, margin: 0 }}>{title}</h3>}
+          <button
+            ref={closeRef}
+            type="button"
+            aria-label="Cerrar panel"
+            onClick={onClose}
+            style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${C.border}`, background: C.surface, color: C.brand, display: 'grid', placeItems: 'center', cursor: 'pointer', marginLeft: 'auto' }}
+          >
+            {Ic.x}
+          </button>
+        </div>
         {children}
       </div>
     </div>
@@ -304,27 +379,29 @@ const PCS_TAB_SCREENS: Record<string, number> = {
 // ── Floating Support Button (PCS M2–M5 and M8; never M1, M6–M7, caregiver, admin) ─
 
 export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => void; bottom?: number }) {
+  const hasBottomNavigation = bottom >= 70
   return (
-    <button
-      type="button"
-      className="floating-support-button"
-      onClick={onPress}
-      aria-label="Necesito apoyo ahora"
-      style={{
-        position: 'absolute', right: 18, bottom, zIndex: 40,
-        backgroundColor: C.brandSoft, color: C.brand,
-        border: '1px solid rgba(36,107,100,0.16)', borderRadius: 16, height: 52,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        padding: '0 16px 0 10px', maxWidth: 'calc(100% - 36px)',
-        fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-        boxShadow: '0 10px 28px rgba(23,52,58,0.24), 0 3px 8px rgba(36,107,100,0.18)',
-      }}>
-      <span style={{
-        width: 32, height: 32, borderRadius: 10, backgroundColor: C.brand, color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-      }}>{Ic.heart}</span>
-      Necesito apoyo ahora
-    </button>
+    <div style={{ flexShrink: 0, padding: `10px 18px calc(${hasBottomNavigation ? '76px' : '8px'} + env(safe-area-inset-bottom))`, backgroundColor: C.canvas }}>
+      <button
+        type="button"
+        className="floating-support-button"
+        onClick={onPress}
+        aria-label="Necesito apoyo ahora"
+        style={{
+          width: '100%', backgroundColor: C.brandSoft, color: C.brand,
+          border: '1px solid rgba(36,107,100,0.16)', borderRadius: 16, minHeight: 52,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+          padding: '0 16px 0 10px', fontSize: 14, fontWeight: 700,
+          cursor: 'pointer', fontFamily: 'inherit',
+          boxShadow: '0 6px 18px rgba(23,52,58,0.16)',
+        }}>
+        <span style={{
+          width: 32, height: 32, borderRadius: 10, backgroundColor: C.brand, color: '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>{Ic.heart}</span>
+        Necesito apoyo ahora
+      </button>
+    </div>
   )
 }
 
