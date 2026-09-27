@@ -1,4 +1,4 @@
-import { type ReactNode, useState, useEffect, useRef } from 'react'
+import { type ReactNode, type ButtonHTMLAttributes, useState, useEffect, useRef } from 'react'
 
 export const C = {
   canvas: '#F5F8F7',
@@ -54,7 +54,7 @@ export const Ic = {
 
 type BtnVariant = 'primary' | 'secondary' | 'tertiary' | 'critical' | 'ghost'
 
-interface BtnProps {
+interface BtnProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onClick' | 'style'> {
   children: ReactNode
   onClick?: () => void
   variant?: BtnVariant
@@ -65,7 +65,7 @@ interface BtnProps {
   style?: React.CSSProperties
 }
 
-export function Btn({ children, onClick, variant = 'primary', fullWidth, small, icon, disabled, style }: BtnProps) {
+export function Btn({ children, onClick, variant = 'primary', fullWidth, small, icon, disabled, style, ...buttonProps }: BtnProps) {
   const base: React.CSSProperties = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
     borderRadius: 12, fontFamily: 'inherit', fontWeight: 600, cursor: disabled ? 'default' : 'pointer',
@@ -75,7 +75,6 @@ export function Btn({ children, onClick, variant = 'primary', fullWidth, small, 
     padding: small ? '10px 16px' : '16px 24px',
     height: small ? 40 : 54,
     width: fullWidth ? '100%' : undefined,
-    ...style,
   }
   const styles: Record<BtnVariant, React.CSSProperties> = {
     primary:   { ...base, backgroundColor: C.brand, color: '#fff' },
@@ -85,8 +84,14 @@ export function Btn({ children, onClick, variant = 'primary', fullWidth, small, 
     ghost:     { ...base, backgroundColor: 'transparent', color: C.muted },
   }
   return (
-    <button style={styles[variant]} onClick={disabled ? undefined : onClick}>
-      {icon && <span style={{ display: 'flex' }}>{icon}</span>}
+    <button
+      {...buttonProps}
+      type={buttonProps.type ?? 'button'}
+      disabled={disabled}
+      style={{ ...styles[variant], ...style }}
+      onClick={disabled ? undefined : onClick}
+    >
+      {icon && <span aria-hidden="true" style={{ display: 'flex' }}>{icon}</span>}
       {children}
     </button>
   )

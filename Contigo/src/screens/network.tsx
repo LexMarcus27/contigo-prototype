@@ -307,7 +307,7 @@ function Legend() {
             >
               <SvgNode x={9.5} y={9.5} size={5} metrics={fakeMetrics} />
             </svg>
-            <span style={{ fontSize: 11, lineHeight: "15px", color: C.body }}>
+            <span style={{ fontSize: 12, lineHeight: "17px", color: C.body }}>
               {label}
             </span>
           </div>
@@ -335,7 +335,8 @@ function ClosenessMap({
 
   return (
     <svg
-      role="img"
+      className="network-chart"
+      role="group"
       aria-label="Mapa de cercanía de tu red"
       viewBox="0 0 320 330"
       style={{ width: "100%", height: "auto", display: "block" }}
@@ -417,8 +418,10 @@ function ClosenessMap({
             tabIndex={0}
             onClick={() => onSelect(person.id)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ")
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault()
                 onSelect(person.id)
+              }
             }}
             style={{ cursor: "pointer" }}
           >
@@ -457,16 +460,17 @@ function QualityGrid({
 
   return (
     <svg
-      role="img"
+      className="network-chart"
+      role="group"
       aria-label="Cuadrícula de positividad y negatividad"
-      viewBox="0 0 320 330"
+      viewBox="0 0 320 360"
       style={{ width: "100%", height: "auto", display: "block" }}
     >
       <rect
         x="7"
         y="7"
         width="306"
-        height="306"
+        height="346"
         rx="20"
         fill="#fff"
         stroke={C.border}
@@ -512,35 +516,37 @@ function QualityGrid({
         stroke="#B8CAC6"
         strokeDasharray="4 4"
       />
-      <text x="50" y="32" fontSize="12" fontWeight="700" fill={C.muted}>
-        Mayormente negativa
+      <text x="109.5" y="28" textAnchor="middle" fontSize="14" fontWeight="700" fill={C.muted}>
+        Mayormente
+        <tspan x="109.5" dy="17">negativa</tspan>
       </text>
       <text
-        x="288"
-        y="32"
-        textAnchor="end"
-        fontSize="12"
+        x="228.5"
+        y="36"
+        textAnchor="middle"
+        fontSize="14"
         fontWeight="700"
         fill={C.muted}
       >
         Ambivalente
       </text>
-      <text x="50" y="286" fontSize="12" fontWeight="700" fill={C.muted}>
+      <text x="109.5" y="294" textAnchor="middle" fontSize="14" fontWeight="700" fill={C.muted}>
         Baja intensidad
       </text>
       <text
-        x="288"
-        y="286"
-        textAnchor="end"
-        fontSize="12"
+        x="228.5"
+        y="287"
+        textAnchor="middle"
+        fontSize="14"
         fontWeight="700"
         fill={C.muted}
       >
-        Mayormente positiva
+        Mayormente
+        <tspan x="228.5" dy="17">positiva</tspan>
       </text>
       <text
         x="169"
-        y="316"
+        y="343"
         textAnchor="middle"
         fontSize="12"
         fontWeight="700"
@@ -616,8 +622,10 @@ function QualityGrid({
             aria-label={`${person.name}, ${metrics.classification}`}
             onClick={() => onSelect(person.id)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ")
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault()
                 onSelect(person.id)
+              }
             }}
             style={{ cursor: "pointer" }}
           >

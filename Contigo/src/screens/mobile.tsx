@@ -461,7 +461,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 12 }}>
-        <button onClick={() => navigate(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex', padding: 4 }}>{Ic.arrowLeft}</button>
+        <button aria-label="Volver al inicio" onClick={() => navigate(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex', padding: 4, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>{Ic.arrowLeft}</button>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: C.heading, margin: 0 }}>Mi plan de seguridad</h1>
       </div>
 
@@ -481,6 +481,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
           {steps.map((step, i) => (
             <div key={i} style={{ backgroundColor: C.surface, borderRadius: 16, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
               <button
+                aria-expanded={expanded === i}
                 onClick={() => setExpanded(expanded === i ? null : i)}
                 style={{
                   width: '100%', padding: '16px 18px', background: 'none', border: 'none', cursor: 'pointer',
@@ -572,6 +573,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
             <div key={i} style={{ backgroundColor: C.surface, borderRadius: 12, border: `1px solid ${C.border}`, padding: '12px 14px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ flex: 1, fontSize: 14, color: C.body }}>{a}</span>
               <button
+                aria-label={`Eliminar actividad ${a}`}
                 onClick={() => setActivities(act => act.filter((_, idx) => idx !== i))}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.critical, display: 'flex', padding: 4 }}>
                 {Ic.x}

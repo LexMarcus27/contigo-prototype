@@ -46,6 +46,16 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+/* At 320px, the plot is ~280px wide: 14 SVG units remain at least 12px. */
+.network-chart text {
+  font-size: 14px;
+}
+
+.network-chart [role="button"]:focus-visible {
+  outline: 3px solid #2F7D73;
+  outline-offset: 3px;
+}
+
 @keyframes breathe {
   0%, 100% { transform: scale(1); opacity: 0.55; }
   50% { transform: scale(1.44); opacity: 0.88; }
