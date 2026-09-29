@@ -136,7 +136,7 @@ export function MobileScreen02({ navigate }: { navigate: (n: number) => void }) 
               </div>
               <span style={{ color: C.brand }}>{Ic.shield}</span>
             </div>
-            <Btn onClick={() => navigate(5)} variant="secondary" fullWidth small>Ver mi plan</Btn>
+            <Btn onClick={() => navigate(20)} variant="secondary" fullWidth small>Ver opciones de ayuda</Btn>
           </Card>
 
           <Card>
@@ -147,7 +147,7 @@ export function MobileScreen02({ navigate }: { navigate: (n: number) => void }) 
               </div>
               <span style={{ color: C.blue }}>{Ic.heart}</span>
             </div>
-            <Btn onClick={() => navigate(8)} variant="secondary" fullWidth small>Ver opciones</Btn>
+            <Btn onClick={() => navigate(21)} variant="secondary" fullWidth small>Ver opciones</Btn>
           </Card>
 
           <Card>
@@ -461,7 +461,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 12 }}>
-        <button aria-label="Volver al inicio" onClick={() => navigate(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex', padding: 4, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>{Ic.arrowLeft}</button>
+        <button aria-label="Volver a Necesito ayuda" onClick={() => navigate(20)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex', padding: 4, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>{Ic.arrowLeft}</button>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: C.heading, margin: 0 }}>Mi plan de seguridad</h1>
       </div>
 
@@ -990,26 +990,23 @@ export function MobileScreen08({
   const [showMeetingComposer, setShowMeetingComposer] = useState(false)
   const [showMeetingConfirm, setShowMeetingConfirm] = useState(false)
   const [meetingMessage, setMeetingMessage] = useState('')
-  const [meetingSent, setMeetingSent] = useState(false)
+  const [meetingPrepared, setMeetingPrepared] = useState(false)
 
   const suggestedActivities = ['Tomar un café juntos', 'Dar una caminata corta']
   const meetingOptions = [...suggestedActivities, ...myActivities]
-  const linkedContactWhatsApp = '573000000001'
-  const recipient = caregiverName ?? "tu cuidador informal"
+  const recipient = caregiverName ?? "tu persona cercana"
 
   const prepareMeetingMessage = () => {
     if (!selectedMeeting) return
-    setMeetingSent(false)
+    setMeetingPrepared(false)
     setMeetingMessage(`Hola ${recipient}, me gustaría que programáramos un espacio para ${selectedMeeting.toLowerCase()}. ¿Te gustaría? Podemos acordar el momento que nos funcione. Si ahora no puedes, está bien.`)
     setShowMeetingComposer(true)
   }
 
-  const sendMeetingMessage = () => {
-    const whatsappUrl = `https://wa.me/${linkedContactWhatsApp}?text=${encodeURIComponent(meetingMessage)}`
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
+  const confirmMeetingDraft = () => {
     setShowMeetingConfirm(false)
     setShowMeetingComposer(false)
-    setMeetingSent(true)
+    setMeetingPrepared(true)
   }
 
   const generateDraft = () => {
@@ -1032,7 +1029,7 @@ export function MobileScreen08({
             {Ic.link}
           </div>
           <p style={{ fontSize: 23, lineHeight: '30px', fontWeight: 750, color: C.heading, margin: '0 0 10px' }}>
-            {availableCaregivers.length > 0 ? "Elige un cuidador informal" : "Necesitas un cuidador informal asociado"}
+            {availableCaregivers.length > 0 ? "Elige una persona cercana" : "Todavía no hay personas cercanas vinculadas"}
           </p>
           <p style={{ fontSize: 14, lineHeight: '22px', color: C.muted, margin: '0 0 20px' }}>
             {availableCaregivers.length > 0
@@ -1042,7 +1039,7 @@ export function MobileScreen08({
           {availableCaregivers.map((person) => (
             <ActionCard
               key={person.id}
-              ariaLabel={`Elegir a ${person.name}, cuidador informal asociado`}
+              ariaLabel={`Elegir a ${person.name}, persona cercana vinculada`}
               onClick={() => onSelectCaregiver(person.id)}
               style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 9 }}
             >
@@ -1054,7 +1051,7 @@ export function MobileScreen08({
           {availableCaregivers.length === 0 && (
             <Btn fullWidth onClick={onOpenNetwork}>Ver mi red e invitaciones</Btn>
           )}
-          <Btn variant="secondary" fullWidth onClick={() => navigate(2)} style={{ marginTop: 9 }}>Volver al inicio</Btn>
+          <Btn variant="secondary" fullWidth onClick={() => navigate(21)} style={{ marginTop: 9 }}>Volver a Tejiendo vínculos</Btn>
         </div>
         <FloatingSupportBtn onPress={() => navigate(6)} bottom={20} />
       </div>
@@ -1065,13 +1062,13 @@ export function MobileScreen08({
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 10 }}>
-        <button aria-label="Volver al inicio" onClick={() => navigate(2)} style={{ width: 44, height: 44, background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'grid', placeItems: 'center' }}>{Ic.arrowLeft}</button>
+        <button aria-label="Volver a Tejiendo vínculos" onClick={() => navigate(21)} style={{ width: 44, height: 44, background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'grid', placeItems: 'center' }}>{Ic.arrowLeft}</button>
       </div>
 
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 20px 24px', paddingBottom: supportContentPadding(20) }}>
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ fontSize: 26, fontWeight: 700, color: C.heading, lineHeight: '32px', marginBottom: 8 }}>
-            ¿Te serviría sentirte acompañada?
+            Conexión con {recipient}
           </h1>
           <p style={{ fontSize: 15, color: C.muted, lineHeight: '22px', margin: 0 }}>
             Puedes elegir una forma pequeña de acercarte. También puedes hacerlo después.
@@ -1205,7 +1202,7 @@ export function MobileScreen08({
             <select
               id="meeting-activity"
               value={selectedMeeting}
-              onChange={e => { setSelectedMeeting(e.target.value); setMeetingSent(false) }}
+              onChange={e => { setSelectedMeeting(e.target.value); setMeetingPrepared(false) }}
               style={{
                 width: '100%', appearance: 'none', padding: '13px 42px 13px 14px',
                 borderRadius: 12, border: `1.5px solid ${selectedMeeting ? C.brand : C.border}`,
@@ -1231,16 +1228,16 @@ export function MobileScreen08({
             Preparar mensaje
           </Btn>
 
-          {meetingSent && (
+          {meetingPrepared && (
             <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, backgroundColor: C.successSoft, color: C.success, borderRadius: 10, padding: '10px 12px' }}>
               <span style={{ display: 'flex' }}>{Ic.checkCircle}</span>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Mensaje preparado para {recipient} en WhatsApp.</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Borrador preparado para {recipient}. El envío real está pendiente de integración.</span>
             </div>
           )}
         </Card>
 
         <button
-          onClick={() => navigate(2)}
+          onClick={() => navigate(21)}
           style={{ marginTop: 20, background: 'none', border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px 20px', cursor: 'pointer', color: C.muted, fontSize: 16, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 10, width: '100%', justifyContent: 'center' }}>
           <span style={{ display: 'flex' }}>{Ic.x}</span>
           Ahora no
@@ -1323,27 +1320,27 @@ export function MobileScreen08({
           label={`Mensaje para ${recipient}`}
           value={meetingMessage}
           onChange={setMeetingMessage}
-          helper="Puedes modificar la invitación antes de enviarla."
+          helper="Puedes modificar esta invitación de demostración."
         />
         <div style={{ marginTop: 14 }}>
-          <PrivacyNote text="El mensaje solo se enviará cuando lo confirmes. Tú controlas cada paso." />
+          <PrivacyNote text="Este prototipo no enviará el mensaje ni abrirá un chat real." />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
-          <Btn variant="primary" fullWidth icon={Ic.message} disabled={!meetingMessage.trim()} onClick={() => setShowMeetingConfirm(true)}>Enviar a {recipient}</Btn>
+          <Btn variant="primary" fullWidth icon={Ic.message} disabled={!meetingMessage.trim()} onClick={() => setShowMeetingConfirm(true)}>Revisar invitación para {recipient}</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => setShowMeetingComposer(false)}>Cancelar</Btn>
         </div>
       </BottomSheet>
 
-      {/* Explicit confirmation before sending */}
-      <Modal open={showMeetingConfirm} onClose={() => setShowMeetingConfirm(false)} title="¿Enviar esta invitación?">
+      {/* Review the person-specific draft without routing to a placeholder phone number. */}
+      <Modal open={showMeetingConfirm} onClose={() => setShowMeetingConfirm(false)} title="¿Confirmar este borrador?">
         <p style={{ fontSize: 14, color: C.body, lineHeight: '20px', marginBottom: 12 }}>
-          Abriremos el chat de {recipient} en WhatsApp con el mensaje listo. Tú decidirás cuándo enviarlo.
+          Esta invitación está dirigida a {recipient}. No se enviará ni abrirá WhatsApp desde el prototipo.
         </p>
         <div style={{ backgroundColor: C.soft, borderRadius: 12, padding: 14, marginBottom: 18, maxHeight: 150, overflowY: 'auto' }}>
           <p style={{ fontSize: 13, color: C.body, lineHeight: '19px', margin: 0 }}>{meetingMessage}</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="primary" fullWidth icon={Ic.message} onClick={sendMeetingMessage}>Continuar en WhatsApp</Btn>
+          <Btn variant="primary" fullWidth icon={Ic.message} onClick={confirmMeetingDraft}>Marcar borrador como preparado</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => setShowMeetingConfirm(false)}>Seguir editando</Btn>
         </div>
       </Modal>

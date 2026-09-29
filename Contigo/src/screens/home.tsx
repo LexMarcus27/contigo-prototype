@@ -1,19 +1,15 @@
 import { useState } from "react"
 import {
-  ActionCard,
   BottomSheet,
   Btn,
   C,
   FloatingSupportBtn,
   Ic,
-  StatusChip,
   supportContentPadding,
 } from "../ui"
 import {
-  validCaregivers,
   type JourneyState,
   type NetworkEntry,
-  type NetworkPerson,
 } from "../journey"
 
 interface HomeProps {
@@ -26,7 +22,7 @@ interface HomeProps {
   demoMode: boolean
 }
 
-type Sheet = "profile" | "notifications" | "history" | "caregivers" | "learning" | null
+type Sheet = "profile" | "notifications" | "history" | null
 type TileKind = "network" | "connection" | "help" | "checkin"
 
 const SUPPORT_BOTTOM = 92
@@ -172,8 +168,6 @@ export default function MobileHomeScreen({
   openNetwork,
 }: HomeProps) {
   const [sheet, setSheet] = useState<Sheet>(null)
-  const [learningTitle, setLearningTitle] = useState("")
-  const caregivers = validCaregivers(journey)
   const showWelcome = journey.onboardingStatus === "not-started"
   const people = journey.people.slice(0, 4)
 
@@ -202,23 +196,6 @@ export default function MobileHomeScreen({
       onboardingWelcomeShown: true,
     }))
   }
-
-  const openCareTools = () => {
-    if (caregivers.length === 1) {
-      setJourney((current) => ({ ...current, selectedPersonId: caregivers[0].id }))
-      navigate(8)
-      return
-    }
-    setSheet("caregivers")
-  }
-
-  const selectCaregiver = (person: NetworkPerson) => {
-    setJourney((current) => ({ ...current, selectedPersonId: person.id }))
-    setSheet(null)
-    navigate(8)
-  }
-
-  const learning = ["Afrontar una crisis", "Habilidades interpersonales"]
 
   return (
     <div className="home-screen">
@@ -255,8 +232,8 @@ export default function MobileHomeScreen({
 
         <section className="home-tile-grid" aria-label="Herramientas principales">
           <HomeTile kind="network" title="¿En dónde tejer?" description="Relaciones para conectar" onClick={openMap} />
-          <HomeTile kind="connection" title="Tejiendo vínculos" description="Cuida tus relaciones" onClick={openCareTools} />
-          <HomeTile kind="help" title="Necesito ayuda" description="Crisis y plan de seguridad" onClick={() => navigate(5)} />
+          <HomeTile kind="connection" title="Tejiendo vínculos" description="Cuida tus relaciones" onClick={() => navigate(21)} />
+          <HomeTile kind="help" title="Necesito ayuda" description="Crisis y plan de seguridad" onClick={() => navigate(20)} />
           <HomeTile kind="checkin" title="¿Cómo estoy hoy?" description="Registra cómo te sientes" onClick={() => navigate(3)} />
         </section>
 
@@ -270,22 +247,11 @@ export default function MobileHomeScreen({
           <button type="button" className="home-extra-row" onClick={() => setSheet("history")}>
             <span>Mensajes y actividad</span><span aria-hidden="true">{Ic.chevRight}</span>
           </button>
-          <h3>Aprender habilidades</h3>
-          {learning.map((title) => (
-            <button
-              type="button"
-              className="home-extra-row"
-              key={title}
-              onClick={() => { setLearningTitle(title); setSheet("learning") }}
-            >
-              <span>{title}</span><span aria-hidden="true">{Ic.chevRight}</span>
-            </button>
-          ))}
         </section>
       </main>
 
       <FloatingSupportBtn onPress={() => navigate(6)} bottom={SUPPORT_BOTTOM} />
-      <HomeBottomNav onNetwork={openCareTools} onDay={() => navigate(3)} onProfile={() => setSheet("profile")} />
+      <HomeBottomNav onNetwork={() => navigate(21)} onDay={() => navigate(3)} onProfile={() => setSheet("profile")} />
 
       <BottomSheet open={showWelcome} onClose={deferMap} title="Antes de empezar, reconoce tu red">
         <p style={{ fontSize: 14, lineHeight: "21px", color: C.body, margin: "0 0 18px" }}>
@@ -295,49 +261,11 @@ export default function MobileHomeScreen({
         <Btn variant="secondary" fullWidth onClick={deferMap} style={{ marginTop: 9 }}>Hacerlo después</Btn>
       </BottomSheet>
 
-      <BottomSheet open={sheet === "caregivers"} onClose={() => setSheet(null)} title="Tejiendo vínculos">
-        {caregivers.length === 0 ? (
-          <div>
-            <StatusChip label="Sin personas vinculadas" variant="warn" />
-            <p style={{ fontSize: 15, lineHeight: "22px", color: C.body, margin: "15px 0 7px", fontWeight: 700 }}>Todavía no hay un vínculo habilitado</p>
-            <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 18px" }}>
-              Cuando alguien acepte tu invitación y quede vinculado contigo, podrás usar mensajes, encuentros y preguntas para conectar.
-            </p>
-            <Btn fullWidth onClick={() => { setSheet(null); openMap() }}>Conocer mi red</Btn>
-          </div>
-        ) : (
-          <div>
-            <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 13px" }}>Elige una persona cercana vinculada para esta actividad.</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-              {caregivers.map((person) => (
-                <ActionCard
-                  key={person.id}
-                  ariaLabel={`Elegir a ${person.name}, persona cercana vinculada`}
-                  onClick={() => selectCaregiver(person)}
-                  style={{ display: "flex", alignItems: "center", gap: 12 }}
-                >
-                  <span style={{ color: C.brand }}>{Ic.user}</span>
-                  <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: C.heading }}>{person.name}</span>
-                  <StatusChip label="Vínculo activo" variant="ok" />
-                </ActionCard>
-              ))}
-            </div>
-          </div>
-        )}
-      </BottomSheet>
-
       <BottomSheet open={sheet === "history"} onClose={() => setSheet(null)} title="Mensajes y actividad">
         <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
           Este prototipo no muestra interacciones clínicas ni mensajes inventados.
         </p>
         <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver al inicio</Btn>
-      </BottomSheet>
-
-      <BottomSheet open={sheet === "learning"} onClose={() => setSheet(null)} title={learningTitle}>
-        <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
-          Este contenido será proporcionado y validado por el equipo investigador.
-        </p>
-        <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver</Btn>
       </BottomSheet>
 
       <BottomSheet open={sheet === "profile" || sheet === "notifications"} onClose={() => setSheet(null)} title={sheet === "profile" ? "Tu perfil" : "Notificaciones"}>

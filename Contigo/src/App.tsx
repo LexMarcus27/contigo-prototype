@@ -8,6 +8,8 @@ import {
 import { MobileScreen14 } from './screens/social'
 import { DesktopScreen13, DesktopScreen14, DesktopScreen15 } from './screens/desktop'
 import MobileHomeScreen from './screens/home'
+import HelpHubScreen from './screens/help-hub'
+import ConnectionHubScreen from './screens/connection-hub'
 import SocialNetworkScreen from './screens/network'
 import {
   canStrengthenRelationship,
@@ -32,6 +34,8 @@ const SCREENS = [
   { id: 12, label: 'M12 Registro cuidador' },
   { id: 16, label: 'M9A Encuentro' },
   { id: 17, label: 'M17 Conoce tu red' },
+  { id: 20, label: 'M20 Necesito ayuda' },
+  { id: 21, label: 'M21 Tejiendo vínculos' },
   { id: 18, label: 'M14 Preguntas PCS' },
   { id: 19, label: 'M14 Preguntas cuidador' },
   { id: 13, label: 'D13 Dashboard' },
@@ -129,6 +133,20 @@ export default function App() {
       case 12: return <MobileScreen12 navigate={navigate} />
       case 16: return <MobileScreen09A navigate={navigate} />
       case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} />
+      case 20: return <HelpHubScreen navigate={navigate} />
+      case 21:
+        return (
+          <ConnectionHubScreen
+            navigate={navigate}
+            journey={journey}
+            setJourney={setJourney}
+            openNetwork={() =>
+              openNetwork(
+                journey.mapGenerated ? 'results' : journey.mapStarted ? 'progress' : 'intro',
+              )
+            }
+          />
+        )
       case 18:
         return canStrengthenRelationship(journey, journey.selectedPersonId) ? (
           <MobileScreen14

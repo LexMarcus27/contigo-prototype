@@ -389,8 +389,8 @@ export function StatusBar() {
 
 const PCS_TAB_SCREENS: Record<string, number> = {
   inicio: 2,
-  plan: 5,
-  acompanamiento: 8,
+  plan: 20,
+  acompanamiento: 21,
   perfil: 2,
 }
 
