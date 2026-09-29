@@ -223,7 +223,7 @@ button:focus-visible {
 .home-tile--checkin { background: #E9F1F9; }
 .home-tile--checkin .home-tile-icon { background: #D4E7F5; color: #3777A6; }
 
-.home-more { margin-top: max(116px, calc(100dvh - 625px)); }
+.home-more { margin-top: 20px; }
 .home-more h3 {
   margin: 24px 0 8px;
   font-size: 15px;

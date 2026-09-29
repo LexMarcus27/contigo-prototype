@@ -293,7 +293,6 @@ export default function MobileHomeScreen({
         </p>
         <Btn fullWidth onClick={startMap}>Construir mi mapa</Btn>
         <Btn variant="secondary" fullWidth onClick={deferMap} style={{ marginTop: 9 }}>Hacerlo después</Btn>
-        <Btn variant="tertiary" fullWidth onClick={() => navigate(6)} style={{ marginTop: 7 }}>Necesito apoyo ahora</Btn>
       </BottomSheet>
 
       <BottomSheet open={sheet === "caregivers"} onClose={() => setSheet(null)} title="Tejiendo vínculos">
