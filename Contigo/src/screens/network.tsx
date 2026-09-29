@@ -81,6 +81,7 @@ const SCALE = [
 const RELATIONSHIP_TYPES: RelationshipType[] = [
   "Familia",
   "Amistades",
+  "Pareja",
   "Trabajo o estudio",
   "Comunidad, servicio o credo",
   "Otro",
@@ -147,7 +148,7 @@ function metricsFor(person: NetworkPerson): Metrics {
       ring,
       classification: "Mayormente positiva",
       shape: "circle",
-      color: "#3E7657",
+      color: C.sage,
     }
   }
   if (positivity >= 0.5 && negativity >= 0.5) {
@@ -162,7 +163,7 @@ function metricsFor(person: NetworkPerson): Metrics {
       ring,
       classification: "Ambivalente",
       shape: "diamond",
-      color: "#B57A2D",
+      color: C.lilac,
     }
   }
   if (positivity < 0.5 && negativity >= 0.5) {
@@ -177,7 +178,7 @@ function metricsFor(person: NetworkPerson): Metrics {
       ring,
       classification: "Mayormente negativa",
       shape: "triangle",
-      color: "#A94747",
+      color: C.rose,
     }
   }
   return {
@@ -191,7 +192,7 @@ function metricsFor(person: NetworkPerson): Metrics {
     ring,
     classification: "Baja intensidad",
     shape: "square",
-    color: "#4C6F8A",
+    color: C.bluePowder,
   }
 }
 
@@ -271,10 +272,10 @@ function SvgNode({
 
 function Legend() {
   const items: Array<[Metrics["shape"], string, string]> = [
-    ["circle", "#3E7657", "Mayormente positiva"],
-    ["diamond", "#B57A2D", "Ambivalente"],
-    ["triangle", "#A94747", "Mayormente negativa"],
-    ["square", "#4C6F8A", "Baja intensidad"],
+    ["circle", C.sage, "Mayormente positiva"],
+    ["diamond", C.lilac, "Ambivalente"],
+    ["triangle", C.rose, "Mayormente negativa"],
+    ["square", C.bluePowder, "Baja intensidad"],
   ]
   return (
     <div
@@ -328,6 +329,7 @@ function ClosenessMap({
   const sectorAngles: Record<RelationshipType, number> = {
     Familia: -135,
     Amistades: -45,
+    Pareja: -90,
     "Trabajo o estudio": 45,
     "Comunidad, servicio o credo": 135,
     Otro: 180,
@@ -350,7 +352,7 @@ function ClosenessMap({
         fill="#fff"
         stroke={C.border}
       />
-      <path d="M160 24V296M24 160H296" stroke="#DCE8E5" strokeDasharray="4 5" />
+      <path d="M160 24V296M24 160H296" stroke={C.border} strokeDasharray="4 5" />
       {[42, 77, 112].map((radius, index) => (
         <circle
           key={radius}
@@ -358,7 +360,7 @@ function ClosenessMap({
           cy={center}
           r={radius}
           fill="none"
-          stroke={index === 2 ? "#B9D4CF" : "#D5E4E1"}
+          stroke={index === 2 ? C.sage : C.border}
           strokeWidth="1.5"
         />
       ))}
@@ -374,6 +376,9 @@ function ClosenessMap({
         fill={C.muted}
       >
         Amistades
+      </text>
+      <text x="160" y="35" fontSize="12" textAnchor="middle" fontWeight="700" fill={C.muted}>
+        Pareja
       </text>
       <text
         x="283"
@@ -405,9 +410,20 @@ function ClosenessMap({
         const angle = ((base + ((index % 3) - 1) * 11) * Math.PI) / 180
         const radius = 34 + (1 - metrics.finalCloseness) * 78
         const x = clamp(center + Math.cos(angle) * radius, 34, 286)
-        const y = clamp(center + Math.sin(angle) * radius, 39, 281)
+        const y = clamp(
+          center + Math.sin(angle) * radius,
+          person.relationshipType === "Pareja" ? 72 : 39,
+          281,
+        )
         const size = 8 + metrics.importance * 5
-        const labelY = y < 54 ? y + 24 : y > 268 ? y - 18 : y - size - 7
+        const labelY =
+          person.relationshipType === "Pareja" && y < 85
+            ? y + size + 16
+            : y < 54
+              ? y + 24
+              : y > 268
+                ? y - 18
+                : y - size - 7
         const labelX = clamp(x, 40, 280)
         const anchor = x < 65 ? "start" : x > 255 ? "end" : "middle"
         return (
@@ -480,28 +496,28 @@ function QualityGrid({
         y={plot.y}
         width={plot.width / 2}
         height={plot.height / 2}
-        fill="#F5F8F7"
+        fill="#F6E8E5"
       />
       <rect
         x={plot.x + plot.width / 2}
         y={plot.y}
         width={plot.width / 2}
         height={plot.height / 2}
-        fill="#FBF6EC"
+        fill="#F0EAF3"
       />
       <rect
         x={plot.x}
         y={plot.y + plot.height / 2}
         width={plot.width / 2}
         height={plot.height / 2}
-        fill="#EEF3F7"
+        fill={C.blueSoft}
       />
       <rect
         x={plot.x + plot.width / 2}
         y={plot.y + plot.height / 2}
         width={plot.width / 2}
         height={plot.height / 2}
-        fill="#EDF6F1"
+        fill={C.successSoft}
       />
       <rect
         x={plot.x}
@@ -509,11 +525,11 @@ function QualityGrid({
         width={plot.width}
         height={plot.height}
         fill="none"
-        stroke="#9CB4AF"
+        stroke={C.sage}
       />
       <path
         d={`M${plot.x + plot.width / 2} ${plot.y}V${plot.y + plot.height}M${plot.x} ${plot.y + plot.height / 2}H${plot.x + plot.width}`}
-        stroke="#B8CAC6"
+        stroke={C.border}
         strokeDasharray="4 4"
       />
       <text x="109.5" y="28" textAnchor="middle" fontSize="14" fontWeight="700" fill={C.muted}>
@@ -1013,8 +1029,8 @@ export default function SocialNetworkScreen({
               }}
             >
               Reconoce las personas que forman parte de tu vida. Al terminar,
-              podrás invitar a quienes quieras para que te acompañen en la
-              aplicación como cuidadores informales.
+              podrás invitar a personas cercanas con quienes quieras compartir
+              la aplicación o fortalecer tu relación.
             </p>
             <PrivacyNote text="Puedes usar nombres, iniciales o apodos. Esta herramienta no evalúa a las personas ni te obliga a explicar cada relación." />
             <details
@@ -1517,7 +1533,7 @@ export default function SocialNetworkScreen({
                     height: 42,
                     borderRadius: 13,
                     background:
-                      person.status === "complete" ? "#E8F4EE" : C.soft,
+                      person.status === "complete" ? C.successSoft : C.soft,
                     color: person.status === "complete" ? C.success : C.brand,
                     display: "grid",
                     placeItems: "center",
@@ -1929,7 +1945,7 @@ export default function SocialNetworkScreen({
                     color: resultTab === tab ? C.brand : C.muted,
                     boxShadow:
                       resultTab === tab
-                        ? "0 2px 7px rgba(23,52,58,.09)"
+                        ? "0 2px 7px rgba(58,50,56,.09)"
                         : "none",
                     font: "inherit",
                     fontSize: 12,
@@ -2383,7 +2399,7 @@ export default function SocialNetworkScreen({
                 width: 74,
                 height: 74,
                 borderRadius: "50%",
-                background: "#E8F4EE",
+                background: C.successSoft,
                 color: C.success,
                 display: "grid",
                 placeItems: "center",

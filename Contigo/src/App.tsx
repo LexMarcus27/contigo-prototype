@@ -159,7 +159,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: isMobile ? '#DDE6E4' : C.canvas }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: isMobile ? C.soft : C.canvas }}>
       {/* Navigation bar */}
       {demoMode && <nav style={{
         backgroundColor: C.heading, padding: '0 16px', height: 44,
@@ -194,7 +194,7 @@ export default function App() {
                 backgroundColor: active
                   ? (isDesktop ? C.warm : C.brand)
                   : 'transparent',
-                color: active ? '#fff' : 'rgba(255,255,255,0.65)',
+                color: active ? (isDesktop ? C.heading : '#fff') : 'rgba(255,255,255,0.8)',
                 transition: 'all 0.12s',
               }}>
               {s.label}
@@ -214,7 +214,7 @@ export default function App() {
               height: 844,
               borderRadius: 44,
               overflow: 'hidden',
-              boxShadow: '0 32px 80px rgba(23,52,58,0.3), 0 0 0 1.5px rgba(23,52,58,0.15), inset 0 0 0 1px rgba(255,255,255,0.2)',
+              boxShadow: '0 32px 80px rgba(58,50,56,0.3), 0 0 0 1.5px rgba(58,50,56,0.15), inset 0 0 0 1px rgba(255,255,255,0.2)',
               position: 'relative',
               backgroundColor: C.canvas,
               flexShrink: 0,

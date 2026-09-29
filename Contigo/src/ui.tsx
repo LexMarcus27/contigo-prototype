@@ -1,22 +1,34 @@
 import { type ReactNode, type ButtonHTMLAttributes, useState, useEffect, useRef } from 'react'
 
 export const C = {
-  canvas: '#F5F8F7',
+  // Opción 2: Hilos suaves — calma y confianza. Los tonos oscuros derivados
+  // permiten texto y botones legibles sin perder las muestras originales.
+  rose: '#C97B76',
+  sage: '#7C9473',
+  bluePowder: '#6E88A6',
+  lilac: '#9B84A8',
+  ochre: '#D3A24C',
+  canvas: '#F7F1E8',
   surface: '#FFFFFF',
-  soft: '#EAF2F0',
-  brand: '#246B64',
-  brandHover: '#1C554F',
-  brandSoft: '#D7EAE6',
-  heading: '#17343A',
-  body: '#26383D',
-  muted: '#64757A',
-  border: '#D7E1DF',
-  blue: '#4C6F8A',
-  warm: '#D9A85F',
-  success: '#3E7657',
-  critical: '#A94747',
-  criticalSoft: '#F8E9E7',
-  focus: '#2F7D73',
+  soft: '#F1E9DF',
+  brand: '#A85550',
+  brandHover: '#8D4541',
+  brandSoft: '#F2E3E0',
+  heading: '#3A3238',
+  body: '#3A3238',
+  muted: '#62575E',
+  border: '#DFD4C9',
+  blue: '#506A87',
+  blueSoft: '#E9EEF5',
+  lilacDark: '#735D83',
+  warm: '#D3A24C',
+  warmText: '#805C1D',
+  warmSoft: '#F8ECD4',
+  success: '#536B50',
+  successSoft: '#E5EDE2',
+  critical: '#A3474A',
+  criticalSoft: '#F6E3E2',
+  focus: '#536B50',
 } as const
 
 const sp = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
@@ -160,12 +172,12 @@ type ChipVariant = 'ok' | 'warn' | 'empty' | 'critical' | 'blue' | 'warm' | 'def
 
 export function StatusChip({ label, variant = 'default', icon }: { label: string; variant?: ChipVariant; icon?: ReactNode }) {
   const colors: Record<ChipVariant, { bg: string; fg: string }> = {
-    ok:       { bg: '#E8F4EE', fg: C.success },
-    warn:     { bg: '#FEF9EC', fg: '#92700A' },
+    ok:       { bg: C.successSoft, fg: C.success },
+    warn:     { bg: C.warmSoft, fg: C.warmText },
     empty:    { bg: C.soft, fg: C.muted },
     critical: { bg: C.criticalSoft, fg: C.critical },
-    blue:     { bg: '#EBF2F7', fg: C.blue },
-    warm:     { bg: '#FBF2E3', fg: '#8A6322' },
+    blue:     { bg: C.blueSoft, fg: C.blue },
+    warm:     { bg: C.warmSoft, fg: C.warmText },
     default:  { bg: C.soft, fg: C.body },
   }
   const { bg, fg } = colors[variant]
@@ -186,7 +198,7 @@ export function Card({ children, style, onClick }: { children: ReactNode; style?
       style={{
         backgroundColor: C.surface, borderRadius: 16, padding: 20,
         border: `1px solid ${C.border}`,
-        boxShadow: '0 4px 16px rgba(23,52,58,0.07)',
+        boxShadow: '0 4px 16px rgba(58,50,56,0.07)',
         cursor: onClick ? 'pointer' : undefined,
         ...style,
       }}>
@@ -214,7 +226,7 @@ export function ActionCard({
       aria-label={ariaLabel}
       style={{
         width: '100%', backgroundColor: C.surface, borderRadius: 16, padding: 20,
-        border: `1px solid ${C.border}`, boxShadow: '0 4px 16px rgba(23,52,58,0.07)',
+        border: `1px solid ${C.border}`, boxShadow: '0 4px 16px rgba(58,50,56,0.07)',
         cursor: 'pointer', font: 'inherit', textAlign: 'left', color: C.body,
         ...style,
       }}>
@@ -267,7 +279,7 @@ export function BottomSheet({ open, onClose, title, children }: { open: boolean;
     <div className="ui-overlay" role="dialog" aria-modal="true" aria-label={title ?? 'Panel'} style={{ position: 'absolute', inset: 0, zIndex: 50 }}>
       <div
         aria-hidden="true"
-        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(23,52,58,0.45)', animation: 'fade-in 0.2s ease' }}
+        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(58,50,56,0.45)', animation: 'fade-in 0.2s ease' }}
         onClick={onClose}
       />
       <div ref={panelRef} style={{
@@ -301,13 +313,13 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
   return (
     <div className="ui-overlay" style={{ position: 'absolute', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div
-        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(23,52,58,0.5)', animation: 'fade-in 0.2s ease' }}
+        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(58,50,56,0.5)', animation: 'fade-in 0.2s ease' }}
         onClick={onClose}
       />
       <div style={{
         position: 'relative', backgroundColor: C.surface, borderRadius: 20, padding: 24,
         width: '100%', maxWidth: 350, animation: 'fade-in 0.2s ease',
-        boxShadow: '0 20px 60px rgba(23,52,58,0.2)',
+        boxShadow: '0 20px 60px rgba(58,50,56,0.2)',
       }}>
         {title && <h3 style={{ fontSize: 18, fontWeight: 700, color: C.heading, marginBottom: 12 }}>{title}</h3>}
         {children}
@@ -326,9 +338,9 @@ export function Toast({ message, visible }: { message: string; visible: boolean 
       backgroundColor: C.heading, color: '#fff', borderRadius: 12, padding: '14px 18px',
       fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 10,
       animation: 'toast-in 0.25s ease',
-      boxShadow: '0 8px 24px rgba(23,52,58,0.25)',
+      boxShadow: '0 8px 24px rgba(58,50,56,0.25)',
     }}>
-      <span style={{ display: 'flex', color: '#6EE7C4' }}>{Ic.checkCircle}</span>
+      <span style={{ display: 'flex', color: C.sage }}>{Ic.checkCircle}</span>
       {message}
     </div>
   )
@@ -402,11 +414,11 @@ export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => vo
           bottom: `calc(${bottom}px + env(safe-area-inset-bottom, 0px))`, zIndex: 30,
           width: 'max-content', maxWidth: 'calc(100% - 36px)',
           backgroundColor: C.brandSoft, color: C.brand,
-          border: '1px solid rgba(36,107,100,0.16)', borderRadius: 16, minHeight: SUPPORT_BUTTON_HEIGHT,
+          border: `1px solid ${C.border}`, borderRadius: 16, minHeight: SUPPORT_BUTTON_HEIGHT,
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
           padding: '0 16px 0 10px', fontSize: 14, fontWeight: 700,
           cursor: 'pointer', fontFamily: 'inherit',
-          boxShadow: '0 6px 18px rgba(23,52,58,0.16)',
+          boxShadow: '0 6px 18px rgba(58,50,56,0.16)',
         }}>
         <span style={{
           width: 32, height: 32, borderRadius: 10, backgroundColor: C.brand, color: '#fff',

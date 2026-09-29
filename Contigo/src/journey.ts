@@ -1,4 +1,4 @@
-export type RelationshipType = "Familia" | "Amistades" | "Trabajo o estudio" | "Comunidad, servicio o credo" | "Otro"
+export type RelationshipType = "Familia" | "Amistades" | "Pareja" | "Trabajo o estudio" | "Comunidad, servicio o credo" | "Otro"
 
 export type PersonStatus = "pending" | "in-progress" | "complete"
 export type InvitationStatus =

@@ -85,7 +85,7 @@ function DesktopTopBar({ title, subtitle, action }: { title: string; subtitle?: 
 
 function StatCard({ label, value, sub, icon }: { label: string; value: string; sub?: string; icon: React.ReactNode }) {
   return (
-    <div style={{ backgroundColor: C.surface, borderRadius: 16, padding: 20, border: `1px solid ${C.border}`, boxShadow: '0 2px 8px rgba(23,52,58,0.05)' }}>
+    <div style={{ backgroundColor: C.surface, borderRadius: 16, padding: 20, border: `1px solid ${C.border}`, boxShadow: '0 2px 8px rgba(58,50,56,0.05)' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
         <p style={{ fontSize: 13, fontWeight: 600, color: C.muted, margin: 0, lineHeight: '18px' }}>{label}</p>
         <span style={{ color: C.brand, display: 'flex' }}>{icon}</span>
@@ -159,7 +159,7 @@ export function DesktopScreen13({ navigate }: { navigate: (n: number) => void })
                     <td style={{ padding: '12px 16px', fontWeight: 700, color: C.heading }}>{p.id}</td>
                     <td style={{ padding: '12px 16px', color: C.muted }}>{p.ema}</td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span style={{ color: parseFloat(p.adherencia) >= 80 ? C.success : parseFloat(p.adherencia) >= 60 ? '#92700A' : C.critical, fontWeight: 700 }}>{p.adherencia}</span>
+                      <span style={{ color: parseFloat(p.adherencia) >= 80 ? C.success : parseFloat(p.adherencia) >= 60 ? C.warmText : C.critical, fontWeight: 700 }}>{p.adherencia}</span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <StatusChip label={p.plan} variant={p.plan === 'Completo' ? 'ok' : p.plan === 'Parcial' ? 'warn' : 'empty'} />
@@ -217,8 +217,8 @@ export function DesktopScreen13({ navigate }: { navigate: (n: number) => void })
 
       {/* Create participant modal */}
       {createOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(23,52,58,0.45)' }}>
-          <div style={{ backgroundColor: C.surface, borderRadius: 20, padding: 28, width: 480, boxShadow: '0 20px 60px rgba(23,52,58,0.2)' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(58,50,56,0.45)' }}>
+          <div style={{ backgroundColor: C.surface, borderRadius: 20, padding: 28, width: 480, boxShadow: '0 20px 60px rgba(58,50,56,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <h2 style={{ fontSize: 20, fontWeight: 700, color: C.heading, margin: 0 }}>Crear participante</h2>
               <button onClick={() => setCreateOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, display: 'flex' }}>{Ic.x}</button>
@@ -489,8 +489,8 @@ export function DesktopScreen14({ navigate }: { navigate: (n: number) => void })
         {/* EMA response drawer */}
         {selectedEma && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', justifyContent: 'flex-end' }}>
-            <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(23,52,58,0.4)' }} onClick={() => setSelectedEma(null)} />
-            <div style={{ position: 'relative', width: 440, backgroundColor: C.surface, boxShadow: '-8px 0 32px rgba(23,52,58,0.15)', overflowY: 'auto' }}>
+            <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(58,50,56,0.4)' }} onClick={() => setSelectedEma(null)} />
+            <div style={{ position: 'relative', width: 440, backgroundColor: C.surface, boxShadow: '-8px 0 32px rgba(58,50,56,0.15)', overflowY: 'auto' }}>
               <div style={{ padding: '20px 24px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <h2 style={{ fontSize: 18, fontWeight: 700, color: C.heading, margin: '0 0 4px' }}>Respuestas EMA</h2>
@@ -598,8 +598,8 @@ export function DesktopScreen14({ navigate }: { navigate: (n: number) => void })
       {/* Safety plan drawer */}
       {showPlan && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', justifyContent: 'flex-end' }}>
-          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(23,52,58,0.4)' }} onClick={() => setShowPlan(false)} />
-          <div style={{ position: 'relative', width: 420, backgroundColor: C.surface, boxShadow: '-8px 0 32px rgba(23,52,58,0.15)', overflowY: 'auto', animation: 'slide-right 0.28s ease' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(58,50,56,0.4)' }} onClick={() => setShowPlan(false)} />
+          <div style={{ position: 'relative', width: 420, backgroundColor: C.surface, boxShadow: '-8px 0 32px rgba(58,50,56,0.15)', overflowY: 'auto', animation: 'slide-right 0.28s ease' }}>
             <div style={{ padding: '24px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${C.border}`, paddingBottom: 16 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: C.heading, margin: 0 }}>Plan de seguridad — PCS-024</h2>
               <button onClick={() => setShowPlan(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, display: 'flex' }}>{Ic.x}</button>
@@ -619,8 +619,8 @@ export function DesktopScreen14({ navigate }: { navigate: (n: number) => void })
 
       {/* Crisis protocol modal */}
       {showCrisis && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(23,52,58,0.5)' }}>
-          <div style={{ backgroundColor: C.surface, borderRadius: 20, padding: 28, width: 480, boxShadow: '0 20px 60px rgba(23,52,58,0.2)' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(58,50,56,0.5)' }}>
+          <div style={{ backgroundColor: C.surface, borderRadius: 20, padding: 28, width: 480, boxShadow: '0 20px 60px rgba(58,50,56,0.2)' }}>
             <div style={{ backgroundColor: C.criticalSoft, borderRadius: 12, padding: '12px 16px', marginBottom: 20, border: `1px solid ${C.critical}30` }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: C.critical, margin: '0 0 4px' }}>⚠ Activar protocolo de crisis</p>
               <p style={{ fontSize: 13, color: C.body, margin: 0 }}>Participante: <strong>PCS-024</strong> · Esta acción quedará registrada en el historial de auditoría.</p>
@@ -762,8 +762,8 @@ export function DesktopScreen15({ navigate }: { navigate: (n: number) => void })
 
       {/* Unlink modal */}
       {showUnlink && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(23,52,58,0.45)' }}>
-          <div style={{ backgroundColor: C.surface, borderRadius: 20, padding: 28, width: 460, boxShadow: '0 20px 60px rgba(23,52,58,0.2)' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(58,50,56,0.45)' }}>
+          <div style={{ backgroundColor: C.surface, borderRadius: 20, padding: 28, width: 460, boxShadow: '0 20px 60px rgba(58,50,56,0.2)' }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: C.heading, marginBottom: 12 }}>Desvincular registro</h2>
             <div style={{ backgroundColor: C.canvas, borderRadius: 12, padding: 16, marginBottom: 16 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -788,8 +788,8 @@ export function DesktopScreen15({ navigate }: { navigate: (n: number) => void })
 
       {/* Toast positioned for desktop */}
       {visible && (
-        <div style={{ position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)', zIndex: 200, backgroundColor: C.heading, color: '#fff', borderRadius: 12, padding: '14px 22px', fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 10, animation: 'toast-in 0.25s ease', boxShadow: '0 8px 24px rgba(23,52,58,0.25)', whiteSpace: 'nowrap' }}>
-          <span style={{ display: 'flex', color: '#6EE7C4' }}>{Ic.checkCircle}</span>
+        <div style={{ position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)', zIndex: 200, backgroundColor: C.heading, color: '#fff', borderRadius: 12, padding: '14px 22px', fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 10, animation: 'toast-in 0.25s ease', boxShadow: '0 8px 24px rgba(58,50,56,0.25)', whiteSpace: 'nowrap' }}>
+          <span style={{ display: 'flex', color: C.sage }}>{Ic.checkCircle}</span>
           {message}
         </div>
       )}

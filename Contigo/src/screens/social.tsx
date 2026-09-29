@@ -389,8 +389,8 @@ export function MobileScreen13({ navigate }: { navigate: Navigate }) {
                   width: 62,
                   height: 62,
                   borderRadius: "50%",
-                  backgroundColor: supportiveResult ? C.brandSoft : "#FBF2E3",
-                  color: supportiveResult ? C.brand : "#8A6322",
+                  backgroundColor: supportiveResult ? C.brandSoft : C.warmSoft,
+                  color: supportiveResult ? C.brand : C.warmText,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -429,7 +429,7 @@ export function MobileScreen13({ navigate }: { navigate: Navigate }) {
             <Card
               style={{
                 marginBottom: 14,
-                backgroundColor: supportiveResult ? "#F1F8F5" : "#FFF9EF",
+                backgroundColor: supportiveResult ? C.successSoft : C.warmSoft,
               }}
             >
               <p
@@ -1039,7 +1039,7 @@ export function MobileScreen14({
                 width: 70,
                 height: 70,
                 borderRadius: 22,
-                backgroundColor: "#FBF2E3",
+                backgroundColor: C.warmSoft,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

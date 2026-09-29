@@ -489,8 +489,8 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
                 }}>
                 <span style={{
                   width: 28, height: 28, borderRadius: '50%',
-                  backgroundColor: step.status === 'ok' ? C.brandSoft : step.status === 'warn' ? '#FEF9EC' : C.soft,
-                  color: step.status === 'ok' ? C.brand : step.status === 'warn' ? '#92700A' : C.muted,
+                  backgroundColor: step.status === 'ok' ? C.successSoft : step.status === 'warn' ? C.warmSoft : C.soft,
+                  color: step.status === 'ok' ? C.success : step.status === 'warn' ? C.warmText : C.muted,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   fontSize: 12, fontWeight: 700,
                 }}>
@@ -550,7 +550,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
             </button>
           )}
           {contactPermission === 'denied' && (
-            <div style={{ backgroundColor: '#FEF9EC', borderRadius: 14, padding: 16, border: '1px solid #F5D060' }}>
+            <div style={{ backgroundColor: C.warmSoft, borderRadius: 14, padding: 16, border: `1px solid ${C.ochre}` }}>
               <p style={{ fontSize: 14, color: C.body, marginBottom: 12 }}>No se pudo acceder a tus contactos. Puedes intentarlo de nuevo o ingresar la información manualmente.</p>
               <div style={{ display: 'flex', gap: 8 }}>
                 <Btn variant="secondary" small onClick={() => setShowContactPicker(true)}>Intentar de nuevo</Btn>
@@ -1119,8 +1119,8 @@ export function MobileScreen08({
             <span style={{ color: C.brand, display: 'flex' }}>{Ic.info}</span>
             <span style={{ fontSize: 12, color: C.brand, fontWeight: 600 }}>IA basada en artículos revisados por el equipo investigador</span>
           </div>
-          <div style={{ backgroundColor: '#FEF9EC', borderRadius: 10, padding: '10px 12px', marginBottom: 16, border: '1px solid #F5D060' }}>
-            <p style={{ fontSize: 12, color: '#6B5A1E', margin: 0, lineHeight: '17px' }}>
+          <div style={{ backgroundColor: C.warmSoft, borderRadius: 10, padding: '10px 12px', marginBottom: 16, border: `1px solid ${C.ochre}` }}>
+            <p style={{ fontSize: 12, color: C.warmText, margin: 0, lineHeight: '17px' }}>
               <strong>La IA propone un borrador. Tú decides qué editar y enviar. El mensaje nunca se envía automáticamente.</strong>
             </p>
           </div>
@@ -1232,7 +1232,7 @@ export function MobileScreen08({
           </Btn>
 
           {meetingSent && (
-            <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, backgroundColor: '#E8F4EE', color: C.success, borderRadius: 10, padding: '10px 12px' }}>
+            <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, backgroundColor: C.successSoft, color: C.success, borderRadius: 10, padding: '10px 12px' }}>
               <span style={{ display: 'flex' }}>{Ic.checkCircle}</span>
               <span style={{ fontSize: 13, fontWeight: 600 }}>Mensaje preparado para {recipient} en WhatsApp.</span>
             </div>
@@ -1286,8 +1286,8 @@ export function MobileScreen08({
         )}
         {!aiLoading && aiDraft && (
           <>
-            <div style={{ backgroundColor: '#FEF9EC', borderRadius: 10, padding: '10px 12px', marginBottom: 12, border: '1px solid #F5D060' }}>
-              <p style={{ fontSize: 12, color: '#6B5A1E', margin: 0 }}>La IA propone un borrador. Tú decides qué editar y enviar.</p>
+            <div style={{ backgroundColor: C.warmSoft, borderRadius: 10, padding: '10px 12px', marginBottom: 12, border: `1px solid ${C.ochre}` }}>
+              <p style={{ fontSize: 12, color: C.warmText, margin: 0 }}>La IA propone un borrador. Tú decides qué editar y enviar.</p>
             </div>
             <TextArea label="Tu mensaje (edítalo como prefieras)" value={composedText} onChange={setComposedText} />
             <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
@@ -1301,7 +1301,7 @@ export function MobileScreen08({
               </button>
             </div>
             <div style={{ marginTop: 10 }}>
-              <button style={{ width: '100%', padding: '12px 0', borderRadius: 10, backgroundColor: '#25D366', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>
+              <button style={{ width: '100%', padding: '12px 0', borderRadius: 10, backgroundColor: C.success, border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>
                 Abrir en WhatsApp
               </button>
             </div>
@@ -1388,7 +1388,7 @@ export function MobileScreen09({ navigate }: { navigate: (n: number) => void }) 
 
           <Card onClick={() => navigate(19)} style={{ cursor: 'pointer' }}>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FBF2E3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.warmSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ color: C.warm }}>{Ic.heart}</span>
               </div>
               <div style={{ flex: 1 }}>
@@ -1414,7 +1414,7 @@ export function MobileScreen09({ navigate }: { navigate: (n: number) => void }) 
 
           <Card onClick={() => navigate(12)} style={{ cursor: 'pointer' }}>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#EBF2F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ color: C.blue }}>{Ic.clipboard}</span>
               </div>
               <div style={{ flex: 1 }}>
@@ -1428,7 +1428,7 @@ export function MobileScreen09({ navigate }: { navigate: (n: number) => void }) 
           {/* Register encounter card */}
           <Card style={{ borderLeft: `4px solid ${C.warm}` }}>
             <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FBF2E3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.warmSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ color: C.warm }}>{Ic.calendar}</span>
               </div>
               <div style={{ flex: 1 }}>
@@ -1445,7 +1445,7 @@ export function MobileScreen09({ navigate }: { navigate: (n: number) => void }) 
               <span style={{ fontSize: 28 }}>📚</span>
             </div>
             <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FBF2E3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.warmSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ color: C.warm }}>{Ic.book}</span>
               </div>
               <div style={{ flex: 1 }}>
@@ -1677,8 +1677,8 @@ export function MobileScreen10({ navigate }: { navigate: (n: number) => void }) 
         )}
 
         {/* Warning callout */}
-        <div style={{ backgroundColor: '#FEF5F0', borderRadius: 14, padding: 16, border: '1px solid #F4C0A8', marginTop: 24 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: '#7A3520', marginBottom: 10 }}>Antes de guardar, recuerda</h3>
+        <div style={{ backgroundColor: C.criticalSoft, borderRadius: 14, padding: 16, border: `1px solid ${C.rose}`, marginTop: 24 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: C.critical, marginBottom: 10 }}>Antes de guardar, recuerda</h3>
           <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
               'Trata de evitar dar consejos que la persona no ha pedido.',
@@ -1686,10 +1686,10 @@ export function MobileScreen10({ navigate }: { navigate: (n: number) => void }) 
               'No exijas una respuesta inmediata.',
               'Evita minimizar lo que está viviendo.',
             ].map((item, i) => (
-              <li key={i} style={{ fontSize: 13, color: '#7A3520', lineHeight: '18px' }}>{item}</li>
+              <li key={i} style={{ fontSize: 13, color: C.critical, lineHeight: '18px' }}>{item}</li>
             ))}
           </ul>
-          <p style={{ fontSize: 11, color: '#A05535', marginTop: 10, marginBottom: 0, fontStyle: 'italic' }}>
+          <p style={{ fontSize: 11, color: C.critical, marginTop: 10, marginBottom: 0, fontStyle: 'italic' }}>
             Orientaciones pendientes de validación final por el equipo investigador
           </p>
         </div>

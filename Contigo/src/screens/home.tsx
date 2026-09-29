@@ -181,7 +181,7 @@ export default function MobileHomeScreen({
               background: `linear-gradient(145deg, ${C.brand}, ${C.brandHover})`,
               border: "none",
               color: C.surface,
-              boxShadow: "0 12px 28px rgba(36,107,100,.18)",
+              boxShadow: "0 12px 28px rgba(168,85,80,.18)",
             }}
           >
             <div style={{ color: C.surface, marginBottom: 12 }}>{Ic.users}</div>
@@ -189,7 +189,7 @@ export default function MobileHomeScreen({
               Antes de empezar, reconoce las personas que forman parte de tu vida
             </p>
             <p style={{ fontSize: 13, lineHeight: "20px", color: C.surface, margin: "0 0 16px" }}>
-              Construye tu mapa de red y, al terminar, invita a quienes quieras para que te acompañen como cuidadores informales.
+              Construye tu mapa de red y, al terminar, invita a las personas cercanas con quienes quieras compartir la aplicación o fortalecer tu relación.
             </p>
             <Btn
               fullWidth
@@ -246,7 +246,7 @@ export default function MobileHomeScreen({
           <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
             {tools.map((tool, index) => (
               index === 4 ? (
-              <Card key={tool.title} style={{ padding: 16, boxShadow: "0 5px 16px rgba(23,52,58,.06)" }}>
+              <Card key={tool.title} style={{ padding: 16, boxShadow: "0 5px 16px rgba(58,50,56,.06)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
                   <div
                     style={{
@@ -279,7 +279,7 @@ export default function MobileHomeScreen({
                   key={tool.title}
                   onClick={tool.action}
                   ariaLabel={`${tool.title}. ${tool.description}. ${tool.status}`}
-                  style={{ padding: 16, boxShadow: "0 5px 16px rgba(23,52,58,.06)" }}
+                  style={{ padding: 16, boxShadow: "0 5px 16px rgba(58,50,56,.06)" }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
                     <div style={{ width: 48, height: 48, borderRadius: 14, display: "grid", placeItems: "center", flexShrink: 0, backgroundColor: moduleTints[index], color: index === 2 ? C.warm : index === 1 ? C.blue : C.brand }}>
