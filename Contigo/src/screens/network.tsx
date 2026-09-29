@@ -2336,11 +2336,8 @@ export default function SocialNetworkScreen({
               <p style={{ fontSize: 12, color: C.muted, margin: "0 0 4px" }}>
                 Destinatario
               </p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: C.heading, margin: "0 0 2px" }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: C.heading, margin: "0 0 14px" }}>
                 {candidate.name}
-              </p>
-              <p style={{ fontSize: 12, color: C.brand, margin: "0 0 14px" }}>
-                Vinculación técnica: cuidador informal
               </p>
               <p style={{ fontSize: 12, fontWeight: 700, color: C.muted, margin: "0 0 6px" }}>
                 BORRADOR DE PROTOTIPO · PENDIENTE DE VALIDACIÓN
@@ -2348,9 +2345,8 @@ export default function SocialNetworkScreen({
               <p style={{ fontSize: 14, lineHeight: "21px", color: C.body, margin: 0 }}>
                 Hola, me gustaría invitarte a Contigo como persona cercana para
                 compartir herramientas que nos ayuden a cuidar nuestra relación.
-                Si aceptas, la aplicación vinculará tu cuenta a la mía con el
-                rol técnico de cuidador informal. Puedes decidir libremente si
-                quieres participar.
+                Si aceptas, la aplicación vinculará tu cuenta a la mía. Puedes
+                decidir libremente si quieres participar.
               </p>
             </Card>
             <PrivacyNote text="Este borrador no incluye respuestas, puntuaciones, diagnósticos ni el motivo privado de tu elección." />
