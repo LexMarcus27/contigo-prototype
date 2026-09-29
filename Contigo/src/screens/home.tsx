@@ -284,7 +284,7 @@ export default function MobileHomeScreen({
         </section>
       </main>
 
-      <FloatingSupportBtn onPress={() => navigate(6)} bottom={SUPPORT_BOTTOM} variant="home" />
+      <FloatingSupportBtn onPress={() => navigate(6)} bottom={SUPPORT_BOTTOM} />
       <HomeBottomNav onNetwork={openCareTools} onDay={() => navigate(3)} onProfile={() => setSheet("profile")} />
 
       <BottomSheet open={showWelcome} onClose={deferMap} title="Antes de empezar, reconoce tu red">

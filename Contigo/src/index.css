@@ -25,14 +25,9 @@ body {
 }
 
 .floating-support-button:hover {
-  background-color: #EAD4D0 !important;
-  box-shadow: 0 13px 32px rgba(58,50,56,0.24), 0 4px 10px rgba(168,85,80,0.18) !important;
-  transform: translateY(-2px);
-}
-
-.floating-support-button.home-support-button:hover {
   background-color: #98211E !important;
   box-shadow: 0 13px 30px rgba(179,38,34,0.33) !important;
+  transform: translateY(-2px);
 }
 
 .floating-support-button:active {

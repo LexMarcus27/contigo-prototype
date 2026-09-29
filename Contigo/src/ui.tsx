@@ -394,40 +394,38 @@ const PCS_TAB_SCREENS: Record<string, number> = {
   perfil: 2,
 }
 
-// ── Floating Support Button (PCS M2–M5 and M8; never M1, M6–M7, caregiver, admin) ─
+// ── Floating Support Button for PCS screens ─
 
-const SUPPORT_BUTTON_HEIGHT = 52
+const SUPPORT_BUTTON_HEIGHT = 56
 
 // Let the last action scroll above the floating button, including the safe area.
 export function supportContentPadding(bottom = 20) {
   return `calc(${bottom + SUPPORT_BUTTON_HEIGHT + 24}px + env(safe-area-inset-bottom, 0px))`
 }
 
-export function FloatingSupportBtn({ onPress, bottom = 88, variant = 'default' }: { onPress: () => void; bottom?: number; variant?: 'default' | 'home' }) {
-  const home = variant === 'home'
+export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => void; bottom?: number }) {
   return (
       <button
         type="button"
-        className={home ? 'floating-support-button home-support-button' : 'floating-support-button'}
+        className="floating-support-button"
         onClick={onPress}
-        aria-label={home ? 'Necesito apoyo' : 'Necesito apoyo ahora'}
+        aria-label="Necesito apoyo"
         style={{
-          position: 'absolute', right: home ? 20 : 18,
+          position: 'absolute', right: 20,
           bottom: `calc(${bottom}px + env(safe-area-inset-bottom, 0px))`, zIndex: 30,
           width: 'max-content', maxWidth: 'calc(100% - 36px)',
-          backgroundColor: home ? '#B32622' : C.brandSoft, color: home ? '#FFFFFF' : C.brand,
-          border: home ? 'none' : `1px solid ${C.border}`, borderRadius: home ? 999 : 16, minHeight: home ? 56 : SUPPORT_BUTTON_HEIGHT,
+          backgroundColor: '#B32622', color: '#FFFFFF',
+          border: 'none', borderRadius: 999, minHeight: SUPPORT_BUTTON_HEIGHT,
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-          padding: home ? '0 21px' : '0 16px 0 10px', fontSize: home ? 16 : 14, fontWeight: 700,
+          padding: '0 21px', fontSize: 16, fontWeight: 700,
           cursor: 'pointer', fontFamily: 'inherit',
-          boxShadow: home ? '0 10px 26px rgba(179,38,34,0.28)' : '0 6px 18px rgba(58,50,56,0.16)',
+          boxShadow: '0 10px 26px rgba(179,38,34,0.28)',
         }}>
         <span style={{
-          width: home ? 26 : 32, height: home ? 26 : 32, borderRadius: home ? 0 : 10,
-          backgroundColor: home ? 'transparent' : C.brand, color: '#fff',
+          width: 26, height: 26, color: '#FFFFFF',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>{home ? Ic.lifeRing : Ic.heart}</span>
-        {home ? 'Necesito apoyo' : 'Necesito apoyo ahora'}
+        }}>{Ic.lifeRing}</span>
+        Necesito apoyo
       </button>
   )
 }
