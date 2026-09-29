@@ -1,16 +1,13 @@
 import { useState } from "react"
 import {
-  BottomSheet,
   ActionCard,
+  BottomSheet,
   Btn,
   C,
-  Card,
   FloatingSupportBtn,
-  supportContentPadding,
   Ic,
-  PCSBottomNav,
-  StatusBar,
   StatusChip,
+  supportContentPadding,
 } from "../ui"
 import {
   validCaregivers,
@@ -30,9 +27,143 @@ interface HomeProps {
 }
 
 type Sheet = "profile" | "notifications" | "history" | "caregivers" | "learning" | null
+type TileKind = "network" | "connection" | "help" | "checkin"
 
-const moduleTints = [C.brandSoft, C.soft, C.soft, C.soft, C.criticalSoft]
-const SUPPORT_BOTTOM = 104
+const SUPPORT_BOTTOM = 92
+const avatarColors = [
+  { background: "#F2DDD1", figure: "#D49A78" },
+  { background: "#E8E2F7", figure: "#9C8AD3" },
+  { background: "#E0EEE1", figure: "#8DAD83" },
+  { background: "#DFECF5", figure: "#80ACCB" },
+]
+
+function HomePlant() {
+  return (
+    <svg className="home-plant" viewBox="0 0 158 148" fill="none" aria-hidden="true">
+      <ellipse cx="48" cy="136" rx="41" ry="12" fill="#EEE8DF" />
+      <ellipse cx="112" cy="137" rx="35" ry="14" fill="#F1CDB5" />
+      <circle cx="91" cy="44" r="28" fill="#F0B896" />
+      <path d="M110 139C107 103 107 72 92 47" stroke="#6D936D" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M109 101C98 80 78 70 54 72" stroke="#6D936D" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M109 82C113 52 126 36 136 20" stroke="#6D936D" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M55 72C42 57 31 55 14 57C24 69 39 73 55 72Z" fill="#779A70" />
+      <path d="M135 22C136 12 141 5 150 1C149 20 144 36 127 49C126 39 129 29 135 22Z" fill="#72966D" />
+      <path d="M94 49C86 38 82 35 75 31C78 47 86 60 101 67" fill="#A9BC95" />
+    </svg>
+  )
+}
+
+function HomeAvatar({ index }: { index: number }) {
+  const colors = avatarColors[index % avatarColors.length]
+  return (
+    <svg viewBox="0 0 74 74" width="52" height="52" aria-hidden="true">
+      <circle cx="37" cy="37" r="35" fill={colors.background} stroke="#FFFFFF" strokeWidth="3" />
+      <circle cx="37" cy="39" r="9" fill={colors.figure} />
+      <path d="M17 67C19 55 27 51 37 51S55 55 57 67" fill={colors.figure} />
+    </svg>
+  )
+}
+
+function TileIcon({ kind }: { kind: TileKind }) {
+  const shared = {
+    width: 30,
+    height: 30,
+    viewBox: "0 0 32 32",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2.4,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true as const,
+  }
+  if (kind === "network")
+    return (
+      <svg {...shared}>
+        <circle cx="16" cy="6" r="3" />
+        <circle cx="6" cy="25" r="3" />
+        <circle cx="26" cy="25" r="3" />
+        <path d="M14.7 8.7L7.3 22M17.3 8.7L24.7 22M9 25h14" />
+      </svg>
+    )
+  if (kind === "connection")
+    return (
+      <svg {...shared}>
+        <path d="M16 16c-2.8-4.5-5.7-6.5-8.5-6.5a5.5 5.5 0 0 0 0 11c2.8 0 5.7-2 8.5-6.5 2.8 4.5 5.7 6.5 8.5 6.5a5.5 5.5 0 0 0 0-11c-2.8 0-5.7 2-8.5 6.5Z" />
+      </svg>
+    )
+  if (kind === "help")
+    return (
+      <svg {...shared}>
+        <circle cx="16" cy="16" r="12" />
+        <circle cx="16" cy="16" r="5" />
+        <path d="M8 8l4.5 4.5M24 8l-4.5 4.5M8 24l4.5-4.5M24 24l-4.5-4.5" />
+      </svg>
+    )
+  return (
+    <svg {...shared}>
+      <circle cx="16" cy="16" r="5" />
+      <path d="M16 2v5M16 25v5M2 16h5M25 16h5M6 6l3.5 3.5M22.5 22.5L26 26M26 6l-3.5 3.5M9.5 22.5L6 26" />
+    </svg>
+  )
+}
+
+function HomeTile({
+  kind,
+  title,
+  description,
+  onClick,
+}: {
+  kind: TileKind
+  title: string
+  description: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      className={`home-tile home-tile--${kind}`}
+      onClick={onClick}
+      aria-label={`${title}. ${description}`}
+    >
+      <span className="home-tile-icon"><TileIcon kind={kind} /></span>
+      <span className="home-tile-title">{title}</span>
+      <span className="home-tile-description">{description}</span>
+    </button>
+  )
+}
+
+function HomeBottomNav({
+  onNetwork,
+  onDay,
+  onProfile,
+}: {
+  onNetwork: () => void
+  onDay: () => void
+  onProfile: () => void
+}) {
+  const tabs = [
+    { label: "Inicio", icon: Ic.home, action: () => {}, current: true },
+    { label: "Vínculos", icon: <TileIcon kind="connection" />, action: onNetwork },
+    { label: "Mi día", icon: Ic.calendar, action: onDay },
+    { label: "Perfil", icon: Ic.user, action: onProfile },
+  ]
+  return (
+    <nav className="home-bottom-nav" aria-label="Navegación principal">
+      {tabs.map((tab) => (
+        <button
+          key={tab.label}
+          type="button"
+          className={tab.current ? "home-bottom-tab is-active" : "home-bottom-tab"}
+          aria-current={tab.current ? "page" : undefined}
+          onClick={tab.action}
+        >
+          <span className="home-bottom-icon" aria-hidden="true">{tab.icon}</span>
+          <span>{tab.label}</span>
+        </button>
+      ))}
+    </nav>
+  )
+}
 
 export default function MobileHomeScreen({
   navigate,
@@ -43,20 +174,38 @@ export default function MobileHomeScreen({
   const [sheet, setSheet] = useState<Sheet>(null)
   const [learningTitle, setLearningTitle] = useState("")
   const caregivers = validCaregivers(journey)
-  const pendingInvitations = journey.people.filter(
-    (person) => person.invitationStatus === "pending",
-  ).length
-  const completed = journey.people.filter(
-    (person) => person.status === "complete",
-  ).length
   const showWelcome = journey.onboardingStatus === "not-started"
+  const people = journey.people.slice(0, 4)
+
+  const openMap = () =>
+    openNetwork(
+      journey.mapGenerated
+        ? "results"
+        : journey.mapStarted
+          ? "progress"
+          : "intro",
+    )
+
+  const startMap = () => {
+    setJourney((current) => ({
+      ...current,
+      onboardingStatus: "in-progress",
+      onboardingWelcomeShown: true,
+    }))
+    openNetwork("intro")
+  }
+
+  const deferMap = () => {
+    setJourney((current) => ({
+      ...current,
+      onboardingStatus: "deferred",
+      onboardingWelcomeShown: true,
+    }))
+  }
 
   const openCareTools = () => {
     if (caregivers.length === 1) {
-      setJourney((current) => ({
-        ...current,
-        selectedPersonId: caregivers[0].id,
-      }))
+      setJourney((current) => ({ ...current, selectedPersonId: caregivers[0].id }))
       navigate(8)
       return
     }
@@ -69,277 +218,105 @@ export default function MobileHomeScreen({
     navigate(8)
   }
 
-  const tools = [
-    {
-      title: "Conocer mi red",
-      description: "Construye o revisa tu mapa e invita a personas cercanas",
-      icon: Ic.users,
-      status:
-        pendingInvitations > 0
-          ? `${pendingInvitations} ${pendingInvitations === 1 ? "invitación pendiente" : "invitaciones pendientes"}`
-          : journey.mapGenerated
-            ? `${completed} relaciones en tu mapa`
-            : journey.mapStarted
-              ? "Mapa en progreso"
-              : "Aún no has comenzado",
-      action: () =>
-        openNetwork(
-          journey.mapGenerated
-            ? "results"
-            : journey.mapStarted
-              ? "progress"
-              : "intro",
-        ),
-    },
-    {
-      title: "Cuidar un vínculo",
-      description: "Mensajes, encuentros y preguntas para conectar",
-      icon: Ic.heart,
-      status:
-        caregivers.length > 0
-          ? `${caregivers.length} ${caregivers.length === 1 ? "persona cercana vinculada" : "personas cercanas vinculadas"}`
-          : "Necesita una invitación aceptada y una vinculación activa",
-      action: openCareTools,
-    },
-    {
-      title: "Registrar cómo estoy",
-      description: "Registro breve y EMA",
-      icon: Ic.clipboard,
-      status: journey.dailyCheckInPending ? "Registro disponible" : "Registro al día",
-      action: () => navigate(3),
-    },
-    {
-      title: "Consultar mensajes y actividad",
-      description: "Revisa tu acompañamiento y tus interacciones recientes",
-      icon: Ic.message,
-      status: "Sin actividad reciente",
-      action: () => setSheet("history"),
-    },
-    {
-      title: "Plan de seguridad y apoyo inmediato",
-      description: "Consulta tu plan y encuentra apoyo cuando lo necesites",
-      icon: Ic.shield,
-      status: "Disponible sin personas vinculadas",
-      action: () => navigate(5),
-    },
-  ]
-
   const learning = ["Afrontar una crisis", "Habilidades interpersonales"]
 
   return (
-    <div
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: C.canvas,
-        position: "relative",
-      }}
-    >
-      <StatusBar />
-      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "4px 20px 24px", paddingBottom: supportContentPadding(SUPPORT_BOTTOM) }}>
-        <header
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "flex-start",
-            marginBottom: 22,
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            <p
-              style={{
-                fontSize: 27,
-                fontWeight: 750,
-                color: C.heading,
-                margin: "0 0 5px",
-                lineHeight: "32px",
-              }}
-            >
-              Hola, Sofía
-            </p>
-            <p style={{ fontSize: 14, lineHeight: "20px", color: C.muted, margin: 0 }}>
-              ¿Qué te gustaría hacer hoy?
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: 7, flexShrink: 0 }}>
-            <Btn variant="tertiary" icon={Ic.message} onClick={() => setSheet("notifications")} aria-label="Ver notificaciones">
-              <span aria-hidden="true"> </span>
-            </Btn>
-            <Btn variant="secondary" icon={Ic.user} onClick={() => setSheet("profile")} aria-label="Abrir perfil">
-              <span aria-hidden="true"> </span>
-            </Btn>
-          </div>
+    <div className="home-screen">
+      <main className="home-scroller" style={{ paddingBottom: supportContentPadding(SUPPORT_BOTTOM) }}>
+        <header className="home-hero">
+          <HomePlant />
+          <h1>Inicio</h1>
+          <p>¡Hola, Sofía! Qué bueno verte.</p>
         </header>
 
-        {showWelcome && (
-          <Card
-            style={{
-              padding: 20,
-              marginBottom: 24,
-              background: `linear-gradient(145deg, ${C.brand}, ${C.brandHover})`,
-              border: "none",
-              color: C.surface,
-              boxShadow: "0 12px 28px rgba(168,85,80,.18)",
-            }}
-          >
-            <div style={{ color: C.surface, marginBottom: 12 }}>{Ic.users}</div>
-            <p style={{ fontSize: 20, lineHeight: "26px", fontWeight: 750, margin: "0 0 8px" }}>
-              Antes de empezar, reconoce las personas que forman parte de tu vida
-            </p>
-            <p style={{ fontSize: 13, lineHeight: "20px", color: C.surface, margin: "0 0 16px" }}>
-              Construye tu mapa de red y, al terminar, invita a las personas cercanas con quienes quieras compartir la aplicación o fortalecer tu relación.
-            </p>
-            <Btn
-              fullWidth
-              onClick={() => {
-                setJourney((current) => ({
-                  ...current,
-                  onboardingStatus: "in-progress",
-                  onboardingWelcomeShown: true,
-                }))
-                openNetwork("intro")
-              }}
-              style={{ backgroundColor: C.surface, color: C.brand }}
-            >
-              Construir mi mapa
-            </Btn>
-            <Btn
-              variant="tertiary"
-              fullWidth
-              onClick={() =>
-                setJourney((current) => ({
-                  ...current,
-                  onboardingStatus: "deferred",
-                  onboardingWelcomeShown: true,
-                }))
-              }
-              style={{
-                color: C.surface,
-                border: `1px solid ${C.surface}`,
-                backgroundColor: "transparent",
-                marginTop: 10,
-                minHeight: 44,
-              }}
-            >
-              Hacerlo después
-            </Btn>
-          </Card>
-        )}
-
-        {!showWelcome && journey.onboardingStatus === "deferred" && !journey.mapGenerated && (
-          <Card style={{ marginBottom: 20, borderLeft: `4px solid ${C.brand}` }}>
-            <p style={{ fontSize: 12, fontWeight: 750, color: C.brand, margin: "0 0 5px" }}>TU MAPA TE ESPERA</p>
-            <p style={{ fontSize: 14, lineHeight: "20px", color: C.body, margin: "0 0 12px" }}>
-              Puedes reconocer tu red cuando te resulte posible. El plan y el apoyo inmediato siguen disponibles.
-            </p>
-            <Btn variant="secondary" fullWidth onClick={() => openNetwork("intro")}>Continuar mi mapa</Btn>
-          </Card>
-        )}
-
-        <section>
-          <div style={{ marginBottom: 12 }}>
-            <p style={{ fontSize: 19, fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>Tus herramientas</p>
-            <p style={{ fontSize: 13, lineHeight: "19px", color: C.muted, margin: 0 }}>Elige la que te sea más útil en este momento.</p>
+        <section className="home-links" aria-labelledby="home-links-title">
+          <div className="home-section-heading">
+            <h2 id="home-links-title">Mis vínculos</h2>
+            <button type="button" onClick={openMap}>Ver todos</button>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
-            {tools.map((tool, index) => (
-              index === 4 ? (
-              <Card key={tool.title} style={{ padding: 16, boxShadow: "0 5px 16px rgba(58,50,56,.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
-                  <div
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 14,
-                      display: "grid",
-                      placeItems: "center",
-                      flexShrink: 0,
-                      backgroundColor: moduleTints[index],
-                      color: index === 4 ? C.critical : index === 2 ? C.warm : index === 1 ? C.blue : C.brand,
-                    }}
-                  >
-                    {tool.icon}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 16, lineHeight: "21px", fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>{tool.title}</p>
-                    <p style={{ fontSize: 13, lineHeight: "18px", color: C.muted, margin: "0 0 7px" }}>{tool.description}</p>
-                    <p style={{ fontSize: 11.5, lineHeight: "16px", fontWeight: 650, color: index === 4 ? C.critical : C.brand, margin: 0 }}>{tool.status}</p>
-                  </div>
-                  <span aria-hidden="true" style={{ color: C.critical, flexShrink: 0 }}>{Ic.shield}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 14 }}>
-                  <Btn variant="secondary" small onClick={() => navigate(5)}>Ver mi plan</Btn>
-                  <Btn variant="critical" small onClick={() => navigate(6)}>Apoyo ahora</Btn>
-                </div>
-              </Card>
-              ) : (
-                <ActionCard
-                  key={tool.title}
-                  onClick={tool.action}
-                  ariaLabel={`${tool.title}. ${tool.description}. ${tool.status}`}
-                  style={{ padding: 16, boxShadow: "0 5px 16px rgba(58,50,56,.06)" }}
+          <div className="home-avatars">
+            {Array.from({ length: 4 }, (_, index) => {
+              const person = people[index]
+              return (
+                <button
+                  type="button"
+                  className="home-avatar-button"
+                  key={person?.id ?? `empty-${index}`}
+                  onClick={openMap}
+                  aria-label={person ? `Ver a ${person.name} en mi mapa` : "Agregar persona a mi mapa"}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 14, display: "grid", placeItems: "center", flexShrink: 0, backgroundColor: moduleTints[index], color: index === 2 ? C.warm : index === 1 ? C.blue : C.brand }}>
-                      {tool.icon}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 16, lineHeight: "21px", fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>{tool.title}</p>
-                      <p style={{ fontSize: 13, lineHeight: "18px", color: C.muted, margin: "0 0 7px" }}>{tool.description}</p>
-                      <p style={{ fontSize: 11.5, lineHeight: "16px", fontWeight: 650, color: C.brand, margin: 0 }}>{tool.status}</p>
-                    </div>
-                    <span aria-hidden="true" style={{ color: C.brand, flexShrink: 0 }}>{Ic.chevRight}</span>
-                  </div>
-                </ActionCard>
+                  <HomeAvatar index={index} />
+                  <span>{person?.name ?? "Añadir"}</span>
+                </button>
               )
-            ))}
+            })}
           </div>
         </section>
 
-        <section style={{ marginTop: 30 }}>
-          <p style={{ fontSize: 19, fontWeight: 750, color: C.heading, margin: "0 0 4px" }}>Aprender habilidades</p>
-          <p style={{ fontSize: 13, lineHeight: "19px", color: C.muted, margin: "0 0 14px" }}>
-            Recursos breves para afrontar momentos difíciles y fortalecer tus relaciones.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
-            {learning.map((title, index) => (
-              <Card key={title} style={{ padding: 0, overflow: "hidden" }}>
-                <div style={{ height: 76, backgroundColor: index === 0 ? C.brandSoft : C.soft, display: "grid", placeItems: "center", color: index === 0 ? C.brand : C.blue }}>
-                  {index === 0 ? Ic.shield : Ic.users}
-                </div>
-                <div style={{ padding: 15 }}>
-                  <p style={{ fontSize: 15, fontWeight: 750, color: C.heading, margin: "0 0 6px" }}>{title}</p>
-                  <p style={{ fontSize: 12, lineHeight: "18px", color: C.muted, margin: "0 0 12px" }}>Contenido pendiente de validación por el equipo investigador.</p>
-                  <Btn variant="secondary" fullWidth small onClick={() => { setLearningTitle(title); setSheet("learning") }}>Explorar contenido</Btn>
-                </div>
-              </Card>
-            ))}
-          </div>
+        <section className="home-tile-grid" aria-label="Herramientas principales">
+          <HomeTile kind="network" title="¿En dónde tejer?" description="Relaciones para conectar" onClick={openMap} />
+          <HomeTile kind="connection" title="Tejiendo vínculos" description="Cuida tus relaciones" onClick={openCareTools} />
+          <HomeTile kind="help" title="Necesito ayuda" description="Crisis y plan de seguridad" onClick={() => navigate(5)} />
+          <HomeTile kind="checkin" title="¿Cómo estoy hoy?" description="Registra cómo te sientes" onClick={() => navigate(3)} />
         </section>
-      </div>
 
-      <FloatingSupportBtn onPress={() => navigate(6)} bottom={SUPPORT_BOTTOM} />
-      <PCSBottomNav active="inicio" navigate={navigate} />
+        <section className="home-more" aria-labelledby="home-more-title">
+          <h2 id="home-more-title">Más para ti</h2>
+          {journey.onboardingStatus === "deferred" && !journey.mapGenerated && (
+            <button type="button" className="home-extra-row" onClick={() => openNetwork("intro")}>
+              <span>Tu mapa te espera</span><span aria-hidden="true">{Ic.chevRight}</span>
+            </button>
+          )}
+          <button type="button" className="home-extra-row" onClick={() => setSheet("history")}>
+            <span>Mensajes y actividad</span><span aria-hidden="true">{Ic.chevRight}</span>
+          </button>
+          <h3>Aprender habilidades</h3>
+          {learning.map((title) => (
+            <button
+              type="button"
+              className="home-extra-row"
+              key={title}
+              onClick={() => { setLearningTitle(title); setSheet("learning") }}
+            >
+              <span>{title}</span><span aria-hidden="true">{Ic.chevRight}</span>
+            </button>
+          ))}
+        </section>
+      </main>
 
-      <BottomSheet open={sheet === "caregivers"} onClose={() => setSheet(null)} title="Cuidar un vínculo">
+      <FloatingSupportBtn onPress={() => navigate(6)} bottom={SUPPORT_BOTTOM} variant="home" />
+      <HomeBottomNav onNetwork={openCareTools} onDay={() => navigate(3)} onProfile={() => setSheet("profile")} />
+
+      <BottomSheet open={showWelcome} onClose={deferMap} title="Antes de empezar, reconoce tu red">
+        <p style={{ fontSize: 14, lineHeight: "21px", color: C.body, margin: "0 0 18px" }}>
+          Construye tu mapa de red y, al terminar, invita a las personas cercanas con quienes quieras compartir la aplicación o fortalecer tu relación.
+        </p>
+        <Btn fullWidth onClick={startMap}>Construir mi mapa</Btn>
+        <Btn variant="secondary" fullWidth onClick={deferMap} style={{ marginTop: 9 }}>Hacerlo después</Btn>
+        <Btn variant="tertiary" fullWidth onClick={() => navigate(6)} style={{ marginTop: 7 }}>Necesito apoyo ahora</Btn>
+      </BottomSheet>
+
+      <BottomSheet open={sheet === "caregivers"} onClose={() => setSheet(null)} title="Tejiendo vínculos">
         {caregivers.length === 0 ? (
           <div>
             <StatusChip label="Sin personas vinculadas" variant="warn" />
             <p style={{ fontSize: 15, lineHeight: "22px", color: C.body, margin: "15px 0 7px", fontWeight: 700 }}>Todavía no hay un vínculo habilitado</p>
             <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 18px" }}>
-              Cuando alguien acepte tu invitación y quede vinculado contigo, podrás usar aquí mensajes, encuentros y preguntas para conectar.
+              Cuando alguien acepte tu invitación y quede vinculado contigo, podrás usar mensajes, encuentros y preguntas para conectar.
             </p>
-            <Btn fullWidth onClick={() => { setSheet(null); openNetwork(journey.mapGenerated ? "results" : "auto") }}>Invitar a alguien</Btn>
-            <Btn variant="tertiary" fullWidth onClick={() => setSheet(null)} style={{ marginTop: 7 }}>Volver al inicio</Btn>
+            <Btn fullWidth onClick={() => { setSheet(null); openMap() }}>Conocer mi red</Btn>
           </div>
         ) : (
           <div>
             <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 13px" }}>Elige una persona cercana vinculada para esta actividad.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
               {caregivers.map((person) => (
-                <ActionCard key={person.id} ariaLabel={`Elegir a ${person.name}, persona cercana vinculada`} onClick={() => selectCaregiver(person)} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <ActionCard
+                  key={person.id}
+                  ariaLabel={`Elegir a ${person.name}, persona cercana vinculada`}
+                  onClick={() => selectCaregiver(person)}
+                  style={{ display: "flex", alignItems: "center", gap: 12 }}
+                >
                   <span style={{ color: C.brand }}>{Ic.user}</span>
                   <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: C.heading }}>{person.name}</span>
                   <StatusChip label="Vínculo activo" variant="ok" />
@@ -351,26 +328,24 @@ export default function MobileHomeScreen({
       </BottomSheet>
 
       <BottomSheet open={sheet === "history"} onClose={() => setSheet(null)} title="Mensajes y actividad">
-        <div style={{ textAlign: "center", padding: "14px 0" }}>
-          <div style={{ color: C.brand, marginBottom: 12 }}>{Ic.message}</div>
-          <p style={{ fontSize: 16, fontWeight: 750, color: C.heading, margin: "0 0 7px" }}>Aún no hay actividad para mostrar</p>
-          <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 18px" }}>Este prototipo no muestra interacciones clínicas ni mensajes inventados.</p>
-          <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver al inicio</Btn>
-        </div>
+        <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
+          Este prototipo no muestra interacciones clínicas ni mensajes inventados.
+        </p>
+        <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver al inicio</Btn>
       </BottomSheet>
 
       <BottomSheet open={sheet === "learning"} onClose={() => setSheet(null)} title={learningTitle}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ height: 100, borderRadius: 14, backgroundColor: C.soft, color: C.brand, display: "grid", placeItems: "center", marginBottom: 16 }}>{learningTitle === learning[0] ? Ic.shield : Ic.users}</div>
-          <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>Este contenido será proporcionado y validado por el equipo investigador.</p>
-          <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver</Btn>
-        </div>
+        <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
+          Este contenido será proporcionado y validado por el equipo investigador.
+        </p>
+        <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver</Btn>
       </BottomSheet>
 
       <BottomSheet open={sheet === "profile" || sheet === "notifications"} onClose={() => setSheet(null)} title={sheet === "profile" ? "Tu perfil" : "Notificaciones"}>
         <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
           {sheet === "profile" ? "Desde aquí podrás revisar tu cuenta, privacidad y preferencias de acompañamiento." : "No tienes notificaciones nuevas."}
         </p>
+        {sheet === "profile" && <Btn variant="secondary" fullWidth onClick={() => setSheet("notifications")} style={{ marginBottom: 9 }}>Ver notificaciones</Btn>}
         <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Cerrar</Btn>
       </BottomSheet>
     </div>

@@ -37,6 +37,7 @@ export const Ic = {
   home:       <svg width={22} height={22} viewBox="0 0 24 24" {...sp}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
   shield:     <svg width={22} height={22} viewBox="0 0 24 24" {...sp}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
   heart:      <svg width={22} height={22} viewBox="0 0 24 24" {...sp}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+  lifeRing:   <svg width={24} height={24} viewBox="0 0 24 24" {...sp}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="M4.9 4.9l4.3 4.3m5.6 5.6 4.3 4.3m0-14.2-4.3 4.3m-5.6 5.6-4.3 4.3"/></svg>,
   user:       <svg width={22} height={22} viewBox="0 0 24 24" {...sp}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
   message:    <svg width={22} height={22} viewBox="0 0 24 24" {...sp}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
   phone:      <svg width={22} height={22} viewBox="0 0 24 24" {...sp}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
@@ -402,29 +403,31 @@ export function supportContentPadding(bottom = 20) {
   return `calc(${bottom + SUPPORT_BUTTON_HEIGHT + 24}px + env(safe-area-inset-bottom, 0px))`
 }
 
-export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => void; bottom?: number }) {
+export function FloatingSupportBtn({ onPress, bottom = 88, variant = 'default' }: { onPress: () => void; bottom?: number; variant?: 'default' | 'home' }) {
+  const home = variant === 'home'
   return (
       <button
         type="button"
-        className="floating-support-button"
+        className={home ? 'floating-support-button home-support-button' : 'floating-support-button'}
         onClick={onPress}
-        aria-label="Necesito apoyo ahora"
+        aria-label={home ? 'Necesito apoyo' : 'Necesito apoyo ahora'}
         style={{
-          position: 'absolute', right: 18,
+          position: 'absolute', right: home ? 20 : 18,
           bottom: `calc(${bottom}px + env(safe-area-inset-bottom, 0px))`, zIndex: 30,
           width: 'max-content', maxWidth: 'calc(100% - 36px)',
-          backgroundColor: C.brandSoft, color: C.brand,
-          border: `1px solid ${C.border}`, borderRadius: 16, minHeight: SUPPORT_BUTTON_HEIGHT,
+          backgroundColor: home ? '#B32622' : C.brandSoft, color: home ? '#FFFFFF' : C.brand,
+          border: home ? 'none' : `1px solid ${C.border}`, borderRadius: home ? 999 : 16, minHeight: home ? 56 : SUPPORT_BUTTON_HEIGHT,
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-          padding: '0 16px 0 10px', fontSize: 14, fontWeight: 700,
+          padding: home ? '0 21px' : '0 16px 0 10px', fontSize: home ? 16 : 14, fontWeight: 700,
           cursor: 'pointer', fontFamily: 'inherit',
-          boxShadow: '0 6px 18px rgba(58,50,56,0.16)',
+          boxShadow: home ? '0 10px 26px rgba(179,38,34,0.28)' : '0 6px 18px rgba(58,50,56,0.16)',
         }}>
         <span style={{
-          width: 32, height: 32, borderRadius: 10, backgroundColor: C.brand, color: '#fff',
+          width: home ? 26 : 32, height: home ? 26 : 32, borderRadius: home ? 0 : 10,
+          backgroundColor: home ? 'transparent' : C.brand, color: '#fff',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>{Ic.heart}</span>
-        Necesito apoyo ahora
+        }}>{home ? Ic.lifeRing : Ic.heart}</span>
+        {home ? 'Necesito apoyo' : 'Necesito apoyo ahora'}
       </button>
   )
 }
