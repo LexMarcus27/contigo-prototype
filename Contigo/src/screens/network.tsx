@@ -198,7 +198,7 @@ function metricsFor(person: NetworkPerson): Metrics {
 
 function invitationLabel(person: NetworkPerson, journey: JourneyState) {
   if (canStrengthenRelationship(journey, person.id))
-    return "Cuidador informal asociado"
+    return "Persona cercana vinculada"
   if (person.invitationStatus === "accepted") return "Vinculación en proceso"
   const labels = {
     "not-invited": "Sin invitación",
@@ -2114,7 +2114,7 @@ export default function SocialNetworkScreen({
               }}
             >
               Invita a cada persona por separado o consulta su estado. Estar en
-              el mapa no convierte a nadie en cuidador informal.
+              el mapa no envía invitaciones ni vincula a nadie automáticamente.
             </p>
             {!candidate &&
               completePeople.map((person) => {
@@ -2225,7 +2225,7 @@ export default function SocialNetworkScreen({
                       ? "La invitación está pendiente. Las herramientas compartidas seguirán inhabilitadas hasta que acepte y quede vinculada contigo."
                       : candidate.invitationStatus === "accepted"
                         ? "La invitación fue aceptada, pero la vinculación activa todavía está en proceso."
-                        : "Puedes invitar a esta persona como cuidador informal. No se compartirán tus respuestas ni la puntuación del mapa."}
+                        : "Puedes invitar a esta persona cercana para cuidar este vínculo. No se compartirán tus respuestas ni la puntuación del mapa."}
                 </p>
                 <div
                   style={{ display: "flex", flexDirection: "column", gap: 8 }}
@@ -2238,7 +2238,7 @@ export default function SocialNetworkScreen({
                     )}
                   {candidate.invitationStatus === "not-invited" && (
                     <Btn fullWidth onClick={() => confirmSelection("invite")}>
-                      Invitar como cuidador informal
+                      Invitar a esta persona cercana
                     </Btn>
                   )}
                   {["declined", "cancelled", "expired"].includes(
@@ -2340,15 +2340,17 @@ export default function SocialNetworkScreen({
                 {candidate.name}
               </p>
               <p style={{ fontSize: 12, color: C.brand, margin: "0 0 14px" }}>
-                Rol: cuidador informal
+                Vinculación técnica: cuidador informal
               </p>
               <p style={{ fontSize: 12, fontWeight: 700, color: C.muted, margin: "0 0 6px" }}>
                 BORRADOR DE PROTOTIPO · PENDIENTE DE VALIDACIÓN
               </p>
               <p style={{ fontSize: 14, lineHeight: "21px", color: C.body, margin: 0 }}>
-                Hola, me gustaría invitarte a Contigo para que, si lo deseas,
-                puedas acompañarme como cuidador informal. Puedes conocer la
-                invitación y decidir si quieres participar.
+                Hola, me gustaría invitarte a Contigo como persona cercana para
+                compartir herramientas que nos ayuden a cuidar nuestra relación.
+                Si aceptas, la aplicación vinculará tu cuenta a la mía con el
+                rol técnico de cuidador informal. Puedes decidir libremente si
+                quieres participar.
               </p>
             </Card>
             <PrivacyNote text="Este borrador no incluye respuestas, puntuaciones, diagnósticos ni el motivo privado de tu elección." />
@@ -2605,7 +2607,7 @@ export default function SocialNetworkScreen({
                     journey.onboardingStatus === "completed"
                       ? "Fortalecer este vínculo"
                       : detailPerson.invitationStatus === "not-invited"
-                        ? "Invitar como cuidador informal"
+                        ? "Invitar a esta persona cercana"
                         : "Consultar estado de vinculación"}
                   </Btn>
                   <Btn

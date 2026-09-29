@@ -97,7 +97,7 @@ export default function MobileHomeScreen({
       icon: Ic.heart,
       status:
         caregivers.length > 0
-          ? `${caregivers.length} ${caregivers.length === 1 ? "cuidador informal asociado" : "cuidadores informales asociados"}`
+          ? `${caregivers.length} ${caregivers.length === 1 ? "persona cercana vinculada" : "personas cercanas vinculadas"}`
           : "Necesita una invitación aceptada y una vinculación activa",
       action: openCareTools,
     },
@@ -119,7 +119,7 @@ export default function MobileHomeScreen({
       title: "Plan de seguridad y apoyo inmediato",
       description: "Consulta tu plan y encuentra apoyo cuando lo necesites",
       icon: Ic.shield,
-      status: "Disponible sin cuidadores asociados",
+      status: "Disponible sin personas vinculadas",
       action: () => navigate(5),
     },
   ]
@@ -326,7 +326,7 @@ export default function MobileHomeScreen({
       <BottomSheet open={sheet === "caregivers"} onClose={() => setSheet(null)} title="Cuidar un vínculo">
         {caregivers.length === 0 ? (
           <div>
-            <StatusChip label="Sin cuidadores asociados" variant="warn" />
+            <StatusChip label="Sin personas vinculadas" variant="warn" />
             <p style={{ fontSize: 15, lineHeight: "22px", color: C.body, margin: "15px 0 7px", fontWeight: 700 }}>Todavía no hay un vínculo habilitado</p>
             <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 18px" }}>
               Cuando alguien acepte tu invitación y quede vinculado contigo, podrás usar aquí mensajes, encuentros y preguntas para conectar.
@@ -336,13 +336,13 @@ export default function MobileHomeScreen({
           </div>
         ) : (
           <div>
-            <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 13px" }}>Elige un cuidador informal asociado para esta actividad.</p>
+            <p style={{ fontSize: 13, lineHeight: "20px", color: C.muted, margin: "0 0 13px" }}>Elige una persona cercana vinculada para esta actividad.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
               {caregivers.map((person) => (
-                <ActionCard key={person.id} ariaLabel={`Elegir a ${person.name}, cuidador informal asociado`} onClick={() => selectCaregiver(person)} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <ActionCard key={person.id} ariaLabel={`Elegir a ${person.name}, persona cercana vinculada`} onClick={() => selectCaregiver(person)} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ color: C.brand }}>{Ic.user}</span>
                   <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: C.heading }}>{person.name}</span>
-                  <StatusChip label="Asociado" variant="ok" />
+                  <StatusChip label="Vínculo activo" variant="ok" />
                 </ActionCard>
               ))}
             </div>
