@@ -85,6 +85,11 @@ export default function App() {
     setNetworkEntry(entry)
     setScreen(17)
   }
+  const resetDemoState = () => {
+    if (!demoMode) return
+    window.localStorage.removeItem("contigo-demo-pcs-sofia-testing")
+    window.location.reload()
+  }
 
   const renderScreen = () => {
     switch (screen) {
@@ -175,6 +180,21 @@ export default function App() {
             Demostración · datos ficticios
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={resetDemoState}
+          aria-label="Restaurar estado inicial de la demostración"
+          title="Borra solo los datos ficticios guardados en este navegador"
+          style={{
+            flexShrink: 0, padding: '5px 10px', borderRadius: 16,
+            border: '1px solid rgba(255,255,255,0.45)', background: 'transparent',
+            color: C.surface, fontSize: 11, fontWeight: 700,
+            fontFamily: 'inherit', whiteSpace: 'nowrap', cursor: 'pointer',
+          }}
+        >
+          Reiniciar demo
+        </button>
 
         {/* Divider */}
         <div style={{ width: 1, height: 24, backgroundColor: 'rgba(255,255,255,0.15)', marginRight: 6, flexShrink: 0 }} />
