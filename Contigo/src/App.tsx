@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { C } from './ui'
 import {
-  MobileScreen01, MobileScreen03, MobileScreen04,
+  MobileScreen01,
   MobileScreen05, MobileScreen06, MobileScreen07, MobileScreen08,
   MobileScreen09, MobileScreen09A, MobileScreen10, MobileScreen11, MobileScreen12,
 } from './screens/mobile'
@@ -11,6 +11,8 @@ import MobileHomeScreen from './screens/home'
 import HelpHubScreen from './screens/help-hub'
 import ConnectionHubScreen from './screens/connection-hub'
 import SocialNetworkScreen from './screens/network'
+import EmaScreen from './screens/ema'
+import { createEmaDraft } from './ema'
 import { createRandomNotification, type DemoNotification } from './notifications'
 import {
   canStrengthenRelationship,
@@ -79,6 +81,9 @@ export default function App() {
   const [notifications, setNotifications] = useState<DemoNotification[]>([])
   const [visibleNotification, setVisibleNotification] = useState<DemoNotification | null>(null)
   const [notificationEntry, setNotificationEntry] = useState<DemoNotification | null>(null)
+  // Clinical answers in this review prototype are deliberately session-only.
+  // Do not add them to the journey object written to localStorage.
+  const [emaDraft, setEmaDraft] = useState(createEmaDraft)
   const isMobile = ![13, 14, 15].includes(screen)
 
   useEffect(() => {
@@ -143,8 +148,8 @@ export default function App() {
             onDismissNotification={() => setVisibleNotification(null)}
           />
         )
-      case 3:  return <MobileScreen03 navigate={navigate} />
-      case 4:  return <MobileScreen04 navigate={navigate} />
+      case 3:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} />
+      case 4:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} view="result" />
       case 5:  return <MobileScreen05 navigate={navigate} />
       case 6:  return <MobileScreen06 navigate={navigate} />
       case 7:  return <MobileScreen07 navigate={navigate} />

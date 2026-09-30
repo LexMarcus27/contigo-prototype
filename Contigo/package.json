@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:notifications": "node --test tests/notifications.test.mjs",
+    "test:ema": "node --test tests/ema.test.mjs",
     "format": "oxfmt"
   },
   "dependencies": {
