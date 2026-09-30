@@ -1,4 +1,6 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import NotificationCard from "../components/notification-card"
+import { type DemoNotification } from "../notifications"
 import {
   BottomSheet,
   Btn,
@@ -8,6 +10,7 @@ import {
   supportContentPadding,
 } from "../ui"
 import {
+  validCaregivers,
   type JourneyState,
   type NetworkEntry,
 } from "../journey"
@@ -20,6 +23,11 @@ interface HomeProps {
   ) => void
   openNetwork: (entry: NetworkEntry) => void
   demoMode: boolean
+  notifications: DemoNotification[]
+  visibleNotification: DemoNotification | null
+  onSimulateNotification: () => void
+  onOpenNotification: (notification: DemoNotification) => void
+  onDismissNotification: () => void
 }
 
 type Sheet = "profile" | "notifications" | "history" | null
@@ -166,10 +174,23 @@ export default function MobileHomeScreen({
   journey,
   setJourney,
   openNetwork,
+  notifications,
+  visibleNotification,
+  onSimulateNotification,
+  onOpenNotification,
+  onDismissNotification,
 }: HomeProps) {
   const [sheet, setSheet] = useState<Sheet>(null)
+  const notificationBanner = useRef<HTMLDivElement>(null)
   const showWelcome = journey.onboardingStatus === "not-started"
   const people = journey.people.slice(0, 4)
+
+  useEffect(() => {
+    if (visibleNotification && !showWelcome && sheet === null) {
+      // The desktop phone preview may itself have been scrolled out of view.
+      notificationBanner.current?.scrollIntoView({ block: "nearest" })
+    }
+  }, [visibleNotification, showWelcome, sheet])
 
   const openMap = () =>
     openNetwork(
@@ -199,7 +220,12 @@ export default function MobileHomeScreen({
 
   return (
     <div className="home-screen">
-      <main className="home-scroller" style={{ paddingBottom: supportContentPadding(SUPPORT_BOTTOM) }}>
+      <div ref={notificationBanner} className="notification-banner" role="region" aria-label="Notificación simulada" aria-live="polite" aria-atomic="true">
+        {visibleNotification && !showWelcome && sheet === null && (
+          <NotificationCard notification={visibleNotification} onOpen={() => onOpenNotification(visibleNotification)} onDismiss={onDismissNotification} />
+        )}
+      </div>
+      <main className="home-scroller" style={{ paddingBottom: supportContentPadding(SUPPORT_BOTTOM), scrollPaddingBottom: supportContentPadding(SUPPORT_BOTTOM) }}>
         <header className="home-hero">
           <HomePlant />
           <h1>Inicio</h1>
@@ -239,6 +265,16 @@ export default function MobileHomeScreen({
 
         <section className="home-more" aria-labelledby="home-more-title">
           <h2 id="home-more-title">Más para ti</h2>
+          <button type="button" className="home-extra-row notification-simulate" onClick={onSimulateNotification}>
+            <span>Simular notificación</span><span aria-hidden="true">{Ic.message}</span>
+          </button>
+          <p className="notification-demo-note">
+            Demostración: muestra un aviso aleatorio dentro de la app. No envía notificaciones reales ni analiza tus datos.
+            {validCaregivers(journey).length === 0 && " Sin personas vinculadas, verás recordatorios generales."}
+          </p>
+          <button type="button" className="home-extra-row" onClick={() => { onDismissNotification(); setSheet("notifications") }}>
+            <span>Ver notificaciones simuladas{notifications.length ? ` (${notifications.length})` : ""}</span><span aria-hidden="true">{Ic.chevRight}</span>
+          </button>
           {journey.onboardingStatus === "deferred" && !journey.mapGenerated && (
             <button type="button" className="home-extra-row" onClick={() => openNetwork("intro")}>
               <span>Tu mapa te espera</span><span aria-hidden="true">{Ic.chevRight}</span>
@@ -268,12 +304,23 @@ export default function MobileHomeScreen({
         <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Volver al inicio</Btn>
       </BottomSheet>
 
-      <BottomSheet open={sheet === "profile" || sheet === "notifications"} onClose={() => setSheet(null)} title={sheet === "profile" ? "Tu perfil" : "Notificaciones"}>
+      <BottomSheet open={sheet === "profile"} onClose={() => setSheet(null)} title="Tu perfil">
         <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
-          {sheet === "profile" ? "Desde aquí podrás revisar tu cuenta, privacidad y preferencias de acompañamiento." : "No tienes notificaciones nuevas."}
+          Desde aquí podrás revisar tu cuenta, privacidad y preferencias de acompañamiento.
         </p>
-        {sheet === "profile" && <Btn variant="secondary" fullWidth onClick={() => setSheet("notifications")} style={{ marginBottom: 9 }}>Ver notificaciones</Btn>}
+        <Btn variant="secondary" fullWidth onClick={() => setSheet("notifications")} style={{ marginBottom: 9 }}>Ver notificaciones</Btn>
         <Btn variant="secondary" fullWidth onClick={() => setSheet(null)}>Cerrar</Btn>
+      </BottomSheet>
+
+      <BottomSheet open={sheet === "notifications"} onClose={() => setSheet(null)} title="Notificaciones simuladas">
+        <p className="notification-demo-note">Avisos ficticios de esta sesión. Toca uno para abrir su herramienta; no se ha enviado ningún mensaje.</p>
+        {notifications.length === 0 && <p style={{ color: C.muted, fontSize: 14 }}>Aún no has generado notificaciones. Usa “Simular notificación” en el inicio.</p>}
+        <div className="notification-inbox">
+          {notifications.map((notification, index) => (
+            <NotificationCard key={`${notification.id}-${index}`} notification={notification} onOpen={() => { setSheet(null); onOpenNotification(notification) }} />
+          ))}
+        </div>
+        <Btn variant="secondary" fullWidth onClick={() => setSheet(null)} style={{ marginTop: 16 }}>Volver al inicio</Btn>
       </BottomSheet>
     </div>
   )

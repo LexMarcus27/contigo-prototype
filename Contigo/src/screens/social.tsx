@@ -654,13 +654,18 @@ export function MobileScreen14({
   navigate,
   role,
   otherName: suppliedOtherName,
+  initialQuestion,
 }: {
   navigate: Navigate
   role: "pcs" | "caregiver"
   otherName?: string
+  initialQuestion?: string
 }) {
   const homeScreen = role === "pcs" ? 8 : 9
   const otherName = suppliedOtherName ?? (role === "pcs" ? "tu cuidador informal" : "Sofi")
+  const questions = initialQuestion && role === "pcs"
+    ? [initialQuestion, ...connectionQuestions.filter((question) => question !== initialQuestion)]
+    : connectionQuestions
   const [questionIndex, setQuestionIndex] = useState(role === "pcs" ? 0 : 2)
   const [stage, setStage] = useState<ConnectionStage>("answering")
   const [format, setFormat] = useState<ResponseFormat>("text")
@@ -668,7 +673,7 @@ export function MobileScreen14({
   const [attachment, setAttachment] = useState("")
   const [completed, setCompleted] = useState(0)
 
-  const question = connectionQuestions[questionIndex]
+  const question = questions[questionIndex]
   const hasResponse =
     format === "text" ? Boolean(text.trim()) : Boolean(attachment)
   const ownResponse = format === "text" ? text : attachment
@@ -682,12 +687,12 @@ export function MobileScreen14({
   }
 
   const showAnother = () => {
-    resetComposer((questionIndex + 2) % connectionQuestions.length)
+    resetComposer((questionIndex + 2) % questions.length)
   }
 
   const nextQuestion = () => {
-    setCompleted((current) => Math.min(current + 1, connectionQuestions.length))
-    resetComposer((questionIndex + 3) % connectionQuestions.length)
+    setCompleted((current) => Math.min(current + 1, questions.length))
+    resetComposer((questionIndex + 3) % questions.length)
   }
 
   const responsePreview = () => {
@@ -745,7 +750,7 @@ export function MobileScreen14({
           </p>
         </div>
         <StatusChip
-          label={`${completed}/${connectionQuestions.length}`}
+          label={`${completed}/${questions.length}`}
           variant="warm"
         />
       </div>
@@ -981,11 +986,11 @@ export function MobileScreen14({
               </p>
               {[
                 question,
-                connectionQuestions[
-                  (questionIndex + 1) % connectionQuestions.length
+                questions[
+                  (questionIndex + 1) % questions.length
                 ],
-                connectionQuestions[
-                  (questionIndex + 2) % connectionQuestions.length
+                questions[
+                  (questionIndex + 2) % questions.length
                 ],
               ].map((item, index) => (
                 <div

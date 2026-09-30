@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   C, Ic, Btn, Input, TextArea, Card, ActionCard, StatusChip, BottomSheet, Modal, Toast,
   PrivacyNote, ProgressBar, StatusBar, PCSBottomNav, CaregiverBottomNav,
@@ -965,6 +965,7 @@ export function MobileScreen08({
   onOpenNetwork,
   availableCaregivers,
   onSelectCaregiver,
+  initialAction,
 }: {
   navigate: (n: number) => void
   caregiverName: string | null
@@ -972,13 +973,23 @@ export function MobileScreen08({
   onOpenNetwork: () => void
   availableCaregivers: Array<{ id: string; name: string }>
   onSelectCaregiver: (personId: string) => void
+  initialAction?: 'message' | 'contact' | 'meeting'
 }) {
+  const recipient = caregiverName ?? "tu persona cercana"
+  const initialDraft = initialAction === 'contact'
+    ? `Hola ${recipient}, ¿cómo vas? Quería saludarte y saber cómo estás.`
+    : initialAction === 'message'
+      ? `Hola ${recipient}, pensé en ti hoy y quería escribirte. No tienes que responder ahora. Solo quería que supieras que estoy aquí.`
+      : ''
   const [showMessage, setShowMessage] = useState(false)
-  const [showComposer, setShowComposer] = useState(false)
-  const [composedText, setComposedText] = useState('')
+  const [showComposer, setShowComposer] = useState(Boolean(initialDraft))
+  const [composedText, setComposedText] = useState(initialDraft)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
-  const [aiDraft, setAiDraft] = useState('')
+  const [aiDraft, setAiDraft] = useState(initialDraft)
+  const [messagePrepared, setMessagePrepared] = useState(false)
+  const [copyStatus, setCopyStatus] = useState('')
+  const meetingSection = useRef<HTMLDivElement>(null)
 
   // Activities
   const [myActivities, setMyActivities] = useState<string[]>(['Proponer una llamada corta'])
@@ -994,7 +1005,13 @@ export function MobileScreen08({
 
   const suggestedActivities = ['Tomar un café juntos', 'Dar una caminata corta']
   const meetingOptions = [...suggestedActivities, ...myActivities]
-  const recipient = caregiverName ?? "tu persona cercana"
+
+  useEffect(() => {
+    if (hasAccess && initialAction === 'meeting') {
+      meetingSection.current?.scrollIntoView({ block: 'start' })
+      meetingSection.current?.querySelector<HTMLSelectElement>('select')?.focus({ preventScroll: true })
+    }
+  }, [hasAccess, initialAction])
 
   const prepareMeetingMessage = () => {
     if (!selectedMeeting) return
@@ -1010,6 +1027,8 @@ export function MobileScreen08({
   }
 
   const generateDraft = () => {
+    setMessagePrepared(false)
+    setCopyStatus('')
     setAiLoading(true)
     setAiError(false)
     setAiDraft('')
@@ -1123,6 +1142,7 @@ export function MobileScreen08({
           </div>
 
           <Btn variant="secondary" fullWidth onClick={() => { setShowComposer(true); generateDraft() }}>Ayúdame a escribirle</Btn>
+          {messagePrepared && <p role="status" style={{ fontSize: 13, color: C.success, marginTop: 10 }}>Borrador preparado para {recipient} en esta demo. No se ha enviado.</p>}
           <p style={{ fontSize: 11, color: C.muted, marginTop: 10, margin: '10px 0 0', lineHeight: '16px', textAlign: 'center' }}>
             Esta herramienta no reemplaza la orientación profesional ni ofrece consejos clínicos.
           </p>
@@ -1184,6 +1204,7 @@ export function MobileScreen08({
         </div>
 
         {/* Schedule an in-person meeting */}
+        <div ref={meetingSection} style={{ scrollMarginTop: 12 }}>
         <Card style={{ marginTop: 20, borderTop: `4px solid ${C.brand}` }}>
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
             <div style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: C.brandSoft, color: C.brand, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -1235,6 +1256,7 @@ export function MobileScreen08({
             </div>
           )}
         </Card>
+        </div>
 
         <button
           onClick={() => navigate(21)}
@@ -1268,7 +1290,7 @@ export function MobileScreen08({
       </Modal>
 
       {/* AI Composer bottom sheet */}
-      <BottomSheet open={showComposer} onClose={() => setShowComposer(false)} title="Asistente para crear mensajes">
+      <BottomSheet open={showComposer} onClose={() => setShowComposer(false)} title={initialAction === 'contact' ? `Saludar a ${recipient}` : 'Asistente para crear mensajes'}>
         {aiLoading && (
           <div style={{ textAlign: 'center', padding: '24px 0' }}>
             <div style={{ width: 40, height: 40, borderRadius: '50%', border: `3px solid ${C.brandSoft}`, borderTopColor: C.brand, animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
@@ -1284,7 +1306,7 @@ export function MobileScreen08({
         {!aiLoading && aiDraft && (
           <>
             <div style={{ backgroundColor: C.warmSoft, borderRadius: 10, padding: '10px 12px', marginBottom: 12, border: `1px solid ${C.ochre}` }}>
-              <p style={{ fontSize: 12, color: C.warmText, margin: 0 }}>La IA propone un borrador. Tú decides qué editar y enviar.</p>
+              <p style={{ fontSize: 12, color: C.warmText, margin: 0 }}>Borrador simulado para {recipient}. Puedes editarlo; no se enviará desde este prototipo.</p>
             </div>
             <TextArea label="Tu mensaje (edítalo como prefieras)" value={composedText} onChange={setComposedText} />
             <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
@@ -1293,15 +1315,19 @@ export function MobileScreen08({
                 style={{ flex: 1, padding: '12px 0', border: `1px solid ${C.border}`, borderRadius: 10, background: 'none', cursor: 'pointer', color: C.brand, fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}>
                 Regenerar
               </button>
-              <button style={{ flex: 1, padding: '12px 0', border: `1px solid ${C.border}`, borderRadius: 10, background: 'none', cursor: 'pointer', color: C.brand, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <button onClick={async () => {
+                try { await navigator.clipboard.writeText(composedText); setCopyStatus('Borrador copiado.') }
+                catch { setCopyStatus('No se pudo copiar. Puedes seleccionar el texto y copiarlo manualmente.') }
+              }} style={{ flex: 1, padding: '12px 0', border: `1px solid ${C.border}`, borderRadius: 10, background: 'none', cursor: 'pointer', color: C.brand, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 {Ic.copy} Copiar
               </button>
             </div>
             <div style={{ marginTop: 10 }}>
-              <button style={{ width: '100%', padding: '12px 0', borderRadius: 10, backgroundColor: C.success, border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>
-                Abrir en WhatsApp
+              <button disabled={!composedText.trim()} onClick={() => { setMessagePrepared(true); setShowComposer(false) }} style={{ width: '100%', padding: '12px 0', borderRadius: 10, backgroundColor: C.success, border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>
+                Marcar borrador como preparado
               </button>
             </div>
+            {copyStatus && <p role="status" style={{ fontSize: 12, color: C.muted }}>{copyStatus}</p>}
             <PrivacyNote text="El mensaje nunca se envía automáticamente. Tú controlas cada paso." />
           </>
         )}

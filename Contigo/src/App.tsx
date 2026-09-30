@@ -11,6 +11,7 @@ import MobileHomeScreen from './screens/home'
 import HelpHubScreen from './screens/help-hub'
 import ConnectionHubScreen from './screens/connection-hub'
 import SocialNetworkScreen from './screens/network'
+import { createRandomNotification, type DemoNotification } from './notifications'
 import {
   canStrengthenRelationship,
   EMPTY_JOURNEY,
@@ -75,6 +76,9 @@ export default function App() {
     }
   })
   const [networkEntry, setNetworkEntry] = useState<NetworkEntry>('auto')
+  const [notifications, setNotifications] = useState<DemoNotification[]>([])
+  const [visibleNotification, setVisibleNotification] = useState<DemoNotification | null>(null)
+  const [notificationEntry, setNotificationEntry] = useState<DemoNotification | null>(null)
   const isMobile = ![13, 14, 15].includes(screen)
 
   useEffect(() => {
@@ -84,7 +88,11 @@ export default function App() {
     )
   }, [journey, storageKey])
 
-  const navigate = (n: number) => setScreen(n)
+  const navigate = (n: number) => {
+    setNotificationEntry(null)
+    setVisibleNotification(null)
+    setScreen(n)
+  }
   const openNetwork = (entry: NetworkEntry) => {
     setNetworkEntry(entry)
     setScreen(17)
@@ -95,22 +103,61 @@ export default function App() {
     window.location.reload()
   }
 
+  const availableNotifications = notifications.filter(
+    (notification) => !notification.personId || canStrengthenRelationship(journey, notification.personId),
+  )
+  const simulateNotification = () => {
+    const notification = createRandomNotification(journey, notifications[0]?.id)
+    setNotifications((current) => [notification, ...current].slice(0, 12))
+    setVisibleNotification(notification)
+  }
+  const openNotification = (notification: DemoNotification) => {
+    setVisibleNotification(null)
+    // Recheck access when opening, including notifications created before revocation.
+    if (!notification.personId || !canStrengthenRelationship(journey, notification.personId)) {
+      navigate(21)
+      return
+    }
+    setJourney((current) => ({ ...current, selectedPersonId: notification.personId! }))
+    setNotificationEntry(notification)
+    setScreen(notification.action === 'questions' ? 18 : 8)
+  }
+
   const renderScreen = () => {
     switch (screen) {
       case 1:  return <MobileScreen01 navigate={navigate} />
-      case 2:  return <MobileHomeScreen navigate={navigate} journey={journey} setJourney={setJourney} openNetwork={openNetwork} demoMode={demoMode} />
+      case 2:
+        return (
+          <MobileHomeScreen
+            navigate={navigate}
+            journey={journey}
+            setJourney={setJourney}
+            openNetwork={openNetwork}
+            demoMode={demoMode}
+            notifications={availableNotifications}
+            visibleNotification={visibleNotification && (
+              !visibleNotification.personId || canStrengthenRelationship(journey, visibleNotification.personId)
+            ) ? visibleNotification : null}
+            onSimulateNotification={simulateNotification}
+            onOpenNotification={openNotification}
+            onDismissNotification={() => setVisibleNotification(null)}
+          />
+        )
       case 3:  return <MobileScreen03 navigate={navigate} />
       case 4:  return <MobileScreen04 navigate={navigate} />
       case 5:  return <MobileScreen05 navigate={navigate} />
       case 6:  return <MobileScreen06 navigate={navigate} />
       case 7:  return <MobileScreen07 navigate={navigate} />
       case 8: {
+        const action = notificationEntry?.action
         const selected = journey.people.find(
           (person) => person.id === journey.selectedPersonId,
         )
         return (
           <MobileScreen08
+            key={notificationEntry?.id ?? 'connection'}
             navigate={navigate}
+            initialAction={action === 'message' || action === 'contact' || action === 'meeting' ? action : undefined}
             caregiverName={selected?.name ?? null}
             hasAccess={canStrengthenRelationship(
               journey,
@@ -150,8 +197,10 @@ export default function App() {
       case 18:
         return canStrengthenRelationship(journey, journey.selectedPersonId) ? (
           <MobileScreen14
+            key={notificationEntry?.id ?? 'questions'}
             navigate={navigate}
             role="pcs"
+            initialQuestion={notificationEntry?.question}
             otherName={
               journey.people.find(
                 (person) => person.id === journey.selectedPersonId,
@@ -224,7 +273,7 @@ export default function App() {
           return (
             <button
               key={s.id}
-              onClick={() => setScreen(s.id)}
+              onClick={() => navigate(s.id)}
               style={{
                 padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 600,
                 whiteSpace: 'nowrap', cursor: 'pointer', fontFamily: 'inherit',

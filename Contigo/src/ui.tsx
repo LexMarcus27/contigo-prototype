@@ -150,6 +150,7 @@ export function TextArea({ label, value, onChange, placeholder, helper }: Omit<I
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <label style={{ fontSize: 14, fontWeight: 600, color: C.heading }}>{label}</label>
       <textarea
+        aria-label={label}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
