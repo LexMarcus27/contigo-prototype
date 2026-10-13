@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { type CaregiverMessageKind } from '../caregiver'
+
+interface CaregiverScreenProps { navigate: (n: number) => void; pcsName: string }
 import {
   C, Ic, Btn, Input, TextArea, Card, ActionCard, StatusChip, BottomSheet, Modal, Toast,
-  PrivacyNote, ProgressBar, StatusBar, PCSBottomNav, CaregiverBottomNav,
+  PrivacyNote, ProgressBar, StatusBar, PCSBottomNav,
   ContigoLogo, SectionHeading, Divider, useToast, FloatingSupportBtn, supportContentPadding,
 } from '../ui'
 
@@ -1376,153 +1379,9 @@ export function MobileScreen08({
 
 // ── Screen 9: Caregiver Home ──────────────────────────────────────────────────
 
-export function MobileScreen09({ navigate }: { navigate: (n: number) => void }) {
-  const [showUnlink, setShowUnlink] = useState(false)
-  const [showContent, setShowContent] = useState(false)
-
-  return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
-      <StatusBar />
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 20px', paddingBottom: 140 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <div>
-            <p style={{ fontSize: 14, color: C.muted, margin: '0 0 2px' }}>Hola, Lorena</p>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: C.heading, margin: '0 0 4px' }}>Acompañar a Sofi</h1>
-            <p style={{ fontSize: 14, color: C.muted, margin: 0 }}>Aquí tienes formas sencillas de estar cerca.</p>
-          </div>
-          <div style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: C.brandSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: C.brand }}>{Ic.user}</span>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <Card onClick={() => navigate(10)} style={{ cursor: 'pointer', borderLeft: `4px solid ${C.brand}` }}>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.soft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: C.brand }}>{Ic.message}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 2px' }}>Preparar un mensaje cercano</h3>
-                <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Para que Sofi lo lea cuando lo necesite</p>
-              </div>
-              <span style={{ color: C.muted }}>{Ic.chevRight}</span>
-            </div>
-          </Card>
-
-          <Card onClick={() => navigate(19)} style={{ cursor: 'pointer' }}>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.warmSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: C.warm }}>{Ic.heart}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 2px' }}>Preguntas para conectar</h3>
-                <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Comparte una pregunta con Sofi</p>
-              </div>
-              <span style={{ color: C.muted }}>{Ic.chevRight}</span>
-            </div>
-          </Card>
-
-          <Card onClick={() => navigate(11)} style={{ cursor: 'pointer' }}>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.brandSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: C.brand }}>{Ic.shield}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 2px' }}>Ver plan de apoyo</h3>
-                <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Solo lectura · Para acompañarle en crisis</p>
-              </div>
-              <span style={{ color: C.muted }}>{Ic.chevRight}</span>
-            </div>
-          </Card>
-
-          <Card onClick={() => navigate(12)} style={{ cursor: 'pointer' }}>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: C.blue }}>{Ic.clipboard}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 2px' }}>Registrar contacto de hoy</h3>
-                <StatusChip label="Pendiente" variant="warn" />
-              </div>
-              <span style={{ color: C.muted }}>{Ic.chevRight}</span>
-            </div>
-          </Card>
-
-          {/* Register encounter card */}
-          <Card style={{ borderLeft: `4px solid ${C.warm}` }}>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.warmSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: C.warm }}>{Ic.calendar}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 4px' }}>Registrar encuentro</h3>
-                <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Registra cómo fue un encuentro personal con tu persona cercana.</p>
-              </div>
-            </div>
-            <Btn variant="primary" fullWidth small onClick={() => navigate(16)}>Registrar ahora</Btn>
-          </Card>
-
-          {/* Learning module */}
-          <Card>
-            <div style={{ height: 80, backgroundColor: C.soft, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: 28 }}>📚</span>
-            </div>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.warmSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: C.warm }}>{Ic.book}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 4px' }}>Aprender a acercarme</h3>
-                <p style={{ fontSize: 13, color: C.muted, margin: '0 0 6px', fontStyle: 'italic' }}>Contenido narrativo por validar</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {['Conexión social', 'Validación', 'Perspectiva', 'Valores'].map(t => (
-                    <span key={t} style={{ fontSize: 11, backgroundColor: C.soft, color: C.muted, borderRadius: 6, padding: '3px 8px', fontWeight: 500 }}>{t}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <Btn variant="secondary" fullWidth small onClick={() => setShowContent(true)}>Explorar contenido</Btn>
-          </Card>
-        </div>
-
-        <div style={{ marginTop: 24 }}>
-          <button
-            onClick={() => setShowUnlink(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.critical, fontSize: 13, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}>
-            {Ic.link} Desvincular mi cuenta
-          </button>
-        </div>
-      </div>
-
-      <CaregiverBottomNav active="inicio" navigate={navigate} />
-
-      <Modal open={showUnlink} onClose={() => setShowUnlink(false)} title="¿Desvincular tu cuenta?">
-        <p style={{ fontSize: 14, color: C.body, lineHeight: '20px', marginBottom: 8 }}>
-          Si te desvincula, perderás acceso al plan de apoyo de Sofi y no podrás enviarle mensajes desde la aplicación.
-        </p>
-        <p style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Esta acción no puede deshacerse.</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="primary" fullWidth onClick={() => setShowUnlink(false)}>Cancelar</Btn>
-          <Btn variant="ghost" fullWidth style={{ color: C.critical }}>Desvincularme</Btn>
-        </div>
-      </Modal>
-
-      <BottomSheet open={showContent} onClose={() => setShowContent(false)} title="Aprender a acercarme">
-        <div style={{ height: 120, backgroundColor: C.soft, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-          <span style={{ fontSize: 40 }}>📚</span>
-        </div>
-        <p style={{ fontSize: 15, color: C.muted, lineHeight: '22px', marginBottom: 20, textAlign: 'center' }}>
-          Este contenido será proporcionado y validado por el equipo investigador.
-        </p>
-        <Btn variant="secondary" fullWidth onClick={() => setShowContent(false)}>Volver</Btn>
-      </BottomSheet>
-    </div>
-  )
-}
-
 // ── Screen 9A: Register Personal Encounter ────────────────────────────────────
 
-export function MobileScreen09A({ navigate }: { navigate: (n: number) => void }) {
+export function MobileScreen09A({ navigate, pcsName }: CaregiverScreenProps) {
   const [rating, setRating] = useState<number | null>(null)
   const [additionalRatings, setAdditionalRatings] = useState<(number | null)[]>([null, null, null])
   const [saved, setSaved] = useState(false)
@@ -1537,9 +1396,9 @@ export function MobileScreen09A({ navigate }: { navigate: (n: number) => void })
   const allAnswered = rating !== null && additionalRatings.every(r => r !== null)
 
   const handleSave = () => {
-    show('Registro guardado. Gracias por dedicar este momento.')
+    show('Registro de prueba completado. No se ha enviado.')
     setSaved(true)
-    setTimeout(() => navigate(9), 2600)
+    setTimeout(() => navigate(23), 2600)
   }
 
   if (saved) {
@@ -1548,8 +1407,8 @@ export function MobileScreen09A({ navigate }: { navigate: (n: number) => void })
         <div style={{ width: 64, height: 64, borderRadius: '50%', backgroundColor: C.brandSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
           <span style={{ color: C.brand }}>{Ic.checkCircle}</span>
         </div>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: C.heading, textAlign: 'center', marginBottom: 10 }}>Registro guardado</h2>
-        <p style={{ fontSize: 15, color: C.muted, textAlign: 'center', lineHeight: '22px' }}>Volviendo al inicio...</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: C.heading, textAlign: 'center', marginBottom: 10 }}>Registro de prueba completado</h2>
+        <p style={{ fontSize: 15, color: C.muted, textAlign: 'center', lineHeight: '22px' }}>Volviendo a Tejiendo vínculos...</p>
         <Toast message={message} visible={visible} />
       </div>
     )
@@ -1559,15 +1418,15 @@ export function MobileScreen09A({ navigate }: { navigate: (n: number) => void })
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 10 }}>
-        <button onClick={() => navigate(9)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.heading, margin: 0 }}>Registrar encuentro</h1>
+        <button aria-label="Volver a Tejiendo vínculos" onClick={() => navigate(23)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.heading, margin: 0 }}>Encuentro con {pcsName}</h1>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
         {/* Main rating question */}
         <div style={{ marginBottom: 28 }}>
           <p style={{ fontSize: 16, fontWeight: 600, color: C.heading, marginBottom: 4, lineHeight: '22px' }}>
-            ¿Puedes puntuar la interacción que tuviste con tu persona cercana?
+            ¿Puedes puntuar la interacción que tuviste con {pcsName}?
           </p>
           <p style={{ fontSize: 12, color: C.muted, marginBottom: 14, fontStyle: 'italic' }}>
             Escala y etiquetas por validar con el equipo investigador
@@ -1624,7 +1483,7 @@ export function MobileScreen09A({ navigate }: { navigate: (n: number) => void })
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
           <Btn variant="primary" fullWidth onClick={handleSave} disabled={!allAnswered}>Guardar registro</Btn>
-          <Btn variant="tertiary" fullWidth onClick={() => navigate(9)}>Cancelar</Btn>
+          <Btn variant="tertiary" fullWidth onClick={() => navigate(23)}>Cancelar</Btn>
         </div>
       </div>
 
@@ -1635,24 +1494,25 @@ export function MobileScreen09A({ navigate }: { navigate: (n: number) => void })
 
 // ── Screen 10: Create Caring Contact ─────────────────────────────────────────
 
-export function MobileScreen10({ navigate }: { navigate: (n: number) => void }) {
-  const [text, setText] = useState('')
+export function MobileScreen10({ navigate, pcsName, caregiverName, messageKind, initialText, onSaveDraft }: CaregiverScreenProps & { caregiverName: string; messageKind: CaregiverMessageKind; initialText: string; onSaveDraft: (text: string) => void }) {
+  const [text, setText] = useState(initialText)
   const { visible, message, show } = useToast()
 
   const chips = ['Recordarle que estás', 'Compartir un recuerdo', 'Ofrecer compañía']
   const example = 'Por ejemplo: Pensé en ti y quería recordarte que estoy aquí. No tienes que responder ahora.'
 
   const handleSave = () => {
-    show('Mensaje guardado para Sofi')
-    setTimeout(() => navigate(9), 2000)
+    onSaveDraft(text.trim())
+    show(`Borrador de prueba preparado para ${pcsName}. No se ha enviado.`)
+    setTimeout(() => navigate(23), 2000)
   }
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 10 }}>
-        <button onClick={() => navigate(9)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.heading, margin: 0 }}>Un mensaje para Sofi</h1>
+        <button aria-label="Volver a Tejiendo vínculos" onClick={() => navigate(23)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.heading, margin: 0 }}>{messageKind === "intimate" ? "Mensaje íntimo" : "Caring contact"} para {pcsName}</h1>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
@@ -1684,14 +1544,14 @@ export function MobileScreen10({ navigate }: { navigate: (n: number) => void }) 
 
         {text && (
           <div style={{ marginTop: 20 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: C.muted, marginBottom: 10 }}>Así lo verá Sofi</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: C.muted, marginBottom: 10 }}>Vista previa para {pcsName}</p>
             <div style={{ backgroundColor: C.surface, borderRadius: 14, padding: 16, border: `1px solid ${C.border}` }}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: C.soft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <span style={{ fontSize: 16 }}>🌿</span>
                 </div>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: C.heading, margin: '0 0 4px' }}>Lorena</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: C.heading, margin: '0 0 4px' }}>{caregiverName}</p>
                   <p style={{ fontSize: 14, color: C.body, margin: 0, lineHeight: '20px' }}>{text}</p>
                 </div>
               </div>
@@ -1717,12 +1577,12 @@ export function MobileScreen10({ navigate }: { navigate: (n: number) => void }) 
           </p>
         </div>
 
-        <PrivacyNote text="Este mensaje se guarda solo para Sofi. No es público ni visible para otros." />
+        <PrivacyNote text={`Borrador de prueba para ${pcsName}. Permanece en esta sesión y se borra al recargar. No se envía a nadie.`} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
-          <Btn variant="primary" fullWidth onClick={handleSave} disabled={!text.trim()}>Guardar mensaje</Btn>
-          <Btn variant="secondary" fullWidth>Guardar como borrador</Btn>
-          <Btn variant="tertiary" fullWidth onClick={() => navigate(9)}>Cancelar</Btn>
+          <Btn variant="primary" fullWidth onClick={handleSave} disabled={!text.trim()}>Preparar borrador</Btn>
+          <Btn variant="secondary" fullWidth disabled={!text.trim()} onClick={() => { onSaveDraft(text.trim()); show("Borrador de prueba conservado en esta sesión.") }}>Guardar como borrador</Btn>
+          <Btn variant="tertiary" fullWidth onClick={() => navigate(23)}>Cancelar</Btn>
         </div>
       </div>
 
@@ -1733,7 +1593,7 @@ export function MobileScreen10({ navigate }: { navigate: (n: number) => void }) 
 
 // ── Screen 11: Caregiver Safety Plan View ────────────────────────────────────
 
-export function MobileScreen11({ navigate }: { navigate: (n: number) => void }) {
+export function MobileScreen11({ navigate, pcsName }: CaregiverScreenProps) {
   const [checklist, setChecklist] = useState(false)
   const [showEmergency, setShowEmergency] = useState(false)
   const [checked, setChecked] = useState<number[]>([])
@@ -1750,9 +1610,9 @@ export function MobileScreen11({ navigate }: { navigate: (n: number) => void }) 
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 10 }}>
-        <button onClick={() => navigate(9)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
+        <button aria-label="Volver al inicio del cuidador" onClick={() => navigate(9)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 700, color: C.heading, margin: 0 }}>Plan de apoyo de Sofi</h1>
+          <h1 style={{ fontSize: 18, fontWeight: 700, color: C.heading, margin: 0 }}>Plan de acompañamiento de {pcsName}</h1>
           <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
             <StatusChip label="Solo lectura" variant="blue" />
             <span style={{ fontSize: 11, color: C.muted }}>Act. 14 ago 2026</span>
@@ -1761,6 +1621,7 @@ export function MobileScreen11({ navigate }: { navigate: (n: number) => void }) 
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingBottom: 120 }}>
+        <p style={{ fontSize: 13, color: C.muted, lineHeight: '20px' }}>Plan de ejemplo para revisar la interfaz. El contenido compartido y sus permisos serán definidos por el equipo investigador.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* Section 1 */}
           <div>
@@ -1820,10 +1681,10 @@ export function MobileScreen11({ navigate }: { navigate: (n: number) => void }) 
 
       <Modal open={showEmergency} onClose={() => setShowEmergency(false)} title="Llamar a emergencias">
         <p style={{ fontSize: 14, color: C.body, lineHeight: '20px', marginBottom: 20 }}>
-          Esta llamada conecta con el servicio de emergencias configurado por el equipo clínico.
+          Esta es una simulación del recorrido de llamada. No se realiza ninguna llamada desde este prototipo.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="critical" fullWidth icon={Ic.phone}>Confirmar llamada</Btn>
+          <Btn variant="critical" fullWidth icon={Ic.phone} onClick={() => setShowEmergency(false)}>Cerrar simulación</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => setShowEmergency(false)}>Cancelar</Btn>
         </div>
       </Modal>
@@ -1833,7 +1694,7 @@ export function MobileScreen11({ navigate }: { navigate: (n: number) => void }) 
 
 // ── Screen 12: Caregiver Daily Check-in ──────────────────────────────────────
 
-export function MobileScreen12({ navigate }: { navigate: (n: number) => void }) {
+export function MobileScreen12({ navigate, pcsName }: CaregiverScreenProps) {
   const [hadContact, setHadContact] = useState<'si' | 'no' | 'prefiero' | null>(null)
   const [quality, setQuality] = useState<number | null>(null)
   const [initiator, setInitiator] = useState<'yo' | 'sofi' | 'ambos' | null>(null)
@@ -1841,7 +1702,7 @@ export function MobileScreen12({ navigate }: { navigate: (n: number) => void }) 
   const { visible, message, show } = useToast()
 
   const handleSave = () => {
-    show('Registro guardado. Gracias por dedicar este momento.')
+    show('Registro de prueba completado. No se ha enviado.')
     setSaved(true)
     setTimeout(() => navigate(9), 2600)
   }
@@ -1850,17 +1711,17 @@ export function MobileScreen12({ navigate }: { navigate: (n: number) => void }) 
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: C.canvas, position: 'relative' }}>
       <StatusBar />
       <div style={{ display: 'flex', alignItems: 'center', padding: '0 20px 12px', gap: 10 }}>
-        <button onClick={() => navigate(9)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
+        <button aria-label="Volver al inicio del cuidador" onClick={() => navigate(9)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.brand, display: 'flex' }}>{Ic.arrowLeft}</button>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: C.heading, margin: 0 }}>Contacto de hoy</h1>
-          <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Este registro toma cerca de un minuto.</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: C.heading, margin: 0 }}>¿Cómo está el tejido con {pcsName} ahora?</h1>
+          <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Formulario de prueba. El banco EMA del cuidador está pendiente de validación por el equipo investigador.</p>
         </div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
         {/* Q1 */}
         <div style={{ marginBottom: 24 }}>
-          <p style={{ fontSize: 16, fontWeight: 600, color: C.heading, marginBottom: 12 }}>¿Tuviste contacto con Sofi hoy?</p>
+          <p style={{ fontSize: 16, fontWeight: 600, color: C.heading, marginBottom: 12 }}>¿Tuviste contacto con {pcsName} hoy?</p>
           <div style={{ display: 'flex', gap: 8 }}>
             {(['si', 'no', 'prefiero'] as const).map((opt, i) => (
               <button key={opt} onClick={() => setHadContact(opt)} style={{
@@ -1911,7 +1772,7 @@ export function MobileScreen12({ navigate }: { navigate: (n: number) => void }) 
                   color: initiator === opt ? C.brand : C.body, fontSize: 13, fontWeight: initiator === opt ? 700 : 400,
                   cursor: 'pointer', fontFamily: 'inherit',
                 }}>
-                  {['Yo', 'Sofi', 'Ambos'][i]}
+                  {['Yo', pcsName, 'Ambos'][i]}
                 </button>
               ))}
             </div>
@@ -1919,7 +1780,7 @@ export function MobileScreen12({ navigate }: { navigate: (n: number) => void }) 
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
-          <Btn variant="primary" fullWidth onClick={handleSave} disabled={!hadContact}>Guardar registro</Btn>
+          <Btn variant="primary" fullWidth onClick={handleSave} disabled={!hadContact}>Completar registro de prueba</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => navigate(9)}>Completar después</Btn>
         </div>
       </div>

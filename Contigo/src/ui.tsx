@@ -404,13 +404,14 @@ export function supportContentPadding(bottom = 20) {
   return `calc(${bottom + SUPPORT_BUTTON_HEIGHT + 24}px + env(safe-area-inset-bottom, 0px))`
 }
 
-export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => void; bottom?: number }) {
+export function FloatingSupportBtn({ onPress, bottom = 88, label = "Necesito apoyo", disabled = false }: { onPress: () => void; bottom?: number; label?: string; disabled?: boolean }) {
   return (
       <button
         type="button"
         className="floating-support-button"
         onClick={onPress}
-        aria-label="Necesito apoyo"
+        aria-label={label}
+        disabled={disabled}
         style={{
           position: 'absolute', right: 20,
           bottom: `calc(${bottom}px + env(safe-area-inset-bottom, 0px))`, zIndex: 30,
@@ -426,7 +427,7 @@ export function FloatingSupportBtn({ onPress, bottom = 88 }: { onPress: () => vo
           width: 26, height: 26, color: '#FFFFFF',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         }}>{Ic.lifeRing}</span>
-        Necesito apoyo
+        {label}
       </button>
   )
 }
@@ -463,38 +464,38 @@ export function PCSBottomNav({ active, navigate }: { active: string; navigate: (
 
 const CAREGIVER_TAB_SCREENS: Record<string, number> = {
   inicio: 9,
-  mensajes: 10,
-  plan: 11,
-  registro: 12,
-  perfil: 9,
+  aprender: 22,
+  vinculos: 23,
+  perfil: 24,
 }
 
 export function CaregiverBottomNav({ active, navigate }: { active: string; navigate: (n: number) => void }) {
   const tabs = [
     { id: 'inicio', label: 'Inicio', icon: Ic.home },
-    { id: 'mensajes', label: 'Mensajes', icon: Ic.message },
-    { id: 'plan', label: 'Plan apoyo', icon: Ic.shield },
-    { id: 'registro', label: 'Registro', icon: Ic.clipboard },
+    { id: 'aprender', label: 'Aprender', icon: Ic.book },
+    { id: 'vinculos', label: 'Vínculos', icon: Ic.link },
     { id: 'perfil', label: 'Perfil', icon: Ic.user },
   ]
   return (
-    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: C.surface, borderTop: `1px solid ${C.border}` }}>
-      <div style={{ display: 'flex', paddingBottom: 28 }}>
+    <nav aria-label="Navegación del cuidador" className="caregiver-bottom-nav">
+      <div style={{ display: 'flex', paddingBottom: 'calc(18px + env(safe-area-inset-bottom, 0px))' }}>
         {tabs.map(t => (
           <button
             key={t.id}
+            type="button"
+            aria-current={active === t.id ? "page" : undefined}
             onClick={() => navigate(CAREGIVER_TAB_SCREENS[t.id] ?? 9)}
             style={{
               flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
               padding: '10px 0', border: 'none', background: 'none', cursor: 'pointer',
-              color: active === t.id ? C.brand : C.muted, fontFamily: 'inherit',
+              color: active === t.id ? C.success : C.muted, fontFamily: 'inherit',
             }}>
             {t.icon}
-            <span style={{ fontSize: 10, fontWeight: active === t.id ? 600 : 400 }}>{t.label}</span>
+            <span style={{ fontSize: 12, fontWeight: active === t.id ? 600 : 400 }}>{t.label}</span>
           </button>
         ))}
       </div>
-    </div>
+    </nav>
   )
 }
 

@@ -352,6 +352,52 @@ button:focus-visible {
 .home-bottom-icon { display: grid; place-items: center; height: 26px; }
 .home-bottom-icon svg { width: 24px; height: 24px; }
 
+/* Caregiver home follows the same warm canvas, with the established sage/rose tokens. */
+.caregiver-screen { position: relative; display: flex; flex-direction: column; height: 100%; background: #F7F1E8; color: #3A3238; }
+.caregiver-scroller { flex: 1; min-height: 0; overflow-y: auto; padding: 30px 24px 24px; margin-bottom: calc(158px + env(safe-area-inset-bottom, 0px)); }
+.caregiver-hero { position: relative; min-height: 130px; }
+.caregiver-hero h1 { position: relative; z-index: 1; margin: 0 0 8px; font: 700 48px/1.1 Georgia, serif; letter-spacing: -1.5px; }
+.caregiver-hero p { position: relative; z-index: 1; max-width: 210px; margin: 0; font-size: 16px; line-height: 23px; color: #62575E; }
+.caregiver-plant { position: absolute; width: 104px; height: 112px; right: -5px; top: -5px; }
+.caregiver-link-card { display: flex; align-items: center; gap: 12px; width: 100%; padding: 15px; border: 1px solid #DFD4C9; border-radius: 19px; background: #fff; text-align: left; cursor: pointer; margin-bottom: 18px; font: inherit; }
+.caregiver-link-card > span:nth-child(2) { flex: 1; min-width: 0; }
+.caregiver-link-card strong { display: block; font: 700 22px/27px Georgia, serif; color: #3A3238; overflow-wrap: anywhere; }
+.caregiver-link-caption { display: block; font-size: 12px; line-height: 18px; font-weight: 700; color: #536B50; text-transform: uppercase; }
+.caregiver-avatar { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; background: #F2E3E0; color: #A85550; flex-shrink: 0; }
+.caregiver-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.caregiver-tile { min-width: 0; min-height: 210px; padding: 16px 12px; border: 0; border-radius: 24px; background: #E5EDE2; color: #3A3238; text-align: left; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font: inherit; overflow-wrap: anywhere; }
+.caregiver-tile--help { background: #F6E3E2; }
+.caregiver-tile--help .caregiver-tile-title { color: #8D4541; }
+.caregiver-tile-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; margin-bottom: 4px; color: #536B50; background: #D5E1D0; }
+.caregiver-tile--help .caregiver-tile-icon { color: #A3474A; background: #EED0CD; }
+.caregiver-tile-title { font: 700 19px/22px Georgia, serif; }
+.caregiver-tile-subtitle { font-size: 13px; line-height: 18px; color: #62575E; }
+.caregiver-tile-unavailable { font-size: 12px; line-height: 17px; color: #62575E; margin-top: auto; }
+.caregiver-tile:disabled, .caregiver-link-card:disabled { cursor: default; }
+.caregiver-tile:disabled { background: #EFEAE3; }
+.caregiver-empty, .caregiver-note { font-size: 13px; line-height: 20px; color: #62575E; margin: 12px 0 18px; }
+.caregiver-bottom-nav { position: absolute; bottom: 0; right: 0; left: 0; padding-top: 10px; background: white; border-top: 1px solid #DFD4C9; }
+.caregiver-bottom-nav button { min-height: 40px; }
+.caregiver-page-title { margin: 20px 0 12px; font: 700 29px/34px Georgia, serif; overflow-wrap: anywhere; }
+.caregiver-back { border: 0; background: none; display: flex; align-items: center; gap: 8px; min-height: 44px; color: #536B50; font: 600 14px Inter, sans-serif; cursor: pointer; }
+.caregiver-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.caregiver-demo { margin-top: 20px; padding: 14px; background: white; border: 1px dashed #7C9473; border-radius: 12px; font-size: 12px; line-height: 18px; }
+.caregiver-demo summary { cursor: pointer; font-weight: 700; min-height: 36px; }
+.caregiver-demo label { display: block; font-weight: 600; }
+.caregiver-demo select { width: 100%; min-height: 44px; margin: 5px 0 12px; border: 1px solid #DFD4C9; border-radius: 8px; background: white; color: #3A3238; padding: 8px; font: inherit; }
+.caregiver-demo button { margin-bottom: 9px; }
+.floating-support-button:disabled { opacity: .65; cursor: default; transform: none; }
+@media (max-width: 350px) {
+  .caregiver-scroller { padding: 28px 18px 0; }
+  .caregiver-hero { min-height: 135px; }
+  .caregiver-hero p { max-width: 170px; font-size: 15px; }
+  .caregiver-plant { width: 86px; right: -4px; }
+  .caregiver-grid { gap: 10px; }
+  .caregiver-tile { padding: 15px 12px; min-height: 218px; }
+  .caregiver-tile-title { font-size: 17px; line-height: 21px; }
+  .caregiver-tile-subtitle { font-size: 13px; line-height: 19px; }
+}
+
 @media (max-width: 350px) {
   .home-scroller { padding-right: 20px; padding-left: 20px; }
   .home-plant { width: 120px; right: -5px; }

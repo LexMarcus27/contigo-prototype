@@ -3,7 +3,7 @@ import { C } from './ui'
 import {
   MobileScreen01,
   MobileScreen05, MobileScreen06, MobileScreen07, MobileScreen08,
-  MobileScreen09, MobileScreen09A, MobileScreen10, MobileScreen11, MobileScreen12,
+  MobileScreen09A, MobileScreen10, MobileScreen11, MobileScreen12,
 } from './screens/mobile'
 import { MobileScreen14 } from './screens/social'
 import { DesktopScreen13, DesktopScreen14, DesktopScreen15 } from './screens/desktop'
@@ -12,6 +12,8 @@ import HelpHubScreen from './screens/help-hub'
 import ConnectionHubScreen from './screens/connection-hub'
 import SocialNetworkScreen from './screens/network'
 import EmaScreen from './screens/ema'
+import CaregiverHomeScreen from './screens/caregiver-home'
+import { caregiverContext, DEMO_CAREGIVER, simulateCaregiverLink, type CaregiverMessageKind } from './caregiver'
 import { createEmaDraft } from './ema'
 import { createRandomNotification, type DemoNotification } from './notifications'
 import {
@@ -39,6 +41,9 @@ const SCREENS = [
   { id: 17, label: 'M17 Conoce tu red' },
   { id: 20, label: 'M20 Necesito ayuda' },
   { id: 21, label: 'M21 Tejiendo vínculos' },
+  { id: 22, label: 'M22 Aprender cuidador' },
+  { id: 23, label: 'M23 Vínculos cuidador' },
+  { id: 24, label: 'M24 Perfil cuidador' },
   { id: 18, label: 'M14 Preguntas PCS' },
   { id: 19, label: 'M14 Preguntas cuidador' },
   { id: 13, label: 'D13 Dashboard' },
@@ -84,6 +89,14 @@ export default function App() {
   // Clinical answers in this review prototype are deliberately session-only.
   // Do not add them to the journey object written to localStorage.
   const [emaDraft, setEmaDraft] = useState(createEmaDraft)
+  const [caregiverId, setCaregiverId] = useState<string>(DEMO_CAREGIVER.id)
+  const [caregiverMessageKind, setCaregiverMessageKind] = useState<CaregiverMessageKind>('intimate')
+  // Only fictitious drafts in session memory; do not persist these in the PCS map.
+  const [caregiverDrafts, setCaregiverDrafts] = useState<Record<string, string>>({})
+  const caregiver = caregiverContext(journey, caregiverId)
+  const caregiverName = journey.people.find((person) => person.caregiverId === caregiverId)?.name ?? DEMO_CAREGIVER.name
+  const caregiverKey = `${caregiverId}:${caregiver?.associationId ?? 'unlinked'}`
+  const draftKey = `${caregiverId}:${caregiver?.pcsId ?? ''}:${caregiverMessageKind}`
   const isMobile = ![13, 14, 15].includes(screen)
 
   useEffect(() => {
@@ -129,6 +142,23 @@ export default function App() {
   }
 
   const renderScreen = () => {
+    const caregiverHome = (view: 'home' | 'learning' | 'connections' | 'profile' | 'blocked' = 'home') => (
+      <CaregiverHomeScreen
+        key={`${caregiverKey}:${view}`}
+        navigate={navigate} context={caregiver} caregiverName={caregiverName} view={view} demoMode={demoMode}
+        selectedProfile={caregiverId}
+        demoProfiles={[DEMO_CAREGIVER, ...journey.people.filter((person) => person.caregiverId && person.caregiverId !== DEMO_CAREGIVER.id).map((person) => ({ id: person.caregiverId!, name: person.name }))]}
+        onSelectProfile={setCaregiverId}
+        onSimulate={(mode) => {
+          if (!demoMode) return
+          setCaregiverId(DEMO_CAREGIVER.id)
+          setJourney((current) => simulateCaregiverLink(current, mode))
+        }}
+        onMessage={(kind) => { setCaregiverMessageKind(kind); navigate(10) }}
+      />
+    )
+    // Recheck the exact caregiver/PCS association even for direct demo navigation.
+    if ([10, 11, 12, 16, 19, 23].includes(screen) && !caregiver) return caregiverHome('blocked')
     switch (screen) {
       case 1:  return <MobileScreen01 navigate={navigate} />
       case 2:
@@ -179,11 +209,16 @@ export default function App() {
           />
         )
       }
-      case 9:  return <MobileScreen09 navigate={navigate} />
-      case 10: return <MobileScreen10 navigate={navigate} />
-      case 11: return <MobileScreen11 navigate={navigate} />
-      case 12: return <MobileScreen12 navigate={navigate} />
-      case 16: return <MobileScreen09A navigate={navigate} />
+      case 9:  return caregiverHome()
+      case 10: return <MobileScreen10 key={`${caregiverKey}:${caregiverMessageKind}`} navigate={navigate} pcsName={caregiver!.pcsName} caregiverName={caregiverName} messageKind={caregiverMessageKind} initialText={caregiverDrafts[draftKey] ?? ''} onSaveDraft={(text) => {
+        if (caregiverContext(journey, caregiverId)) setCaregiverDrafts((current) => ({ ...current, [draftKey]: text }))
+      }} />
+      case 11: return <MobileScreen11 key={caregiverKey} navigate={navigate} pcsName={caregiver!.pcsName} />
+      case 12: return <MobileScreen12 key={caregiverKey} navigate={navigate} pcsName={caregiver!.pcsName} />
+      case 16: return <MobileScreen09A key={caregiverKey} navigate={navigate} pcsName={caregiver!.pcsName} />
+      case 22: return caregiverHome('learning')
+      case 23: return caregiverHome('connections')
+      case 24: return caregiverHome('profile')
       case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} />
       case 20: return <HelpHubScreen navigate={navigate} />
       case 21:
@@ -227,7 +262,7 @@ export default function App() {
             }
           />
         )
-      case 19: return <MobileScreen14 navigate={navigate} role="caregiver" />
+      case 19: return <MobileScreen14 key={caregiverKey} navigate={navigate} role="caregiver" otherName={caregiver!.pcsName} />
       case 13: return <DesktopScreen13 navigate={navigate} />
       case 14: return <DesktopScreen14 navigate={navigate} />
       case 15: return <DesktopScreen15 navigate={navigate} />
