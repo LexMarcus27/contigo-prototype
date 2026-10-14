@@ -16,6 +16,7 @@ import SafetyPlanStoryScreen from './screens/safety-plan-story'
 import CaregiverHomeScreen from './screens/caregiver-home'
 import { caregiverContext, DEMO_CAREGIVER, simulateCaregiverLink, type CaregiverMessageKind } from './caregiver'
 import { createEmaDraft } from './ema'
+import { createSafetyPlanDraft, safetyPlanHasInformation } from './safety-plan'
 import { createRandomNotification, type DemoNotification } from './notifications'
 import {
   canStrengthenRelationship,
@@ -91,10 +92,11 @@ export default function App() {
   // Clinical answers in this review prototype are deliberately session-only.
   // Do not add them to the journey object written to localStorage.
   const [emaDraft, setEmaDraft] = useState(createEmaDraft)
-  // Narrative position and the prototype's plan-state marker are session-only.
+  // Narrative position and the actual plan draft are session-only.
   // Do not store any safety-plan content in the PCS map's localStorage.
   const [safetyStoryPage, setSafetyStoryPage] = useState(0)
-  const [hasSafetyPlanInformation, setHasSafetyPlanInformation] = useState(false)
+  const [safetyPlan, setSafetyPlan] = useState(() => createSafetyPlanDraft())
+  const hasSafetyPlanInformation = safetyPlanHasInformation(safetyPlan)
   const [caregiverId, setCaregiverId] = useState<string>(DEMO_CAREGIVER.id)
   const [caregiverMessageKind, setCaregiverMessageKind] = useState<CaregiverMessageKind>('intimate')
   // Only fictitious drafts in session memory; do not persist these in the PCS map.
@@ -186,7 +188,7 @@ export default function App() {
         )
       case 3:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} />
       case 4:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} view="result" />
-      case 5:  return <MobileScreen05 navigate={navigate} onInformationSaved={() => setHasSafetyPlanInformation(true)} />
+      case 5:  return <MobileScreen05 navigate={navigate} plan={safetyPlan} onPlanChange={setSafetyPlan} />
       case 6:  return <MobileScreen06 navigate={navigate} />
       case 7:  return <MobileScreen07 navigate={navigate} />
       case 8: {
@@ -225,7 +227,9 @@ export default function App() {
       case 22: return caregiverHome('learning')
       case 23: return caregiverHome('connections')
       case 24: return caregiverHome('profile')
-      case 25: return <SafetyPlanStoryScreen navigate={navigate} pageIndex={safetyStoryPage} onPageChange={setSafetyStoryPage} hasPlanInformation={hasSafetyPlanInformation} demoMode={demoMode} onSimulatePlanInformation={setHasSafetyPlanInformation} />
+      case 25: return <SafetyPlanStoryScreen navigate={navigate} pageIndex={safetyStoryPage} onPageChange={setSafetyStoryPage} hasPlanInformation={hasSafetyPlanInformation} demoMode={demoMode} onSimulatePlanInformation={(hasInformation) => {
+        if (demoMode) setSafetyPlan(createSafetyPlanDraft(hasInformation))
+      }} />
       case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} />
       case 20: return <HelpHubScreen navigate={navigate} />
       case 21:

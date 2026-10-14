@@ -56,7 +56,7 @@ export default function SafetyPlanStoryScreen({ navigate, pageIndex, onPageChang
       {page.closing && <p>{page.closing}</p>}
       {last && demoMode && <details className="safety-story-demo">
         <summary>Probar el estado del plan</summary>
-        <p>Estado ficticio para revisar el botón. No crea ni borra información de los formularios.</p>
+        <p>Datos ficticios para probar un plan vacío o con información. Cada simulación reemplaza el plan de prueba; los cambios solo duran en esta sesión.</p>
         <p role="status">{hasPlanInformation ? "Plan con información, aunque esté incompleto" : "Plan sin diligenciar"}</p>
         <Btn small variant="secondary" fullWidth onClick={() => onSimulatePlanInformation(false)}>Simular plan sin diligenciar</Btn>
         <Btn small variant="secondary" fullWidth onClick={() => onSimulatePlanInformation(true)}>Simular plan con información</Btn>

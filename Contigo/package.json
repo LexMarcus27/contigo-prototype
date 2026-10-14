@@ -10,6 +10,7 @@
     "test:notifications": "node --test tests/notifications.test.mjs",
     "test:ema": "node --test tests/ema.test.mjs",
     "test:caregiver": "node --test tests/caregiver.test.mjs",
+    "test:safety-plan": "node --test tests/safety-plan.test.mjs",
     "format": "oxfmt"
   },
   "dependencies": {

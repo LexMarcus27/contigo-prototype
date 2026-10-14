@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { type CaregiverMessageKind } from '../caregiver'
+import { SAFETY_PLAN_STEP_TITLES, safetyPlanHasInformation, type SafetyPlanDraft } from '../safety-plan'
 
 interface CaregiverScreenProps { navigate: (n: number) => void; pcsName: string }
 import {
@@ -424,7 +425,11 @@ export function MobileScreen04({ navigate }: { navigate: (n: number) => void }) 
 
 // ── Screen 5: Safety Plan ────────────────────────────────────────────────────
 
-export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n: number) => void; onInformationSaved?: () => void }) {
+export function MobileScreen05({ navigate, plan, onPlanChange }: {
+  navigate: (n: number) => void
+  plan: SafetyPlanDraft
+  onPlanChange: (update: (current: SafetyPlanDraft) => SafetyPlanDraft) => void
+}) {
   const [expanded, setExpanded] = useState<number | null>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [editIndex, setEditIndex] = useState(0)
@@ -432,31 +437,27 @@ export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n:
 
   // Contact picker states
   const [contactPermission, setContactPermission] = useState<'idle' | 'denied' | 'granted'>('idle')
-  const [contacts, setContacts] = useState([
-    { name: 'Mamá', label: 'Familiar', phone: '+57 300 000 0001' },
-    { name: 'Jorge', label: 'Amigo de confianza', phone: '+57 300 000 0002' },
-  ])
+  const contacts = plan.contacts
   const [showRemoveConfirm, setShowRemoveConfirm] = useState<number | null>(null)
   const [showContactPicker, setShowContactPicker] = useState(false)
 
   // Social activities
-  const [activities, setActivities] = useState(['Caminar juntos en el parque', 'Tomar un café'])
+  const activities = plan.activities
   const [newActivity, setNewActivity] = useState('')
   const [showActivityInput, setShowActivityInput] = useState(false)
 
   // Safer environment
-  const [envText, setEnvText] = useState('')
-  const [envSaved, setEnvSaved] = useState(false)
+  const [envText, setEnvText] = useState(plan.environment)
+  const [envSaved, setEnvSaved] = useState(Boolean(plan.environment.trim()))
 
-  const steps = [
-    { title: 'Señales y situaciones que reconozco', status: 'ok' as const, label: 'Completo', text: 'Me siento abrumada cuando estoy sola por mucho tiempo o cuando no he dormido bien.' },
-    { title: 'Lo que puedo hacer por mi cuenta', status: 'ok' as const, label: 'Completo', text: 'Respiración pausada · Caminar en el parque · Escuchar música tranquila' },
-    { title: 'Personas y lugares que pueden acompañarme', status: 'warn' as const, label: 'Falta información', text: '' },
-    { title: 'Ayuda profesional y líneas de atención', status: 'warn' as const, label: 'Falta información', text: '' },
-  ]
+  const steps = SAFETY_PLAN_STEP_TITLES.map((title, index) => {
+    const text = plan.stepTexts[index]
+    const filled = Boolean(text.trim())
+    return { title, text, status: filled ? 'ok' as const : 'warn' as const, label: filled ? 'Completo' : 'Falta por diligenciar' }
+  })
 
   const removeContact = (i: number) => {
-    setContacts(c => c.filter((_, idx) => idx !== i))
+    onPlanChange(current => ({ ...current, contacts: current.contacts.filter((_, idx) => idx !== i) }))
     setShowRemoveConfirm(null)
   }
 
@@ -468,14 +469,14 @@ export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n:
         <h1 style={{ fontSize: 22, fontWeight: 700, color: C.heading, margin: 0 }}>Mi plan de seguridad</h1>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 20px', paddingBottom: supportContentPadding(124) }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 20px 24px', marginBottom: supportContentPadding(124) }}>
         <div style={{ marginBottom: 20 }}>
           <p style={{ fontSize: 14, color: C.muted, lineHeight: '20px', marginBottom: 8 }}>
             Prepáralo cuando tengas calma. Podrás consultarlo incluso sin conexión.
           </p>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <StatusChip label="Disponible sin conexión" variant="ok" icon={Ic.wifi} />
-            <span style={{ fontSize: 12, color: C.muted }}>Act. 14 ago 2026</span>
+            {safetyPlanHasInformation(plan) && <span style={{ fontSize: 12, color: C.muted }}>Información guardada en esta sesión</span>}
           </div>
         </div>
 
@@ -577,7 +578,7 @@ export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n:
               <span style={{ flex: 1, fontSize: 14, color: C.body }}>{a}</span>
               <button
                 aria-label={`Eliminar actividad ${a}`}
-                onClick={() => setActivities(act => act.filter((_, idx) => idx !== i))}
+                onClick={() => onPlanChange(current => ({ ...current, activities: current.activities.filter((_, idx) => idx !== i) }))}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.critical, display: 'flex', padding: 4 }}>
                 {Ic.x}
               </button>
@@ -594,7 +595,7 @@ export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n:
                 style={{ width: '100%', border: 'none', outline: 'none', fontSize: 14, color: C.body, fontFamily: 'inherit', backgroundColor: 'transparent' }}
               />
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                <Btn variant="primary" small onClick={() => { if (newActivity.trim()) { setActivities(a => [...a, newActivity.trim()]); setNewActivity(''); setShowActivityInput(false); onInformationSaved?.() } }}>Guardar</Btn>
+                <Btn variant="primary" small onClick={() => { if (newActivity.trim()) { onPlanChange(current => ({ ...current, activities: [...current.activities, newActivity.trim()] })); setNewActivity(''); setShowActivityInput(false) } }}>Guardar</Btn>
                 <Btn variant="tertiary" small onClick={() => { setNewActivity(''); setShowActivityInput(false) }}>Cancelar</Btn>
               </div>
             </div>
@@ -625,7 +626,7 @@ export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n:
           />
           {!envSaved && (
             <div style={{ marginTop: 10 }}>
-              <Btn variant="secondary" small onClick={() => { setEnvSaved(true); onInformationSaved?.() }} disabled={!envText.trim()}>Guardar</Btn>
+              <Btn variant="secondary" small onClick={() => { onPlanChange(current => ({ ...current, environment: envText.trim() })); setEnvSaved(true) }} disabled={!envText.trim()}>Guardar</Btn>
             </div>
           )}
           {envSaved && (
@@ -654,7 +655,10 @@ export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n:
           helper="Solo tú puedes ver y editar esta información."
         />
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="primary" fullWidth onClick={() => { if (editValue.trim()) onInformationSaved?.(); setEditOpen(false) }}>Guardar cambios</Btn>
+          <Btn variant="primary" fullWidth onClick={() => {
+            onPlanChange(current => ({ ...current, stepTexts: current.stepTexts.map((text, index) => index === editIndex ? editValue.trim() : text) }))
+            setEditOpen(false)
+          }}>Guardar cambios</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => setEditOpen(false)}>Cancelar</Btn>
         </div>
       </BottomSheet>
@@ -669,8 +673,7 @@ export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n:
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <Btn variant="primary" fullWidth onClick={() => {
             setContactPermission('granted')
-            setContacts(c => [...c, { name: 'Dra. Valentina Ríos', label: 'Terapeuta', phone: '+57 300 000 0003' }])
-            onInformationSaved?.()
+            onPlanChange(current => ({ ...current, contacts: [...current.contacts, { name: 'Dra. Valentina Ríos', label: 'Terapeuta', phone: '+57 300 000 0003' }] }))
             setShowContactPicker(false)
           }}>Permitir acceso</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => { setContactPermission('denied'); setShowContactPicker(false) }}>No permitir</Btn>
