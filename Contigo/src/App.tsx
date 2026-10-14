@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { C } from './ui'
 import {
   MobileScreen01,
@@ -14,6 +14,9 @@ import SocialNetworkScreen from './screens/network'
 import EmaScreen from './screens/ema'
 import SafetyPlanStoryScreen from './screens/safety-plan-story'
 import CaregiverHomeScreen from './screens/caregiver-home'
+import CaringMessageScreen from './screens/caring-message'
+import CaringMessageInboxScreen from './screens/caring-message-inbox'
+import { caringDraftKey, createCaringDraft, createSimulatedCaringMessage, visibleCaringMessages, type CaringMessageDraft, type SimulatedCaringMessage } from './caring-messages'
 import { caregiverContext, DEMO_CAREGIVER, simulateCaregiverLink, type CaregiverMessageKind } from './caregiver'
 import { createEmaDraft } from './ema'
 import { createSafetyPlanDraft, safetyPlanHasInformation } from './safety-plan'
@@ -47,6 +50,8 @@ const SCREENS = [
   { id: 23, label: 'M23 Vínculos cuidador' },
   { id: 24, label: 'M24 Perfil cuidador' },
   { id: 25, label: 'M25 Las crisis también pasan' },
+  { id: 26, label: 'M26 Mensaje de cuidado' },
+  { id: 27, label: 'M27 Mensajes de cuidado PCS' },
   { id: 18, label: 'M14 Preguntas PCS' },
   { id: 19, label: 'M14 Preguntas cuidador' },
   { id: 13, label: 'D13 Dashboard' },
@@ -101,9 +106,16 @@ export default function App() {
   const [caregiverMessageKind, setCaregiverMessageKind] = useState<CaregiverMessageKind>('intimate')
   // Only fictitious drafts in session memory; do not persist these in the PCS map.
   const [caregiverDrafts, setCaregiverDrafts] = useState<Record<string, string>>({})
+  // Caring-message text, private reflection notes and simulated inbox stay in memory.
+  const [caringDrafts, setCaringDrafts] = useState<Record<string, CaringMessageDraft>>({})
+  const [caringMessages, setCaringMessages] = useState<SimulatedCaringMessage[]>([])
+  const caringSequence = useRef(0)
   const caregiver = caregiverContext(journey, caregiverId)
   const caregiverName = journey.people.find((person) => person.caregiverId === caregiverId)?.name ?? DEMO_CAREGIVER.name
   const caregiverKey = `${caregiverId}:${caregiver?.associationId ?? 'unlinked'}`
+  const caringKey = caregiver ? caringDraftKey(caregiver) : ''
+  const caringDraft = caringDrafts[caringKey] ?? createCaringDraft()
+  const receivedCaringMessages = visibleCaringMessages(journey, caringMessages)
   const draftKey = `${caregiverId}:${caregiver?.pcsId ?? ''}:${caregiverMessageKind}`
   const isMobile = ![13, 14, 15].includes(screen)
 
@@ -162,11 +174,15 @@ export default function App() {
           setCaregiverId(DEMO_CAREGIVER.id)
           setJourney((current) => simulateCaregiverLink(current, mode))
         }}
-        onMessage={(kind) => { setCaregiverMessageKind(kind); navigate(10) }}
+        onMessage={(kind) => {
+          if (kind === 'caring-contact') { navigate(26); return }
+          setCaregiverMessageKind(kind)
+          navigate(10)
+        }}
       />
     )
     // Recheck the exact caregiver/PCS association even for direct demo navigation.
-    if ([10, 11, 12, 16, 19, 23].includes(screen) && !caregiver) return caregiverHome('blocked')
+    if ([10, 11, 12, 16, 19, 23, 26].includes(screen) && !caregiver) return caregiverHome('blocked')
     switch (screen) {
       case 1:  return <MobileScreen01 navigate={navigate} />
       case 2:
@@ -227,6 +243,24 @@ export default function App() {
       case 22: return caregiverHome('learning')
       case 23: return caregiverHome('connections')
       case 24: return caregiverHome('profile')
+      case 26: return <CaringMessageScreen
+        key={caringKey}
+        navigate={navigate} pcsName={caregiver!.pcsName} caregiverName={caregiverName} draft={caringDraft} demoMode={demoMode}
+        onDraftChange={(next) => {
+          const active = caregiverContext(journey, caregiverId)
+          if (active && caringDraftKey(active) === caringKey) setCaringDrafts(current => ({ ...current, [caringKey]: next }))
+        }}
+        onSimulateSend={(text) => {
+          const active = caregiverContext(journey, caregiverId)
+          if (!active || caringDraftKey(active) !== caringKey) return false
+          const message = createSimulatedCaringMessage(journey, caregiverId, text, `caring-${++caringSequence.current}`)
+          if (!message) return false
+          setCaringMessages(current => [message, ...current])
+          setCaringDrafts(current => ({ ...current, [caringKey]: createCaringDraft() }))
+          return true
+        }}
+      />
+      case 27: return <CaringMessageInboxScreen navigate={navigate} messages={receivedCaringMessages} />
       case 25: return <SafetyPlanStoryScreen navigate={navigate} pageIndex={safetyStoryPage} onPageChange={setSafetyStoryPage} hasPlanInformation={hasSafetyPlanInformation} demoMode={demoMode} onSimulatePlanInformation={(hasInformation) => {
         if (demoMode) setSafetyPlan(createSafetyPlanDraft(hasInformation))
       }} />
@@ -236,6 +270,7 @@ export default function App() {
         return (
           <ConnectionHubScreen
             navigate={navigate}
+            receivedCaringCount={receivedCaringMessages.length}
             journey={journey}
             setJourney={setJourney}
             openNetwork={() =>

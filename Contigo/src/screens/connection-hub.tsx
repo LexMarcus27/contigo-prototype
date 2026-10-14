@@ -7,9 +7,10 @@ interface ConnectionHubProps {
   journey: JourneyState
   setJourney: (next: JourneyState | ((current: JourneyState) => JourneyState)) => void
   openNetwork: () => void
+  receivedCaringCount: number
 }
 
-export default function ConnectionHubScreen({ navigate, journey, setJourney, openNetwork }: ConnectionHubProps) {
+export default function ConnectionHubScreen({ navigate, journey, setJourney, openNetwork, receivedCaringCount }: ConnectionHubProps) {
   const [showResource, setShowResource] = useState(false)
   const people = validCaregivers(journey)
 
@@ -31,6 +32,12 @@ export default function ConnectionHubScreen({ navigate, journey, setJourney, ope
         <p style={{ color: C.muted, fontSize: 15, lineHeight: "22px", margin: "0 0 28px" }}>
           Puedes elegir una forma pequeña de acercarte. También puedes hacerlo después.
         </p>
+
+        <ActionCard ariaLabel={`Ver mensajes de cuidado recibidos. ${receivedCaringCount} mensajes simulados`} onClick={() => navigate(27)} style={{ marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
+          <span aria-hidden="true" style={{ color: C.brand, display: "flex" }}>{Ic.message}</span>
+          <span style={{ flex: 1, color: C.heading, fontSize: 16, fontWeight: 700 }}>Mensajes de cuidado{receivedCaringCount > 0 ? ` (${receivedCaringCount})` : ""}</span>
+          <span aria-hidden="true" style={{ display: "flex", color: C.brand }}>{Ic.chevRight}</span>
+        </ActionCard>
 
         <section aria-labelledby="close-people-title">
           <h2 id="close-people-title" style={{ color: C.heading, fontSize: 18, lineHeight: "24px", margin: "0 0 12px", fontWeight: 700 }}>Personas cercanas</h2>

@@ -86,7 +86,7 @@ export default function CaregiverHomeScreen({ navigate, context, caregiverName, 
           <p>Formas pequeñas de cuidar tu relación con {pcsName}.</p>
           <div className="caregiver-actions">
             <Btn variant="secondary" fullWidth icon={Ic.message} onClick={() => onMessage("intimate")}>Escribir un mensaje íntimo</Btn>
-            <Btn variant="secondary" fullWidth icon={Ic.heart} onClick={() => onMessage("caring-contact")}>Escribir un caring contact</Btn>
+            <Btn variant="secondary" fullWidth icon={Ic.heart} onClick={() => onMessage("caring-contact")}>Escribir un mensaje de cuidado</Btn>
             <Btn variant="secondary" fullWidth icon={Ic.users} onClick={() => navigate(19)}>Preguntas para conectar</Btn>
             <Btn variant="secondary" fullWidth icon={Ic.calendar} onClick={() => navigate(16)}>Registrar encuentro</Btn>
           </div>
