@@ -424,7 +424,7 @@ export function MobileScreen04({ navigate }: { navigate: (n: number) => void }) 
 
 // ── Screen 5: Safety Plan ────────────────────────────────────────────────────
 
-export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) {
+export function MobileScreen05({ navigate, onInformationSaved }: { navigate: (n: number) => void; onInformationSaved?: () => void }) {
   const [expanded, setExpanded] = useState<number | null>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [editIndex, setEditIndex] = useState(0)
@@ -594,7 +594,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
                 style={{ width: '100%', border: 'none', outline: 'none', fontSize: 14, color: C.body, fontFamily: 'inherit', backgroundColor: 'transparent' }}
               />
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                <Btn variant="primary" small onClick={() => { if (newActivity.trim()) { setActivities(a => [...a, newActivity.trim()]); setNewActivity(''); setShowActivityInput(false) } }}>Guardar</Btn>
+                <Btn variant="primary" small onClick={() => { if (newActivity.trim()) { setActivities(a => [...a, newActivity.trim()]); setNewActivity(''); setShowActivityInput(false); onInformationSaved?.() } }}>Guardar</Btn>
                 <Btn variant="tertiary" small onClick={() => { setNewActivity(''); setShowActivityInput(false) }}>Cancelar</Btn>
               </div>
             </div>
@@ -625,7 +625,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
           />
           {!envSaved && (
             <div style={{ marginTop: 10 }}>
-              <Btn variant="secondary" small onClick={() => setEnvSaved(true)} disabled={!envText.trim()}>Guardar</Btn>
+              <Btn variant="secondary" small onClick={() => { setEnvSaved(true); onInformationSaved?.() }} disabled={!envText.trim()}>Guardar</Btn>
             </div>
           )}
           {envSaved && (
@@ -654,7 +654,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
           helper="Solo tú puedes ver y editar esta información."
         />
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="primary" fullWidth onClick={() => setEditOpen(false)}>Guardar cambios</Btn>
+          <Btn variant="primary" fullWidth onClick={() => { if (editValue.trim()) onInformationSaved?.(); setEditOpen(false) }}>Guardar cambios</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => setEditOpen(false)}>Cancelar</Btn>
         </div>
       </BottomSheet>
@@ -670,6 +670,7 @@ export function MobileScreen05({ navigate }: { navigate: (n: number) => void }) 
           <Btn variant="primary" fullWidth onClick={() => {
             setContactPermission('granted')
             setContacts(c => [...c, { name: 'Dra. Valentina Ríos', label: 'Terapeuta', phone: '+57 300 000 0003' }])
+            onInformationSaved?.()
             setShowContactPicker(false)
           }}>Permitir acceso</Btn>
           <Btn variant="tertiary" fullWidth onClick={() => { setContactPermission('denied'); setShowContactPicker(false) }}>No permitir</Btn>

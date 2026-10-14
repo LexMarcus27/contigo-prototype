@@ -411,6 +411,40 @@ button:focus-visible {
   0%, 100% { transform: scale(1); opacity: 0.55; }
   50% { transform: scale(1.44); opacity: 0.88; }
 }
+
+/* The narrative remains separate from the plan's existing forms. */
+.safety-story-screen { height: 100%; display: flex; flex-direction: column; position: relative; background: #F7F1E8; color: #3A3238; }
+.safety-story-header { flex-shrink: 0; padding: 0 22px 8px; }
+.safety-story-exit { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0; border: 0; background: none; color: #A85550; font: 600 14px Inter, sans-serif; cursor: pointer; }
+.safety-story-kicker { margin: 8px 0; color: #62575E; font-size: 12px; line-height: 18px; }
+.safety-story-header h1 { margin: 0 0 16px; font: 700 30px/35px Georgia, serif; letter-spacing: -.4px; }
+.safety-story-progress { display: flex; gap: 5px; }
+.safety-story-progress span { height: 5px; flex: 1; border-radius: 4px; background: #DFD4C9; }
+.safety-story-progress .is-read { background: #7C9473; }
+.safety-story-count { margin: 7px 0 0; color: #62575E; font-size: 12px; line-height: 18px; }
+.safety-story-scroller { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 22px 22px; margin-bottom: calc(204px + env(safe-area-inset-bottom, 0px)); }
+.safety-story-scroller h2 { margin: 0 0 18px; font-size: 21px; line-height: 28px; font-weight: 700; }
+.safety-story-scroller h2:focus { outline: none; }
+.safety-story-scroller h3 { margin: 24px 0 14px; font-size: 18px; line-height: 25px; }
+.safety-story-scroller p, .safety-story-scroller li { font-size: 16px; line-height: 25px; }
+.safety-story-scroller p { margin: 0 0 18px; }
+.safety-story-scroller ul { padding-left: 23px; margin: 18px 0 24px; }
+.safety-story-scroller li { padding-left: 4px; margin-bottom: 12px; }
+.safety-story-media video { display: block; width: 100%; max-height: 270px; border-radius: 16px; background: #3A3238; }
+.safety-story-media a { display: inline-block; color: #A85550; font-size: 14px; line-height: 22px; padding: 8px 0; }
+.safety-story-media p { color: #62575E; font-size: 13px; line-height: 20px; }
+.safety-story-navigation { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 18px calc(28px + env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 10px; align-items: stretch; background: #fff; border-top: 1px solid #DFD4C9; }
+.safety-story-navigation button { height: auto !important; min-height: 54px; padding: 12px 10px !important; font-size: 14px !important; overflow-wrap: anywhere; }
+.safety-story-demo { border: 1px dashed #7C9473; border-radius: 12px; padding: 14px; margin: 18px 0; background: #fff; }
+.safety-story-demo summary { cursor: pointer; min-height: 36px; font-size: 13px; font-weight: 600; }
+.safety-story-demo p { font-size: 13px; line-height: 20px; }
+.safety-story-demo button { margin: 6px 0; }
+@media (max-width: 350px) {
+  .safety-story-header { padding-right: 18px; padding-left: 18px; }
+  .safety-story-header h1 { font-size: 27px; line-height: 31px; }
+  .safety-story-scroller { padding-right: 18px; padding-left: 18px; }
+  .safety-story-navigation { grid-template-columns: 78px minmax(0, 1fr); padding-right: 14px; padding-left: 14px; gap: 8px; }
+}
 @keyframes breathe-outer {
   0%, 100% { transform: scale(1); opacity: 0.22; }
   50% { transform: scale(1.75); opacity: 0.08; }

@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react"
-import { ActionCard, BottomSheet, Btn, C, Ic, StatusBar } from "../ui"
+import { type ReactNode } from "react"
+import { ActionCard, C, Ic, StatusBar } from "../ui"
 
 interface HelpHubProps {
   navigate: (screen: number) => void
@@ -37,8 +37,6 @@ function HelpOption({
 }
 
 export default function HelpHubScreen({ navigate }: HelpHubProps) {
-  const [showResource, setShowResource] = useState(false)
-
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", backgroundColor: C.canvas, position: "relative" }}>
       <StatusBar />
@@ -51,15 +49,9 @@ export default function HelpHubScreen({ navigate }: HelpHubProps) {
 
         <HelpOption title="Ver plan de seguridad" description="Consulta o prepara tu plan, incluso sin conexión." icon={Ic.shield} onClick={() => navigate(5)} />
         <HelpOption title="Necesito ayuda ahora" description="Abre el apoyo inmediato, paso a paso." icon={Ic.lifeRing} onClick={() => navigate(6)} urgent />
-        <HelpOption title="Afrontar una crisis" description="Explora este recurso a tu propio ritmo." icon={Ic.book} onClick={() => setShowResource(true)} />
+        <HelpOption title="Afrontar una crisis" description="Las crisis también pasan. Conoce tu plan para desenredar." icon={Ic.book} onClick={() => navigate(25)} />
       </main>
 
-      <BottomSheet open={showResource} onClose={() => setShowResource(false)} title="Afrontar una crisis">
-        <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
-          Este contenido será proporcionado y validado por el equipo investigador.
-        </p>
-        <Btn variant="secondary" fullWidth onClick={() => setShowResource(false)}>Volver</Btn>
-      </BottomSheet>
     </div>
   )
 }
