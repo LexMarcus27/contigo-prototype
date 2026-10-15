@@ -108,6 +108,7 @@ export default function App() {
   const [caregiverDrafts, setCaregiverDrafts] = useState<Record<string, string>>({})
   // Caring-message text, private reflection notes and simulated inbox stay in memory.
   const [caringDrafts, setCaringDrafts] = useState<Record<string, CaringMessageDraft>>({})
+  const [caringGuidesReviewed, setCaringGuidesReviewed] = useState<Record<string, boolean>>({})
   const [caringMessages, setCaringMessages] = useState<SimulatedCaringMessage[]>([])
   const caringSequence = useRef(0)
   const caregiver = caregiverContext(journey, caregiverId)
@@ -246,6 +247,8 @@ export default function App() {
       case 26: return <CaringMessageScreen
         key={caringKey}
         navigate={navigate} pcsName={caregiver!.pcsName} caregiverName={caregiverName} draft={caringDraft} demoMode={demoMode}
+        guideReviewed={caringGuidesReviewed[caringKey] ?? false}
+        onGuideReviewed={() => setCaringGuidesReviewed(current => current[caringKey] ? current : ({ ...current, [caringKey]: true }))}
         onDraftChange={(next) => {
           const active = caregiverContext(journey, caregiverId)
           if (active && caringDraftKey(active) === caringKey) setCaringDrafts(current => ({ ...current, [caringKey]: next }))
