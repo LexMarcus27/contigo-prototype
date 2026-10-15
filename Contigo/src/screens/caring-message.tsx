@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
-import { Btn, Ic, StatusBar } from "../ui"
+import { Btn, FloatingSupportBtn, Ic, StatusBar } from "../ui"
 import { CARING_CONTENT, appendCaringIdea, toggleCaringQuestion, type CaringMessageDraft } from "../caring-messages"
 
 interface Props {
@@ -141,7 +141,7 @@ export default function CaringMessageScreen({ navigate, pcsName, caregiverName, 
       <h1 ref={heading} tabIndex={-1}>{title}</h1>
       {view === "guide" && <><div className="caring-progress" role="progressbar" aria-label="Avance de la guía" aria-valuemin={1} aria-valuemax={6} aria-valuenow={page + 1}>{GUIDE_TITLES.map((text, index) => <span key={text} className={index <= page ? "is-read" : ""} />)}</div><p className="caring-count">Parte {page + 1} de 6</p></>}
     </header>
-    <main className="caring-scroller" ref={scroller}>
+    <main className="caring-scroller caring-resource-content" ref={scroller}>
       {view === "welcome" && <>
         <AvatarBubble>{CARING_CONTENT.avatarLine}</AvatarBubble>
         <p>Un mensaje sencillo puede ayudarte a cuidar tu relación con {pcsName}. Puedes conocer la guía o empezar a escribir.</p>
@@ -183,8 +183,8 @@ export default function CaringMessageScreen({ navigate, pcsName, caregiverName, 
       {notice && <p className="caring-feedback" role="status">{notice}</p>}
       {sendError && <p role="alert">{sendError}</p>}
     </main>
+    <div className="caring-support-dock"><FloatingSupportBtn label="Proveer apoyo" onPress={() => navigate(11)} bottom={8} /></div>
     <footer className="caring-navigation">
-      <div className="caring-support-row"><button type="button" className="caring-support" onClick={() => navigate(11)}>{Ic.lifeRing}<span>Proveer apoyo</span></button></div>
       {view === "welcome" || view === "sent" ? <Btn fullWidth variant="secondary" onClick={() => navigate(23)}>Salir del recurso</Btn> : view === "guide" ? <>
         <Btn variant="secondary" onClick={() => page === 0 ? setView(returnView) : setPage(page - 1)}>Anterior</Btn>
         <Btn onClick={() => page === 5 ? setView("compose") : setPage(page + 1)}>{page === 5 ? "Redactar mi mensaje" : "Siguiente"}</Btn>

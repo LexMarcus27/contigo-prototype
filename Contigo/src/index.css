@@ -533,11 +533,12 @@ button:focus-visible {
 .caring-count { margin: 0; font-size: 13px; color: #665E66; }
 .caring-navigation { flex: 0 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 8px; padding: 8px 16px calc(10px + env(safe-area-inset-bottom, 0px)); background: #FFFFFF; border-top: 1px solid #E1D8D0; }
 .caring-navigation > button { min-width: 0; height: auto !important; min-height: 48px; padding: 10px !important; font-size: 14px !important; line-height: 20px; overflow-wrap: anywhere; }
-.caring-navigation > .caring-support-row + button:last-child { grid-column: 1 / -1; }
-.caring-support-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
-.caring-support { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 7px 13px; border: 0; border-radius: 999px; background: #B32622; color: white; font: 700 13px/20px Inter, sans-serif; cursor: pointer; }
-.caring-support svg { width: 19px; height: 19px; }
-.caring-support:focus-visible { outline: 3px solid #536B50; outline-offset: 2px; }
+.caring-navigation > button:only-child { grid-column: 1 / -1; }
+.caring-resource-content { padding-bottom: 8px; }
+.caring-resource-content > :last-child { margin-bottom: 0; }
+.caring-support-dock { position: relative; flex: 0 0 72px; }
+/* The footer handles the safe area; keep just 8px around the original 56px button. */
+.caring-support-dock .floating-support-button { bottom: 8px !important; }
 .caring-navigation > .caring-footer-link { grid-column: 1 / -1; min-height: 32px; padding: 4px !important; border: 0; background: transparent; color: #A65450; text-decoration: underline; font: inherit; font-size: 14px; cursor: pointer; }
 .caring-feedback { padding: 14px; color: #3F654D; background: #EBF2E9; border-radius: 12px; }
 .caring-message-card { background: #FFFFFF; border: 1px solid #E1D8D0; border-radius: 18px; padding: 18px; margin: 18px 0; }
