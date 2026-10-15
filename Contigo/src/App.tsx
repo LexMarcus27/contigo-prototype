@@ -19,6 +19,7 @@ import CaringMessageInboxScreen from './screens/caring-message-inbox'
 import { caringDraftKey, createCaringDraft, createSimulatedCaringMessage, visibleCaringMessages, type CaringMessageDraft, type SimulatedCaringMessage } from './caring-messages'
 import { caregiverContext, DEMO_CAREGIVER, simulateCaregiverLink, type CaregiverMessageKind } from './caregiver'
 import { createEmaDraft } from './ema'
+import { connectionLaunch, type ConnectionAction, type ConnectionStep } from './connection'
 import { createSafetyPlanDraft, safetyPlanHasInformation } from './safety-plan'
 import { createRandomNotification, type DemoNotification } from './notifications'
 import {
@@ -97,6 +98,9 @@ export default function App() {
   // Clinical answers in this review prototype are deliberately session-only.
   // Do not add them to the journey object written to localStorage.
   const [emaDraft, setEmaDraft] = useState(createEmaDraft)
+  const [connectionIntent, setConnectionIntent] = useState<ConnectionStep | null>(null)
+  const [connectionEntry, setConnectionEntry] = useState<{ personId: string; action: ConnectionAction; id: number } | null>(null)
+  const connectionSequence = useRef(0)
   // Narrative position and the actual plan draft are session-only.
   // Do not store any safety-plan content in the PCS map's localStorage.
   const [safetyStoryPage, setSafetyStoryPage] = useState(0)
@@ -128,6 +132,8 @@ export default function App() {
   }, [journey, storageKey])
 
   const navigate = (n: number) => {
+    setConnectionIntent(null)
+    setConnectionEntry(null)
     setNotificationEntry(null)
     setVisibleNotification(null)
     setScreen(n)
@@ -151,6 +157,8 @@ export default function App() {
     setVisibleNotification(notification)
   }
   const openNotification = (notification: DemoNotification) => {
+    setConnectionIntent(null)
+    setConnectionEntry(null)
     setVisibleNotification(null)
     // Recheck access when opening, including notifications created before revocation.
     if (!notification.personId || !canStrengthenRelationship(journey, notification.personId)) {
@@ -160,6 +168,21 @@ export default function App() {
     setJourney((current) => ({ ...current, selectedPersonId: notification.personId! }))
     setNotificationEntry(notification)
     setScreen(notification.action === 'questions' ? 18 : 8)
+  }
+
+  const openConnectionStep = (step: ConnectionStep, personId?: string) => {
+    if (step === 'received') { navigate(27); return }
+    if (step !== 'skills' && personId) {
+      const entry = connectionLaunch(journey, personId, step)
+      if (entry) {
+        navigate(8)
+        setJourney(current => ({ ...current, selectedPersonId: entry.personId }))
+        setConnectionEntry({ ...entry, id: ++connectionSequence.current })
+        return
+      }
+    }
+    navigate(21)
+    setConnectionIntent(step)
   }
 
   const renderScreen = () => {
@@ -204,18 +227,18 @@ export default function App() {
           />
         )
       case 3:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} />
-      case 4:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} view="result" />
+      case 4:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} view="result" people={validCaregivers(journey)} onConnectionStep={openConnectionStep} />
       case 5:  return <MobileScreen05 navigate={navigate} plan={safetyPlan} onPlanChange={setSafetyPlan} />
       case 6:  return <MobileScreen06 navigate={navigate} />
       case 7:  return <MobileScreen07 navigate={navigate} />
       case 8: {
-        const action = notificationEntry?.action
+        const action = connectionEntry?.action ?? notificationEntry?.action
         const selected = journey.people.find(
           (person) => person.id === journey.selectedPersonId,
         )
         return (
           <MobileScreen08
-            key={notificationEntry?.id ?? 'connection'}
+            key={`${connectionEntry?.id ?? notificationEntry?.id ?? 'connection'}:${journey.selectedPersonId}`}
             navigate={navigate}
             initialAction={action === 'message' || action === 'contact' || action === 'meeting' ? action : undefined}
             caregiverName={selected?.name ?? null}
@@ -272,10 +295,12 @@ export default function App() {
       case 21:
         return (
           <ConnectionHubScreen
+            key={connectionIntent ?? 'home'}
             navigate={navigate}
+            initialStep={connectionIntent}
+            onOpenConnection={(personId, action) => openConnectionStep(action, personId)}
             receivedCaringCount={receivedCaringMessages.length}
             journey={journey}
-            setJourney={setJourney}
             openNetwork={() =>
               openNetwork(
                 journey.mapGenerated ? 'results' : journey.mapStarted ? 'progress' : 'intro',

@@ -1,87 +1,173 @@
-import { useState } from "react"
-import { validCaregivers, type JourneyState, type NetworkPerson } from "../journey"
-import { ActionCard, BottomSheet, Btn, C, FloatingSupportBtn, Ic, StatusBar, supportContentPadding } from "../ui"
+import { useEffect, useRef, useState } from "react"
+import { validCaregivers, type JourneyState } from "../journey"
+import {
+  CONNECTION_STEPS,
+  connectionStepContent,
+  nextConnectionStep,
+  type ConnectionAction,
+  type ConnectionStep,
+} from "../connection"
+import { BottomSheet, Btn, FloatingSupportBtn, Ic, StatusBar } from "../ui"
+import CompanionNote from "../components/companion-note"
+import ConnectionPersonScreen from "./connection-person"
 
 interface ConnectionHubProps {
   navigate: (screen: number) => void
   journey: JourneyState
-  setJourney: (next: JourneyState | ((current: JourneyState) => JourneyState)) => void
   openNetwork: () => void
   receivedCaringCount: number
+  initialStep: ConnectionStep | null
+  onOpenConnection: (personId: string, action: ConnectionAction) => void
 }
 
-export default function ConnectionHubScreen({ navigate, journey, setJourney, openNetwork, receivedCaringCount }: ConnectionHubProps) {
-  const [showResource, setShowResource] = useState(false)
-  const people = validCaregivers(journey)
+const icons = {
+  message: Ic.message,
+  received: Ic.heart,
+  contact: Ic.users,
+  meeting: Ic.calendar,
+  skills: Ic.book,
+}
 
-  const openConnection = (person: NetworkPerson) => {
-    setJourney((current) => ({ ...current, selectedPersonId: person.id }))
-    navigate(8)
+export default function ConnectionHubScreen({
+  navigate,
+  journey,
+  openNetwork,
+  receivedCaringCount,
+  initialStep,
+  onOpenConnection,
+}: ConnectionHubProps) {
+  const [showResource, setShowResource] = useState(initialStep === "skills")
+  const [view, setView] = useState<"home" | "people">(
+    initialStep && initialStep !== "skills" && initialStep !== "received"
+      ? "people"
+      : "home",
+  )
+  const [intent, setIntent] = useState<ConnectionAction>(
+    initialStep === "contact" || initialStep === "meeting"
+      ? initialStep
+      : "message",
+  )
+  const [step, setStep] = useState<ConnectionStep>("message")
+  const scroller = useRef<HTMLElement>(null)
+  const people = validCaregivers(journey)
+  const person =
+    people.find((item) => item.id === journey.selectedPersonId) ?? people[0]
+  const featured = connectionStepContent(step, person?.name)
+
+  useEffect(() => {
+    scroller.current?.scrollTo({ top: 0 })
+  }, [view])
+  const openStep = (next: ConnectionStep) => {
+    if (next === "received") {
+      navigate(27)
+      return
+    }
+    if (next === "skills") {
+      setShowResource(true)
+      return
+    }
+    setIntent(next)
+    setView("people")
   }
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", backgroundColor: C.canvas, position: "relative" }}>
+    <div className="pcs-internal-screen">
       <StatusBar />
-      <main style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 20px 24px", paddingBottom: supportContentPadding(18) }}>
-        <button type="button" aria-label="Volver al inicio" onClick={() => navigate(2)} style={{ width: 44, height: 44, margin: "0 0 18px -8px", border: 0, background: "transparent", color: C.brand, display: "grid", placeItems: "center", cursor: "pointer" }}>
+      <header className="pcs-internal-top">
+        <button
+          className="pcs-round-back"
+          aria-label={
+            view === "home" ? "Volver al inicio" : "Volver a Tejiendo vínculos"
+          }
+          onClick={() => (view === "home" ? navigate(2) : setView("home"))}
+        >
           {Ic.arrowLeft}
         </button>
-        <h1 style={{ color: C.heading, fontSize: 26, lineHeight: "32px", margin: "0 0 8px", fontWeight: 700 }}>
-          ¿Te serviría sentirte acompañada?
-        </h1>
-        <p style={{ color: C.muted, fontSize: 15, lineHeight: "22px", margin: "0 0 28px" }}>
-          Puedes elegir una forma pequeña de acercarte. También puedes hacerlo después.
-        </p>
-
-        <ActionCard ariaLabel={`Ver mensajes de cuidado recibidos. ${receivedCaringCount} mensajes simulados`} onClick={() => navigate(27)} style={{ marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
-          <span aria-hidden="true" style={{ color: C.brand, display: "flex" }}>{Ic.message}</span>
-          <span style={{ flex: 1, color: C.heading, fontSize: 16, fontWeight: 700 }}>Mensajes de cuidado{receivedCaringCount > 0 ? ` (${receivedCaringCount})` : ""}</span>
-          <span aria-hidden="true" style={{ display: "flex", color: C.brand }}>{Ic.chevRight}</span>
-        </ActionCard>
-
-        <section aria-labelledby="close-people-title">
-          <h2 id="close-people-title" style={{ color: C.heading, fontSize: 18, lineHeight: "24px", margin: "0 0 12px", fontWeight: 700 }}>Personas cercanas</h2>
-          {people.length > 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {people.map((person) => (
-                <ActionCard
-                  key={person.id}
-                  ariaLabel={`Abrir conexión con ${person.name}`}
-                  onClick={() => openConnection(person)}
-                  style={{ display: "flex", alignItems: "center", gap: 12, padding: 16 }}
+        <span className="pcs-module-label">{Ic.link} Tejiendo vínculos</span>
+      </header>
+      <main className="pcs-internal-scroller" ref={scroller}>
+        {view === "home" ? (
+          <>
+            <CompanionNote>
+              <p>Tejer vínculos se hace paso a paso y de muchas formas.</p>
+              <h1>¿Qué paso quieres dar hoy?</h1>
+            </CompanionNote>
+            <section
+              className="pcs-featured-step"
+              aria-label="Un paso para hoy"
+            >
+              <p className="pcs-eyebrow">Un paso para hoy</p>
+              <div
+                aria-live="polite"
+                aria-atomic="true"
+                className="pcs-featured-description"
+              >
+                <span className="pcs-action-icon" aria-hidden="true">
+                  {icons[step]}
+                </span>
+                <div>
+                  <h2>{featured.title}</h2>
+                  <p>{featured.description}</p>
+                </div>
+              </div>
+              <div className="pcs-featured-actions">
+                <button className="pcs-primary" onClick={() => openStep(step)}>
+                  {featured.button}
+                </button>
+                <button
+                  className="pcs-secondary"
+                  onClick={() =>
+                    setStep((current) => nextConnectionStep(current))
+                  }
                 >
-                  <span aria-hidden="true" style={{ display: "grid", placeItems: "center", flexShrink: 0, width: 42, height: 42, borderRadius: "50%", backgroundColor: C.brandSoft, color: C.brand }}>{Ic.user}</span>
-                  <span style={{ flex: 1, minWidth: 0, color: C.heading, fontSize: 15, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{person.name}</span>
-                  <span aria-hidden="true" style={{ display: "flex", color: C.brand }}>{Ic.chevRight}</span>
-                </ActionCard>
+                  Otro paso
+                </button>
+              </div>
+            </section>
+            <h2 className="pcs-section-title">Otros pasos</h2>
+            <div className="pcs-step-grid">
+              {CONNECTION_STEPS.map((item) => (
+                <button type="button" key={item} onClick={() => openStep(item)}>
+                  <span aria-hidden="true">{icons[item]}</span>
+                  <strong>
+                    {connectionStepContent(item).tile}
+                    {item === "received" && receivedCaringCount > 0
+                      ? ` (${receivedCaringCount})`
+                      : ""}
+                  </strong>
+                </button>
               ))}
             </div>
-          ) : (
-            <div style={{ padding: 18, borderRadius: 16, backgroundColor: C.surface, border: `1px solid ${C.border}` }}>
-              <p style={{ color: C.muted, fontSize: 14, lineHeight: "21px", margin: "0 0 14px" }}>
-                Todavía no hay personas cercanas vinculadas. Puedes conocer tu red e invitar a alguien cuando quieras.
-              </p>
-              <Btn variant="secondary" fullWidth onClick={openNetwork}>Conocer mi red</Btn>
-            </div>
-          )}
-        </section>
-
-        <section aria-labelledby="relationship-learning-title" style={{ marginTop: 30 }}>
-          <h2 id="relationship-learning-title" style={{ color: C.heading, fontSize: 18, lineHeight: "24px", margin: "0 0 12px", fontWeight: 700 }}>Aprender habilidades</h2>
-          <ActionCard ariaLabel="Abrir recurso de habilidades interpersonales" onClick={() => setShowResource(true)} style={{ display: "flex", alignItems: "center", gap: 12, padding: 16 }}>
-            <span aria-hidden="true" style={{ display: "flex", color: C.lilacDark }}>{Ic.book}</span>
-            <span style={{ flex: 1, color: C.heading, fontSize: 15, fontWeight: 700 }}>Habilidades interpersonales</span>
-            <span aria-hidden="true" style={{ display: "flex", color: C.lilacDark }}>{Ic.chevRight}</span>
-          </ActionCard>
-        </section>
+          </>
+        ) : (
+          <ConnectionPersonScreen
+            journey={journey}
+            intent={intent}
+            onOpen={onOpenConnection}
+            onOpenNetwork={openNetwork}
+            onSkills={() => setShowResource(true)}
+          />
+        )}
       </main>
-
-      <FloatingSupportBtn onPress={() => navigate(6)} bottom={18} />
-      <BottomSheet open={showResource} onClose={() => setShowResource(false)} title="Habilidades interpersonales">
-        <p style={{ fontSize: 14, lineHeight: "21px", color: C.muted, margin: "0 0 18px" }}>
-          Este contenido será proporcionado y validado por el equipo investigador.
+      <div className="pcs-support-dock">
+        <FloatingSupportBtn onPress={() => navigate(6)} bottom={8} />
+      </div>
+      <BottomSheet
+        open={showResource}
+        onClose={() => setShowResource(false)}
+        title="Habilidades interpersonales"
+      >
+        <p>
+          Este contenido será proporcionado y validado por el equipo
+          investigador.
         </p>
-        <Btn variant="secondary" fullWidth onClick={() => setShowResource(false)}>Volver</Btn>
+        <Btn
+          variant="secondary"
+          fullWidth
+          onClick={() => setShowResource(false)}
+        >
+          Volver
+        </Btn>
       </BottomSheet>
     </div>
   )

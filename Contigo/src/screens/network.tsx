@@ -120,7 +120,7 @@ function pomp(person: NetworkPerson, questionNumbers: number[]) {
   )
 }
 
-function metricsFor(person: NetworkPerson): Metrics {
+export function metricsFor(person: NetworkPerson): Metrics {
   const closeness = pomp(person, [4, 5, 6, 13, 14])
   const positivity = pomp(person, [10, 11, 15])
   const negativity = pomp(person, [7, 9, 12, 16, 17, 18])

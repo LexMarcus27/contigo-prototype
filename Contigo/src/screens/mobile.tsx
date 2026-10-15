@@ -988,8 +988,9 @@ export function MobileScreen08({
     : initialAction === 'message'
       ? `Hola ${recipient}, pensé en ti hoy y quería escribirte. No tienes que responder ahora. Solo quería que supieras que estoy aquí.`
       : ''
-  const [showMessage, setShowMessage] = useState(false)
-  const [showComposer, setShowComposer] = useState(Boolean(initialDraft))
+  const [showContactOptions, setShowContactOptions] = useState(initialAction === 'contact')
+  const [contactStatus, setContactStatus] = useState('')
+  const [showComposer, setShowComposer] = useState(initialAction === 'message')
   const [composedText, setComposedText] = useState(initialDraft)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState(false)
@@ -1101,18 +1102,11 @@ export function MobileScreen08({
           </p>
         </div>
 
-        {/* Caring contact message */}
-        <ActionCard ariaLabel={`Ver un mensaje de ${recipient}`} onClick={() => setShowMessage(true)} style={{ marginBottom: 12 }}>
-          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: C.soft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 20 }}>🌿</span>
-            </div>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 3px' }}>Ver un mensaje de {recipient}</h3>
-              <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Un mensaje que guardó para ti</p>
-            </div>
-            <span style={{ color: C.muted }}>{Ic.chevRight}</span>
-          </div>
+        <ActionCard ariaLabel="Ver mensajes de cuidado recibidos" onClick={() => navigate(27)} style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}><span style={{ color: C.brand }}>{Ic.heart}</span><div style={{ flex: 1 }}><h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 3px' }}>Ver mensajes de cuidado</h3><p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Vuelve a los mensajes que has recibido</p></div>{Ic.chevRight}</div>
+        </ActionCard>
+        <ActionCard ariaLabel={`Llamar o enviar audio a ${recipient}`} onClick={() => setShowContactOptions(true)} style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}><span style={{ color: C.brand }}>{Ic.phone}</span><span style={{ flex: 1, fontWeight: 700 }}>Llamar o enviar audio</span>{Ic.chevRight}</div>
         </ActionCard>
 
         <ActionCard
@@ -1134,7 +1128,7 @@ export function MobileScreen08({
 
         {/* AI message assistant */}
         <div style={{ backgroundColor: C.surface, borderRadius: 16, border: `1px solid ${C.border}`, padding: 18, marginBottom: 12 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 6px' }}>Asistente para crear mensajes</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: C.heading, margin: '0 0 6px' }}>Mensaje para tejer cercanía</h3>
           <p style={{ fontSize: 13, color: C.muted, lineHeight: '18px', marginBottom: 10 }}>
             Una herramienta con inteligencia artificial te ayuda a crear un borrador para comunicarte con alguien de confianza.
           </p>
@@ -1275,29 +1269,18 @@ export function MobileScreen08({
 
       <FloatingSupportBtn onPress={() => navigate(6)} bottom={20} />
 
-      {/* Caring contact modal */}
-      <Modal open={showMessage} onClose={() => setShowMessage(false)}>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: C.brandSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 18 }}>🌿</span>
-            </div>
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: C.heading, margin: 0 }}>{recipient}</p>
-              <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>14 ago 2026</p>
-            </div>
-          </div>
-          <div style={{ backgroundColor: C.soft, borderRadius: 14, padding: 16 }}>
-            <p style={{ fontSize: 16, color: C.body, lineHeight: '24px', margin: 0 }}>
-              «Pensé en ti hoy y quería recordarte que estoy aquí. No tienes que responder ahora. Te quiero.»
-            </p>
-          </div>
+      <BottomSheet open={showContactOptions} onClose={() => setShowContactOptions(false)} title={`Contactar a ${recipient}`}>
+        <p style={{ fontSize: 14, lineHeight: '21px', color: C.muted }}>Puedes elegir una forma de acercarte. En esta versión, la llamada y el audio son simulados.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+          <Btn fullWidth icon={Ic.phone} onClick={() => setContactStatus(`Llamada simulada a ${recipient}. No se realizó ninguna llamada.`)}>Simular llamada</Btn>
+          <Btn fullWidth variant="secondary" icon={Ic.message} onClick={() => setContactStatus(`Audio simulado para ${recipient}. No se grabó ni se envió ningún audio.`)}>Simular audio</Btn>
+          <Btn fullWidth variant="tertiary" onClick={() => { setShowContactOptions(false); setShowComposer(true); generateDraft() }}>Preparar un saludo escrito</Btn>
         </div>
-        <Btn variant="secondary" fullWidth onClick={() => setShowMessage(false)}>Cerrar</Btn>
-      </Modal>
+        {contactStatus && <p role="status" style={{ fontSize: 14, color: C.success, marginTop: 16 }}>{contactStatus}</p>}
+      </BottomSheet>
 
       {/* AI Composer bottom sheet */}
-      <BottomSheet open={showComposer} onClose={() => setShowComposer(false)} title={initialAction === 'contact' ? `Saludar a ${recipient}` : 'Asistente para crear mensajes'}>
+      <BottomSheet open={showComposer} onClose={() => setShowComposer(false)} title={`Mensaje para tejer cercanía con ${recipient}`}>
         {aiLoading && (
           <div style={{ textAlign: 'center', padding: '24px 0' }}>
             <div style={{ width: 40, height: 40, borderRadius: '50%', border: `3px solid ${C.brandSoft}`, borderTopColor: C.brand, animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
