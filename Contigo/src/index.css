@@ -514,7 +514,7 @@ button:focus-visible {
 .caring-avatar--thoughtful { flex-basis: 66px; width: 66px; height: 82px; background-size: 376.6px 250.6px; background-position: -165.2px -12.6px; }
 .caring-avatar--affection { height: 78px; background-size: 376.6px 250.6px; background-position: -303.8px -16.8px; }
 .caring-section { padding: 18px; margin: 18px 0; border: 1px solid #E3D8CD; border-left: 4px solid #BD8175; border-radius: 6px 22px 22px 22px; background: #FFFCF8; }
-.caring-section--sage { border-left-color: #829575; background: #EDF2E8; }
+.caring-section--sage { border-left-color: #9B84A8; background: #EEE6F2; }
 .caring-section > h2:first-child, .caring-section > h3:first-child { margin-top: 0; }
 .caring-section > :last-child { margin-bottom: 0; }
 .caring-section ul, .caring-section ol { margin: 10px 0 0; }
