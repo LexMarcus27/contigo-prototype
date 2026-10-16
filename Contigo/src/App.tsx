@@ -18,7 +18,7 @@ import CaringMessageScreen from './screens/caring-message'
 import CaringMessageInboxScreen from './screens/caring-message-inbox'
 import { caringDraftKey, createCaringDraft, createSimulatedCaringMessage, visibleCaringMessages, type CaringMessageDraft, type SimulatedCaringMessage } from './caring-messages'
 import { caregiverContext, DEMO_CAREGIVER, simulateCaregiverLink, type CaregiverMessageKind } from './caregiver'
-import { createEmaDraft } from './ema'
+import { changeEmaReference, createEmaDraft, emaReferenceForPerson, parseEmaReference, prepareEmaDay, type EmaReference } from './ema'
 import { connectionLaunch, type ConnectionAction, type ConnectionStep } from './connection'
 import { createSafetyPlanDraft, safetyPlanHasInformation } from './safety-plan'
 import { createRandomNotification, type DemoNotification } from './notifications'
@@ -66,6 +66,7 @@ export default function App() {
   const storageKey = demoMode
     ? "contigo-demo-pcs-sofia-testing"
     : "contigo-demo-pcs-sofia"
+  const emaReferenceKey = `${storageKey}-ema-reference`
   const requestedScreen = Number(searchParams.get('screen'))
   const [screen, setScreen] = useState(Number.isFinite(requestedScreen) && requestedScreen > 0 ? requestedScreen : 2)
   const [journey, setJourney] = useState<JourneyState>(() => {
@@ -95,9 +96,13 @@ export default function App() {
   const [notifications, setNotifications] = useState<DemoNotification[]>([])
   const [visibleNotification, setVisibleNotification] = useState<DemoNotification | null>(null)
   const [notificationEntry, setNotificationEntry] = useState<DemoNotification | null>(null)
-  // Clinical answers in this review prototype are deliberately session-only.
-  // Do not add them to the journey object written to localStorage.
-  const [emaDraft, setEmaDraft] = useState(createEmaDraft)
+  // Only the reference IDs are remembered between visits; never the answers.
+  const [emaReference, setEmaReference] = useState<EmaReference | null>(() => {
+    try { return parseEmaReference(window.localStorage.getItem(emaReferenceKey)) }
+    catch { return null }
+  })
+  // Clinical answers stay in session memory, outside the persisted PCS map.
+  const [emaDraft, setEmaDraft] = useState(() => createEmaDraft(emaReference))
   const [connectionIntent, setConnectionIntent] = useState<ConnectionStep | null>(null)
   const [connectionEntry, setConnectionEntry] = useState<{ personId: string; action: ConnectionAction; id: number } | null>(null)
   const connectionSequence = useRef(0)
@@ -131,7 +136,20 @@ export default function App() {
     )
   }, [journey, storageKey])
 
+  useEffect(() => {
+    if (emaReference) window.localStorage.setItem(emaReferenceKey, JSON.stringify(emaReference))
+  }, [emaReference, emaReferenceKey])
+
+  const selectEmaReference = (personId: string) => {
+    const reference = emaReferenceForPerson(journey, personId)
+    if (!reference) return false
+    setEmaReference(reference)
+    setEmaDraft(current => changeEmaReference(prepareEmaDay(current, reference), reference))
+    return true
+  }
+
   const navigate = (n: number) => {
+    if (n === 3) setEmaDraft(current => prepareEmaDay(current, emaReference))
     setConnectionIntent(null)
     setConnectionEntry(null)
     setNotificationEntry(null)
@@ -145,6 +163,7 @@ export default function App() {
   const resetDemoState = () => {
     if (!demoMode) return
     window.localStorage.removeItem("contigo-demo-pcs-sofia-testing")
+    window.localStorage.removeItem("contigo-demo-pcs-sofia-testing-ema-reference")
     window.location.reload()
   }
 
@@ -186,6 +205,12 @@ export default function App() {
   }
 
   const renderScreen = () => {
+    const emaProps = {
+      navigate, draft: emaDraft, setDraft: setEmaDraft, journey,
+      referencePreference: emaReference, onSelectReference: selectEmaReference,
+      onOpenNetwork: () => openNetwork(journey.mapGenerated ? 'results' : journey.mapStarted ? 'progress' : 'intro'),
+      onConnectionStep: openConnectionStep,
+    }
     const caregiverHome = (view: 'home' | 'learning' | 'connections' | 'profile' | 'blocked' = 'home') => (
       <CaregiverHomeScreen
         key={`${caregiverKey}:${view}`}
@@ -226,8 +251,8 @@ export default function App() {
             onDismissNotification={() => setVisibleNotification(null)}
           />
         )
-      case 3:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} />
-      case 4:  return <EmaScreen navigate={navigate} draft={emaDraft} setDraft={setEmaDraft} view="result" people={validCaregivers(journey)} onConnectionStep={openConnectionStep} />
+      case 3:  return <EmaScreen {...emaProps} />
+      case 4:  return <EmaScreen {...emaProps} view="result" />
       case 5:  return <MobileScreen05 navigate={navigate} plan={safetyPlan} onPlanChange={setSafetyPlan} />
       case 6:  return <MobileScreen06 navigate={navigate} />
       case 7:  return <MobileScreen07 navigate={navigate} />
@@ -290,7 +315,7 @@ export default function App() {
       case 25: return <SafetyPlanStoryScreen navigate={navigate} pageIndex={safetyStoryPage} onPageChange={setSafetyStoryPage} hasPlanInformation={hasSafetyPlanInformation} demoMode={demoMode} onSimulatePlanInformation={(hasInformation) => {
         if (demoMode) setSafetyPlan(createSafetyPlanDraft(hasInformation))
       }} />
-      case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} />
+      case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} emaReference={emaReference} emaDraftCompleted={emaDraft.completed} onSelectEmaReference={selectEmaReference} />
       case 20: return <HelpHubScreen navigate={navigate} />
       case 21:
         return (

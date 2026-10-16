@@ -653,6 +653,45 @@ button.pcs-size-card { cursor: pointer; padding-right: 34px; }
 .ema-thread-actions .pcs-primary { background: #3174A1; border-color: #3174A1; min-height: 54px; font-size: 17px; }
 .ema-thread-actions .pcs-text-link { color: #52555D; }
 .ema-thread-screen .ema-bank-link { min-height: 36px; margin: 6px 0 0; font-size: 12px; color: #2B6087; }
+.ema-reference-setup { padding: 24px 0 12px; }
+.ema-reference-setup h2 { margin: 0 0 20px; font: 700 24px/31px Georgia, serif; }
+.ema-reference-setup h2:focus { outline: none; }
+.ema-reference-setup p { font-size: 15px; line-height: 23px; }
+.ema-reference-list { display: flex; flex-direction: column; gap: 10px; border: 0; padding: 0; margin: 0 0 20px; }
+.ema-reference-list label { display: flex; align-items: center; gap: 12px; min-height: 70px; padding: 12px 16px; border: 2px solid #D0E3EE; border-radius: 23px; background: white; cursor: pointer; color: #2B6087; font-size: 17px; line-height: 24px; font-weight: 650; overflow-wrap: anywhere; }
+.ema-reference-list label.is-selected { border-color: #3174A1; background: #E4F0F7; }
+.ema-reference-list input { width: 20px; height: 20px; flex: 0 0 20px; accent-color: #3174A1; }
+.ema-reference-list label:has(input:focus-visible) { outline: 3px solid #536B50; outline-offset: 3px; }
+.ema-reference-avatar { display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 38px; border-radius: 50%; background: #E4F0F7; color: #3174A1; }
+.ema-reference-help { margin: 18px 0 0; font-size: 12px !important; line-height: 19px !important; color: #626169; }
+.ema-reference-empty { padding: 18px; border-radius: 23px; background: white; }
+.ema-blue-action { width: 100%; background: #3174A1; border-color: #3174A1; min-height: 54px; color: white; }
+.ema-blue-action:disabled, .ema-thread-actions .pcs-primary:disabled { opacity: .45; cursor: default; }
+.ema-reference-context { display: flex; align-items: center; gap: 9px; margin: 16px 0 0; padding: 11px 14px; background: #E4F0F7; color: #2B6087; border-radius: 18px; font-size: 14px; line-height: 21px; overflow-wrap: anywhere; }
+.ema-reference-context svg { flex-shrink: 0; }
+.ema-reference-confirm > p { font-size: 14px; line-height: 22px; margin-bottom: 16px; }
+.ema-reference-confirm .ema-reference-context { display: block; margin-top: 0; }
+.ema-reference-confirm .ema-reference-context strong { display: block; font: 700 23px/29px Georgia, serif; }
+.ema-binary-card { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 18px; margin: 0 0 16px; border: 0; border-radius: 23px; background: white; }
+.ema-binary-card label { position: relative; display: grid; place-items: center; min-height: 62px; border: 2px solid #9EBFD4; border-radius: 999px; background: #F4F9FC; color: #2B6087; font-size: 21px; line-height: 28px; font-weight: 700; cursor: pointer; }
+.ema-binary-card input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.ema-binary-card .is-selected { background: #3174A1; border-color: #3174A1; color: white; }
+.ema-binary-card label:has(input:focus-visible) { outline: 3px solid #536B50; outline-offset: 3px; }
+.ema-continuous-card { padding: 16px 16px 12px; margin: 0 0 16px; border: 0; border-radius: 23px; background: white; }
+.ema-continuous-card input { display: block; appearance: none; -webkit-appearance: none; width: 100%; height: 48px; margin: 0 0 8px; padding: 0; border: 0; border-radius: 999px; background-color: transparent; background-size: calc(100% - 36px) 6px; background-repeat: no-repeat; background-position: center; cursor: pointer; }
+.ema-continuous-card input::-webkit-slider-runnable-track { height: 6px; background: transparent; border: 0; }
+.ema-continuous-card input::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; box-sizing: border-box; width: 36px; height: 36px; margin-top: -15px; border: 9px solid #3174A1; border-radius: 50%; background: white; }
+.ema-continuous-card input::-moz-range-track { height: 6px; background: transparent; border: 0; }
+.ema-continuous-card input::-moz-range-progress { background: transparent; }
+.ema-continuous-card input::-moz-range-thumb { box-sizing: border-box; width: 36px; height: 36px; border: 9px solid #3174A1; border-radius: 50%; background: white; }
+.ema-continuous-card.is-unanswered input::-webkit-slider-thumb { opacity: 0; }
+.ema-continuous-card.is-unanswered input::-moz-range-thumb { opacity: 0; }
+.ema-continuous-card input:focus-visible { outline: 3px solid #536B50; outline-offset: 3px; }
+.ema-control-help { margin: 12px 0 0; font-size: 12px; line-height: 19px; color: #626169; }
+.ema-defer { margin-top: 4px; color: #52555D; }
+.ema-screen .ui-overlay .ema-actions > button { border-radius: 999px !important; }
+.ema-screen .ui-overlay .ema-actions > button:first-child { background: #3174A1 !important; color: white !important; }
+.ema-screen .ui-overlay .ema-actions > button:last-child { background: #E4F0F7 !important; color: #2B6087 !important; }
 @media (max-width: 350px) {
   .pcs-internal-top { padding-left: 16px; padding-right: 16px; }
   .pcs-internal-scroller, .ema-thread-scroller { padding-left: 16px; padding-right: 16px; }

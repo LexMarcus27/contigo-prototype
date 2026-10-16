@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { isEmaReferenceActive, type EmaReference } from "../ema"
 import {
   BottomSheet,
   Btn,
@@ -33,6 +34,9 @@ interface NetworkProps {
   ) => void
   entry: NetworkEntry
   demoMode: boolean
+  emaReference: EmaReference | null
+  emaDraftCompleted: boolean
+  onSelectEmaReference: (personId: string) => boolean
 }
 
 const NAME_QUESTIONS = [
@@ -696,6 +700,9 @@ export default function SocialNetworkScreen({
   setJourney,
   entry,
   demoMode,
+  emaReference,
+  emaDraftCompleted,
+  onSelectEmaReference,
 }: NetworkProps) {
   const [view, setView] = useState<NetworkView>(() =>
     initialViewFor(entry, journey),
@@ -707,6 +714,8 @@ export default function SocialNetworkScreen({
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [resultTab, setResultTab] = useState<ResultTab>("closeness")
   const [detailPersonId, setDetailPersonId] = useState<string | null>(null)
+  const [emaCandidateId, setEmaCandidateId] = useState<string | null>(null)
+  const [emaSelectionNotice, setEmaSelectionNotice] = useState("")
   const [candidateId, setCandidateId] = useState<string | null>(null)
   const [reason, setReason] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -723,6 +732,8 @@ export default function SocialNetworkScreen({
     journey.people.find((person) => person.id === currentPersonId) ?? null
   const detailPerson =
     journey.people.find((person) => person.id === detailPersonId) ?? null
+  const emaCandidate = journey.people.find(person => person.id === emaCandidateId)
+  const emaPerson = journey.people.find(person => person.id === emaReference?.personId)
   const candidate =
     journey.people.find((person) => person.id === candidateId) ?? null
   const completePeople = journey.people.filter(
@@ -2606,6 +2617,16 @@ export default function SocialNetworkScreen({
                         ? "Invitar a esta persona cercana"
                         : "Consultar estado de vinculación"}
                   </Btn>
+                  {canStrengthenRelationship(journey, detailPerson.id) && <button
+                    type="button"
+                    className="pcs-primary ema-blue-action"
+                    disabled={emaReference?.personId === detailPerson.id && isEmaReferenceActive(journey, emaReference)}
+                    onClick={() => {
+                      setEmaCandidateId(detailPerson.id)
+                      setEmaSelectionNotice("")
+                      setDetailPersonId(null)
+                    }}
+                  >{emaReference?.personId === detailPerson.id && isEmaReferenceActive(journey, emaReference) ? "Seleccionada para registro EMA" : "Seleccionar para registro EMA"}</button>}
                   <Btn
                     variant="secondary"
                     fullWidth
@@ -2627,6 +2648,29 @@ export default function SocialNetworkScreen({
               </div>
             )
           })()}
+      </BottomSheet>
+
+      <BottomSheet
+        open={emaCandidateId !== null}
+        onClose={() => setEmaCandidateId(null)}
+        title={emaReference ? "Cambiar persona para el registro EMA" : "Seleccionar persona para el registro EMA"}
+      >
+        <div className="ema-reference-confirm">
+          <p className="ema-reference-context">Persona elegida: <strong>{emaCandidate?.name ?? "Persona no disponible"}</strong></p>
+          {emaReference && <p>Tu selección actual es {emaPerson?.name ?? "una persona que ya no aparece en tu red"}.</p>}
+          <p>Esta será tu persona de referencia para las preguntas sobre tu relación con alguien cercano.</p>
+          <p>{emaDraftCompleted ? "El registro de hoy conservará su persona de referencia. El cambio se aplicará al próximo registro diario." : "Si ya empezaste el registro de hoy, se borrarán únicamente las tres respuestas sobre la relación para que puedas responderlas pensando en esta persona. Las demás respuestas se conservarán."}</p>
+          {!emaCandidate || !canStrengthenRelationship(journey, emaCandidate.id) ? <p role="alert">Esta persona ya no tiene un vínculo activo contigo. Revisa su vinculación antes de elegirla.</p> : null}
+          {emaSelectionNotice && <p role="alert">{emaSelectionNotice}</p>}
+          <div className="ema-actions">
+            <button type="button" className="pcs-primary ema-blue-action" disabled={!emaCandidate || !canStrengthenRelationship(journey, emaCandidate.id)} onClick={() => {
+              if (!emaCandidate || !onSelectEmaReference(emaCandidate.id)) { setEmaSelectionNotice("No se pudo guardar la selección. Revisa que el vínculo siga activo."); return }
+              setEmaCandidateId(null)
+              setDetailPersonId(emaCandidate.id)
+            }}>{emaReference ? "Confirmar cambio para EMA" : "Confirmar selección para EMA"}</button>
+            <button type="button" className="pcs-text-link" onClick={() => { setEmaCandidateId(null); if (emaCandidate) setDetailPersonId(emaCandidate.id) }}>Cancelar</button>
+          </div>
+        </div>
       </BottomSheet>
 
       <BottomSheet
