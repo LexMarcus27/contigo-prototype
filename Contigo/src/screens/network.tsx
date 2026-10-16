@@ -35,7 +35,7 @@ interface NetworkProps {
   entry: NetworkEntry
   demoMode: boolean
   emaReference: EmaReference | null
-  emaDraftCompleted: boolean
+  emaReferenceAppliesNextDay: boolean
   onSelectEmaReference: (personId: string) => boolean
 }
 
@@ -701,7 +701,7 @@ export default function SocialNetworkScreen({
   entry,
   demoMode,
   emaReference,
-  emaDraftCompleted,
+  emaReferenceAppliesNextDay,
   onSelectEmaReference,
 }: NetworkProps) {
   const [view, setView] = useState<NetworkView>(() =>
@@ -2659,7 +2659,7 @@ export default function SocialNetworkScreen({
           <p className="ema-reference-context">Persona elegida: <strong>{emaCandidate?.name ?? "Persona no disponible"}</strong></p>
           {emaReference && <p>Tu selección actual es {emaPerson?.name ?? "una persona que ya no aparece en tu red"}.</p>}
           <p>Esta será tu persona de referencia para las preguntas sobre tu relación con alguien cercano.</p>
-          <p>{emaDraftCompleted ? "El registro de hoy conservará su persona de referencia. El cambio se aplicará al próximo registro diario." : "Si ya empezaste el registro de hoy, se borrarán únicamente las tres respuestas sobre la relación para que puedas responderlas pensando en esta persona. Las demás respuestas se conservarán."}</p>
+          <p>{emaReferenceAppliesNextDay ? "El registro de hoy se mantendrá tal como lo empezaste. El cambio se aplicará al próximo registro diario." : "Si ya empezaste el registro de hoy, se borrarán únicamente las tres respuestas sobre la relación para que puedas responderlas pensando en esta persona. Las demás respuestas se conservarán."}</p>
           {!emaCandidate || !canStrengthenRelationship(journey, emaCandidate.id) ? <p role="alert">Esta persona ya no tiene un vínculo activo contigo. Revisa su vinculación antes de elegirla.</p> : null}
           {emaSelectionNotice && <p role="alert">{emaSelectionNotice}</p>}
           <div className="ema-actions">

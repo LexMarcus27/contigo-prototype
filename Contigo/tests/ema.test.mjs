@@ -127,3 +127,47 @@ test("the app persists the EMA preference separately and never serializes clinic
   assert.match(app, /-ema-reference/)
   assert.match(app, /JSON\.stringify\(journey\)/)
 })
+
+test("without any active linked person, today's record can contain exactly the six personal and connection items", () => {
+  const original = ema.createEmaDraft(null, "2026-10-15")
+  const skipped = ema.omitEmaRelationship(original, journey.EMPTY_JOURNEY)
+  assert.equal(skipped.relationshipOmission, "no-active-link")
+  assert.equal(skipped.reference, null)
+  assert.deepEqual(Array.from(ema.emaQuestionIndices(skipped)), [0, 1, 2, 6, 7, 8])
+  assert.equal(ema.canCompleteEma(skipped), false)
+  const completed = fill(skipped)
+  assert.equal(ema.answeredEmaCount(completed), 6)
+  assert.equal(ema.canCompleteEma(completed), true)
+  assert.deepEqual(Array.from(completed.answers), [false, false, false, null, null, null, 0, 0, 0])
+  assert.equal(ema.setEmaAnswer(skipped, 3, 50), skipped)
+  assert.equal(original.relationshipOmission, null)
+  assert.equal(ema.canCompleteEma({ ...completed, answers: [false, false, false, 0, 0, 0, 0, 0, 0] }), false)
+})
+
+test("the block cannot be omitted when a valid linked person exists, but inactive associations do not block omission", () => {
+  const draft = start()
+  assert.equal(ema.omitEmaRelationship(draft, active), draft)
+  assert.equal(ema.omitEmaRelationship(draft, otherActive), draft)
+  const inactive = { ...active, associations: active.associations.map(item => ({ ...item, active: false })) }
+  const original = { ...fill(draft), questionIndex: 4 }
+  const skipped = ema.omitEmaRelationship(original, inactive)
+  assert.equal(skipped.reference, null)
+  assert.equal(skipped.questionIndex, 6)
+  assert.deepEqual(Array.from(skipped.answers), [false, false, false, null, null, null, 0, 0, 0])
+  const completed = { ...original, completed: true }
+  assert.equal(ema.omitEmaRelationship(completed, inactive), completed)
+})
+
+test("omission lasts only for this day and does not add relationship questions if a person is linked midway", () => {
+  const skipped = ema.omitEmaRelationship(ema.createEmaDraft(null, "2026-10-15"), journey.EMPTY_JOURNEY)
+  assert.equal(ema.changeEmaReference(skipped, reference), skipped)
+  assert.equal(ema.prepareEmaDay(skipped, reference, "2026-10-15"), skipped)
+  const tomorrow = ema.prepareEmaDay(skipped, reference, "2026-10-16")
+  assert.equal(tomorrow.relationshipOmission, null)
+  assert.equal(ema.sameEmaReference(tomorrow.reference, reference), true)
+  assert.equal(ema.emaQuestionIndices(tomorrow).length, 9)
+  assert.equal(ema.answeredEmaCount(tomorrow), 0)
+  const withoutLinkTomorrow = ema.prepareEmaDay(skipped, null, "2026-10-16")
+  assert.equal(withoutLinkTomorrow.relationshipOmission, null)
+  assert.equal(ema.canCompleteEma(fill(withoutLinkTomorrow)), false)
+})

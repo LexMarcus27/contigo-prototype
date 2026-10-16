@@ -315,7 +315,7 @@ export default function App() {
       case 25: return <SafetyPlanStoryScreen navigate={navigate} pageIndex={safetyStoryPage} onPageChange={setSafetyStoryPage} hasPlanInformation={hasSafetyPlanInformation} demoMode={demoMode} onSimulatePlanInformation={(hasInformation) => {
         if (demoMode) setSafetyPlan(createSafetyPlanDraft(hasInformation))
       }} />
-      case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} emaReference={emaReference} emaDraftCompleted={emaDraft.completed} onSelectEmaReference={selectEmaReference} />
+      case 17: return <SocialNetworkScreen navigate={navigate} journey={journey} setJourney={setJourney} entry={networkEntry} demoMode={demoMode} emaReference={emaReference} emaReferenceAppliesNextDay={emaDraft.completed || emaDraft.relationshipOmission === 'no-active-link'} onSelectEmaReference={selectEmaReference} />
       case 20: return <HelpHubScreen navigate={navigate} />
       case 21:
         return (

@@ -1,8 +1,8 @@
-import { canStrengthenRelationship, CURRENT_PCS_ID, type JourneyState } from "./journey"
+import { canStrengthenRelationship, CURRENT_PCS_ID, validCaregivers, type JourneyState } from "./journey"
 
 // Official nine-item daily bank supplied after evaluator review. The two
 // ideation items only normalize the source's mixed tú/usted address to tú.
-export const EMA_VERSION = "daily-nine-v1"
+export const EMA_VERSION = "daily-nine-v2"
 export const EMA_TIME_WINDOW = "Pensando en hoy, desde que te despertaste hasta ahora"
 export const EMA_REFERENCE_HELP = "Podrás cambiar esta elección en Conoce tu red → Tu mapa de red. Abre la ficha de una persona cercana vinculada y elige Seleccionar para registro EMA."
 export const EMA_ITEMS = [
@@ -28,6 +28,7 @@ export interface EmaDraft {
   version: typeof EMA_VERSION
   day: string
   reference: EmaReference | null
+  relationshipOmission: "no-active-link" | null
   answers: EmaAnswer[]
   questionIndex: number
   completed: boolean
@@ -38,7 +39,21 @@ export function emaDayKey(date = new Date()) {
 }
 
 export function createEmaDraft(reference: EmaReference | null = null, day = emaDayKey()): EmaDraft {
-  return { version: EMA_VERSION, day, reference: reference ? { ...reference } : null, answers: EMA_ITEMS.map(() => null), questionIndex: 0, completed: false }
+  return { version: EMA_VERSION, day, reference: reference ? { ...reference } : null, relationshipOmission: null, answers: EMA_ITEMS.map(() => null), questionIndex: 0, completed: false }
+}
+
+export function emaQuestionIndices(draft: EmaDraft): number[] {
+  return EMA_ITEMS.flatMap((item, index) => draft.relationshipOmission === "no-active-link" && item.block === "relationship" ? [] : [index])
+}
+
+// An explicit choice for this daily record; the saved person preference is untouched.
+export function omitEmaRelationship(draft: EmaDraft, state: JourneyState): EmaDraft {
+  if (draft.completed || draft.relationshipOmission === "no-active-link" || validCaregivers(state).length > 0) return draft
+  return {
+    ...draft, reference: null, relationshipOmission: "no-active-link",
+    answers: draft.answers.map((answer, index) => EMA_ITEMS[index].block === "relationship" ? null : answer),
+    questionIndex: EMA_ITEMS[draft.questionIndex].block === "relationship" ? 6 : draft.questionIndex,
+  }
 }
 
 export function emaReferenceForPerson(state: JourneyState, personId: string): EmaReference | null {
@@ -74,16 +89,18 @@ export function isEmaAnswer(index: number, answer: unknown): answer is boolean |
 }
 
 export function setEmaAnswer(draft: EmaDraft, index: number, answer: boolean | number): EmaDraft {
-  if (draft.completed || !isEmaAnswer(index, answer)) return draft
+  if (draft.completed || !isEmaAnswer(index, answer) || !emaQuestionIndices(draft).includes(index)) return draft
   return { ...draft, answers: draft.answers.map((value, itemIndex) => itemIndex === index ? answer : value) }
 }
 
 export function answeredEmaCount(draft: EmaDraft) {
-  return EMA_ITEMS.reduce((count, _, index) => count + (isEmaAnswer(index, draft.answers[index]) ? 1 : 0), 0)
+  return emaQuestionIndices(draft).reduce((count, index) => count + (isEmaAnswer(index, draft.answers[index]) ? 1 : 0), 0)
 }
 
 export function canCompleteEma(draft: EmaDraft) {
-  return draft.version === EMA_VERSION && draft.reference !== null && draft.answers.length === EMA_ITEMS.length && answeredEmaCount(draft) === EMA_ITEMS.length
+  const omitted = draft.relationshipOmission === "no-active-link"
+  const validContext = omitted ? draft.reference === null && EMA_ITEMS.every((item, index) => item.block !== "relationship" || draft.answers[index] === null) : draft.reference !== null
+  return draft.version === EMA_VERSION && validContext && draft.answers.length === EMA_ITEMS.length && answeredEmaCount(draft) === emaQuestionIndices(draft).length
 }
 
 export function prepareEmaDay(draft: EmaDraft, reference: EmaReference | null, day = emaDayKey()): EmaDraft {
@@ -92,6 +109,6 @@ export function prepareEmaDay(draft: EmaDraft, reference: EmaReference | null, d
 }
 
 export function changeEmaReference(draft: EmaDraft, reference: EmaReference): EmaDraft {
-  if (draft.completed || sameEmaReference(draft.reference, reference)) return draft
+  if (draft.completed || draft.relationshipOmission === "no-active-link" || sameEmaReference(draft.reference, reference)) return draft
   return { ...draft, reference: { ...reference }, answers: draft.answers.map((answer, index) => EMA_ITEMS[index].block === "relationship" ? null : answer), questionIndex: Math.min(draft.questionIndex, 3) }
 }
